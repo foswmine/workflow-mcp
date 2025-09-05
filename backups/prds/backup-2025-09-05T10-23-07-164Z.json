@@ -1,0 +1,47 @@
+{
+  "type": "prds",
+  "timestamp": "2025-09-05T10-23-07-164Z",
+  "items": [
+    {
+      "id": "prd_1757067761770",
+      "title": "삭제 테스트용 PRD",
+      "description": "Phase 2 삭제 기능 테스트를 위한 임시 PRD입니다",
+      "requirements": [
+        "기본 기능",
+        "테스트 완료"
+      ],
+      "priority": "Low",
+      "createdAt": "2025-09-05T10:22:41.770Z",
+      "status": "draft"
+    },
+    {
+      "id": "prd_1757058128895",
+      "title": "AI 채팅봇 서비스",
+      "description": "실시간 AI 채팅 지원 서비스",
+      "requirements": [
+        "OpenAI API 연동",
+        "실시간 채팅",
+        "사용자 관리"
+      ],
+      "priority": "Low",
+      "createdAt": "2025-09-05T07:42:08.895Z",
+      "status": "draft"
+    },
+    {
+      "id": "prd_1757057840653",
+      "title": "MCP Hub - 패키지 공유 플랫폼",
+      "description": "개발자들이 MCP 패키지를 공유하고 평가하는 커뮤니티 플랫폼",
+      "requirements": [
+        "Google OAuth 로그인",
+        "GitHub 링크로 패키지 등록",
+        "별점 평가 시스템",
+        "태그 기반 검색",
+        "사용량 통계 표시",
+        "Cloudflare Pages 배포"
+      ],
+      "priority": "High",
+      "createdAt": "2025-09-05T07:37:20.653Z",
+      "status": "review"
+    }
+  ]
+}
