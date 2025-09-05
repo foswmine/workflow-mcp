@@ -368,3 +368,104 @@ WHERE t.status = 'done'
     AND t.updated_at >= date('now', '-30 days')
 GROUP BY DATE(t.updated_at)
 ORDER BY completion_date DESC;
+
+-- =============================================
+-- Document Management System (Phase 2.7)
+-- =============================================
+
+-- Documents table for storing all project documents
+CREATE TABLE IF NOT EXISTS documents (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    title TEXT NOT NULL,
+    content TEXT NOT NULL,
+    doc_type TEXT NOT NULL CHECK(doc_type IN ('test_guide', 'test_results', 'analysis', 'report', 'checklist', 'specification', 'meeting_notes', 'decision_log')),
+    category TEXT, -- 'phase_2.6', 'testing', 'development', etc.
+    file_path TEXT, -- Original file path if imported from file
+    created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+    updated_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+    
+    -- Metadata
+    version INTEGER DEFAULT 1,
+    created_by TEXT,
+    tags TEXT, -- JSON array: ["testing", "sveltekit", "phase_2.6"]
+    summary TEXT, -- Brief summary for quick reference
+    status TEXT CHECK(status IN ('draft', 'review', 'approved', 'archived')) DEFAULT 'draft'
+);
+
+-- Document Relations - for linking documents to each other
+CREATE TABLE IF NOT EXISTS document_relations (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    parent_doc_id INTEGER NOT NULL,
+    child_doc_id INTEGER NOT NULL,
+    relation_type TEXT NOT NULL CHECK(relation_type IN ('reference', 'supersedes', 'related', 'follow_up', 'implements')),
+    notes TEXT,
+    created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+    
+    FOREIGN KEY (parent_doc_id) REFERENCES documents(id) ON DELETE CASCADE,
+    FOREIGN KEY (child_doc_id) REFERENCES documents(id) ON DELETE CASCADE,
+    
+    -- Prevent self-references and duplicate relations
+    UNIQUE(parent_doc_id, child_doc_id, relation_type),
+    CHECK(parent_doc_id != child_doc_id)
+);
+
+-- Document Links - for linking documents to PRDs, Tasks, Plans
+CREATE TABLE IF NOT EXISTS document_links (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    document_id INTEGER NOT NULL,
+    linked_entity_type TEXT NOT NULL CHECK(linked_entity_type IN ('prd', 'task', 'plan')),
+    linked_entity_id TEXT NOT NULL,
+    link_type TEXT CHECK(link_type IN ('specification', 'test_plan', 'result', 'analysis', 'notes')) DEFAULT 'notes',
+    created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+    
+    FOREIGN KEY (document_id) REFERENCES documents(id) ON DELETE CASCADE,
+    
+    -- Ensure unique links
+    UNIQUE(document_id, linked_entity_type, linked_entity_id, link_type)
+);
+
+-- Document Search Index for full-text search
+CREATE VIRTUAL TABLE IF NOT EXISTS documents_fts USING fts5(
+    title,
+    content,
+    summary,
+    tags,
+    content=documents,
+    content_rowid=id
+);
+
+-- Triggers to maintain FTS index
+CREATE TRIGGER IF NOT EXISTS documents_fts_insert AFTER INSERT ON documents BEGIN
+    INSERT INTO documents_fts(rowid, title, content, summary, tags) 
+    VALUES (new.id, new.title, new.content, new.summary, new.tags);
+END;
+
+CREATE TRIGGER IF NOT EXISTS documents_fts_update AFTER UPDATE ON documents BEGIN
+    UPDATE documents_fts 
+    SET title = new.title, content = new.content, summary = new.summary, tags = new.tags
+    WHERE rowid = new.id;
+END;
+
+CREATE TRIGGER IF NOT EXISTS documents_fts_delete AFTER DELETE ON documents BEGIN
+    DELETE FROM documents_fts WHERE rowid = old.id;
+END;
+
+-- Document management views
+CREATE VIEW IF NOT EXISTS document_overview AS
+SELECT 
+    d.id,
+    d.title,
+    d.doc_type,
+    d.category,
+    d.summary,
+    d.status,
+    d.created_at,
+    d.updated_at,
+    COUNT(DISTINCT dr1.child_doc_id) as related_docs_count,
+    COUNT(DISTINCT dl.linked_entity_id) as linked_entities_count,
+    GROUP_CONCAT(DISTINCT json_extract(d.tags, '$[*]')) as tag_list
+FROM documents d
+LEFT JOIN document_relations dr1 ON d.id = dr1.parent_doc_id
+LEFT JOIN document_links dl ON d.id = dl.document_id
+GROUP BY d.id
+ORDER BY d.updated_at DESC;

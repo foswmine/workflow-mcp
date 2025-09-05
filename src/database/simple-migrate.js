@@ -1,249 +1,169 @@
+#!/usr/bin/env node
+
 /**
- * 간단한 마이그레이션 도구 - JSON 파일을 SQLite로 전환
- * Phase 2.5: 기존 JSON 데이터를 SQLite 데이터베이스로 마이그레이션
+ * Simple Document Management System Migration
  */
 
-import { FileStorage } from '../utils/FileStorage.js';
-import { SimpleSQLiteStorage } from './SimpleSQLiteStorage.js';
+import sqlite3 from 'sqlite3';
+import { open } from 'sqlite';
+import fs from 'fs';
+import path from 'path';
+import { fileURLToPath } from 'url';
 
-export class SimpleMigrator {
-  constructor() {
-    this.fileStorage = {
-      prds: new FileStorage('prds'),
-      tasks: new FileStorage('tasks'),
-      plans: new FileStorage('plans')
-    };
-    this.sqliteStorage = new SimpleSQLiteStorage();
-    this.migrationLog = [];
-  }
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
 
-  /**
-   * 전체 마이그레이션 실행
-   */
-  async migrate() {
-    console.log('🚀 Starting JSON to SQLite migration...\n');
+// Database path
+const DB_PATH = path.resolve(__dirname, '../../data/workflow.db');
+
+async function simpleMigrate() {
+    console.log('🚀 Simple Document Management Migration...');
     
-    try {
-      // 1. SQLite 데이터베이스 초기화
-      console.log('📊 Initializing SQLite database...');
-      await this.sqliteStorage.initialize();
-      
-      // 2. 데이터 마이그레이션
-      await this.migrateData();
-      
-      // 3. 간단한 검증
-      await this.verifyMigration();
-      
-      console.log('\n✅ Migration completed successfully!');
-      return true;
-      
-    } catch (error) {
-      console.error(`❌ Migration failed: ${error.message}`);
-      throw error;
-    } finally {
-      await this.sqliteStorage.cleanup();
+    if (!fs.existsSync(DB_PATH)) {
+        console.error('❌ Database not found:', DB_PATH);
+        process.exit(1);
     }
-  }
 
-  /**
-   * 데이터 마이그레이션 실행
-   */
-  async migrateData() {
-    console.log('\n🔄 Migrating data from JSON to SQLite...');
-    
-    const migrationStats = {
-      prds: { success: 0, failed: 0 },
-      tasks: { success: 0, failed: 0 },
-      plans: { success: 0, failed: 0 }
-    };
-
-    // 1. PRDs 마이그레이션
-    await this.migratePRDs(migrationStats);
-    
-    // 2. Plans 마이그레이션
-    await this.migratePlans(migrationStats);
-    
-    // 3. Tasks 마이그레이션
-    await this.migrateTasks(migrationStats);
-    
-    console.log('\n📈 Migration Statistics:');
-    for (const [type, stats] of Object.entries(migrationStats)) {
-      console.log(`  ${type.toUpperCase()}: ${stats.success} successful, ${stats.failed} failed`);
-    }
-  }
-
-  /**
-   * PRD 마이그레이션
-   */
-  async migratePRDs(stats) {
-    console.log('  📋 Migrating PRDs...');
-    
-    try {
-      await this.fileStorage.prds.initialize();
-      const prds = await this.fileStorage.prds.listAll();
-      console.log(`    Found ${prds.length} PRDs to migrate`);
-      
-      for (const prd of prds) {
-        try {
-          const migratedPRD = {
-            id: prd.id,
-            title: prd.title || 'Untitled PRD',
-            description: prd.description || '',
-            requirements: prd.requirements || [],
-            priority: prd.priority || 'Medium',
-            status: prd.status || 'draft',
-            createdAt: prd.createdAt || new Date().toISOString(),
-            updatedAt: prd.updatedAt || prd.createdAt || new Date().toISOString()
-          };
-          
-          await this.sqliteStorage.savePRD(migratedPRD);
-          stats.prds.success++;
-          console.log(`    ✓ Migrated PRD: ${prd.title}`);
-          
-        } catch (error) {
-          console.error(`    ❌ Failed to migrate PRD ${prd.id}: ${error.message}`);
-          stats.prds.failed++;
-        }
-      }
-      
-    } catch (error) {
-      console.error(`    ❌ PRD migration failed: ${error.message}`);
-    }
-  }
-
-  /**
-   * Plan 마이그레이션
-   */
-  async migratePlans(stats) {
-    console.log('  📅 Migrating Plans...');
-    
-    try {
-      await this.fileStorage.plans.initialize();
-      const plans = await this.fileStorage.plans.listAll();
-      console.log(`    Found ${plans.length} Plans to migrate`);
-      
-      for (const plan of plans) {
-        try {
-          const migratedPlan = {
-            id: plan.id,
-            title: plan.title || 'Untitled Plan',
-            description: plan.description || '',
-            status: plan.status || 'active',
-            startDate: plan.startDate || null,
-            endDate: plan.endDate || null,
-            createdAt: plan.createdAt || new Date().toISOString(),
-            updatedAt: plan.updatedAt || plan.createdAt || new Date().toISOString(),
-            prd_id: plan.prd_id || null
-          };
-          
-          await this.sqliteStorage.savePlan(migratedPlan);
-          stats.plans.success++;
-          console.log(`    ✓ Migrated Plan: ${plan.title}`);
-          
-        } catch (error) {
-          console.error(`    ❌ Failed to migrate Plan ${plan.id}: ${error.message}`);
-          stats.plans.failed++;
-        }
-      }
-      
-    } catch (error) {
-      console.error(`    ❌ Plan migration failed: ${error.message}`);
-    }
-  }
-
-  /**
-   * Task 마이그레이션
-   */
-  async migrateTasks(stats) {
-    console.log('  ✅ Migrating Tasks...');
-    
-    try {
-      await this.fileStorage.tasks.initialize();
-      const tasks = await this.fileStorage.tasks.listAll();
-      console.log(`    Found ${tasks.length} Tasks to migrate`);
-      
-      for (const task of tasks) {
-        try {
-          const migratedTask = {
-            id: task.id,
-            title: task.title || 'Untitled Task',
-            description: task.description || '',
-            status: task.status || 'pending',
-            priority: task.priority || 'Medium',
-            assignee: task.assignee || null,
-            estimatedHours: task.estimatedHours || null,
-            dueDate: task.dueDate || null,
-            createdAt: task.createdAt || new Date().toISOString(),
-            updatedAt: task.updatedAt || task.createdAt || new Date().toISOString(),
-            plan_id: task.plan_id || null
-          };
-          
-          await this.sqliteStorage.saveTask(migratedTask);
-          stats.tasks.success++;
-          console.log(`    ✓ Migrated Task: ${task.title}`);
-          
-          // Task 의존성 마이그레이션
-          if (task.dependencies && task.dependencies.length > 0) {
-            for (const prerequisiteId of task.dependencies) {
-              try {
-                await this.sqliteStorage.addTaskDependency(task.id, prerequisiteId);
-                console.log(`      → Added dependency: ${task.id} depends on ${prerequisiteId}`);
-              } catch (error) {
-                console.warn(`      ⚠️ Could not create dependency ${task.id} -> ${prerequisiteId}: ${error.message}`);
-              }
-            }
-          }
-          
-        } catch (error) {
-          console.error(`    ❌ Failed to migrate Task ${task.id}: ${error.message}`);
-          stats.tasks.failed++;
-        }
-      }
-      
-    } catch (error) {
-      console.error(`    ❌ Task migration failed: ${error.message}`);
-    }
-  }
-
-  /**
-   * 간단한 데이터 검증
-   */
-  async verifyMigration() {
-    console.log('\n🔍 Verifying migration...');
-    
-    try {
-      const stats = await this.sqliteStorage.getDashboardStats();
-      console.log('  📊 SQLite Data Summary:');
-      console.log(`    - PRDs: ${stats.total_prds}`);
-      console.log(`    - Tasks: ${stats.total_tasks}`);
-      console.log(`    - Plans: ${stats.total_plans}`);
-      
-      const tables = await this.sqliteStorage.getTables();
-      console.log(`  🗄️ Created Tables: ${tables.join(', ')}`);
-      
-      console.log('  ✅ Verification completed');
-      
-    } catch (error) {
-      console.error(`  ❌ Verification failed: ${error.message}`);
-    }
-  }
-}
-
-// CLI 실행 지원
-if (import.meta.url === `file://${process.argv[1]}`) {
-  const migrator = new SimpleMigrator();
-  
-  migrator.migrate()
-    .then(() => {
-      console.log('\n🎉 Migration completed successfully!');
-      console.log('\n📍 Next Steps:');
-      console.log('  1. Test the SQLite database');
-      console.log('  2. Update MCP server to use SQLite');
-      console.log('  3. Verify all 26 MCP tools work correctly');
-      process.exit(0);
-    })
-    .catch((error) => {
-      console.error('\n💥 Migration failed:', error.message);
-      process.exit(1);
+    const db = await open({
+        filename: DB_PATH,
+        driver: sqlite3.Database
     });
+    
+    try {
+        await db.exec('PRAGMA foreign_keys = ON');
+        
+        console.log('🔧 Creating documents table...');
+        
+        // Create documents table
+        await db.exec(`
+            CREATE TABLE IF NOT EXISTS documents (
+                id INTEGER PRIMARY KEY AUTOINCREMENT,
+                title TEXT NOT NULL,
+                content TEXT NOT NULL,
+                doc_type TEXT NOT NULL,
+                category TEXT,
+                file_path TEXT,
+                created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+                updated_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+                version INTEGER DEFAULT 1,
+                created_by TEXT,
+                tags TEXT,
+                summary TEXT,
+                status TEXT DEFAULT 'draft'
+            )
+        `);
+        
+        console.log('🔧 Creating document_links table...');
+        
+        // Create document_links table
+        await db.exec(`
+            CREATE TABLE IF NOT EXISTS document_links (
+                id INTEGER PRIMARY KEY AUTOINCREMENT,
+                document_id INTEGER NOT NULL,
+                linked_entity_type TEXT NOT NULL,
+                linked_entity_id TEXT NOT NULL,
+                link_type TEXT DEFAULT 'notes',
+                created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+                FOREIGN KEY (document_id) REFERENCES documents(id) ON DELETE CASCADE
+            )
+        `);
+        
+        console.log('📊 Verifying tables...');
+        
+        const tables = await db.all(`
+            SELECT name FROM sqlite_master 
+            WHERE type='table' AND name LIKE '%document%'
+        `);
+        
+        console.log('📋 Created tables:');
+        tables.forEach(table => {
+            console.log(`  ✅ ${table.name}`);
+        });
+        
+        console.log('📁 Importing test documents...');
+        
+        // Import documents
+        const testGuidePath = path.resolve(__dirname, '../../docs/PHASE_2.6_TEST_GUIDE.md');
+        if (fs.existsSync(testGuidePath)) {
+            const content = fs.readFileSync(testGuidePath, 'utf8');
+            
+            const result = await db.run(`
+                INSERT INTO documents (title, content, doc_type, category, file_path, tags, summary, status, created_by)
+                VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)
+            `, [
+                'Phase 2.6 SvelteKit Dashboard 테스트 가이드',
+                content,
+                'test_guide',
+                'phase_2.6',
+                testGuidePath,
+                JSON.stringify(['testing', 'sveltekit', 'phase_2.6', 'dashboard']),
+                'SvelteKit 웹 대시보드의 모든 기능을 검증하고 SQLite 데이터베이스와의 연동 테스트',
+                'approved',
+                'migration'
+            ]);
+            
+            console.log(`✅ Imported test guide (ID: ${result.lastID})`);
+        }
+        
+        // Import test results
+        const testResultsPath = path.resolve(__dirname, '../../docs/PHASE_2.6_TEST_RESULTS.md');
+        if (fs.existsSync(testResultsPath)) {
+            const content = fs.readFileSync(testResultsPath, 'utf8');
+            
+            const result = await db.run(`
+                INSERT INTO documents (title, content, doc_type, category, file_path, tags, summary, status, created_by)
+                VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)
+            `, [
+                'Phase 2.6 SvelteKit Dashboard 테스트 결과 보고서',
+                content,
+                'test_results',
+                'phase_2.6',
+                testResultsPath,
+                JSON.stringify(['testing', 'results', 'phase_2.6', 'sveltekit']),
+                '통과율 85.7%로 핵심 기능이 모두 정상 작동하는 것을 확인',
+                'approved',
+                'migration'
+            ]);
+            
+            console.log(`✅ Imported test results (ID: ${result.lastID})`);
+        }
+        
+        // Import checklist
+        const checklistPath = path.resolve(__dirname, '../../docs/QUICK_TEST_CHECKLIST.md');
+        if (fs.existsSync(checklistPath)) {
+            const content = fs.readFileSync(checklistPath, 'utf8');
+            
+            const result = await db.run(`
+                INSERT INTO documents (title, content, doc_type, category, file_path, tags, summary, status, created_by)
+                VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)
+            `, [
+                'Phase 2.6 빠른 테스트 체크리스트',
+                content,
+                'checklist',
+                'phase_2.6',
+                checklistPath,
+                JSON.stringify(['testing', 'checklist', 'quick_test']),
+                '5분 내 핵심 기능 확인을 위한 10개 체크포인트',
+                'approved',
+                'migration'
+            ]);
+            
+            console.log(`✅ Imported checklist (ID: ${result.lastID})`);
+        }
+        
+        // Show final count
+        const count = await db.get('SELECT COUNT(*) as total FROM documents');
+        console.log(`📊 Total documents: ${count.total}`);
+        
+        console.log('🎉 Document management system ready!');
+        
+        return true;
+    } catch (error) {
+        console.error('❌ Migration failed:', error);
+        return false;
+    } finally {
+        await db.close();
+    }
 }
+
+simpleMigrate().catch(console.error);

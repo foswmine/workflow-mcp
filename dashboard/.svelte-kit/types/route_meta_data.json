@@ -1,0 +1,33 @@
+{
+	"/": [],
+	"/api/dashboard": [
+		"src/routes/api/dashboard/+server.js"
+	],
+	"/api/plans": [
+		"src/routes/api/plans/+server.js"
+	],
+	"/api/plans/[id]": [
+		"src/routes/api/plans/[id]/+server.js"
+	],
+	"/api/prds": [
+		"src/routes/api/prds/+server.js"
+	],
+	"/api/prds/[id]": [
+		"src/routes/api/prds/[id]/+server.js"
+	],
+	"/api/tasks": [
+		"src/routes/api/tasks/+server.js"
+	],
+	"/api/tasks/[id]": [
+		"src/routes/api/tasks/[id]/+server.js"
+	],
+	"/database": [],
+	"/gantt": [],
+	"/kanban": [],
+	"/plans": [],
+	"/plans/new": [],
+	"/prds": [],
+	"/prds/new": [],
+	"/tasks": [],
+	"/tasks/new": []
+}
