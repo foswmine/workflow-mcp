@@ -388,8 +388,8 @@ CREATE VIRTUAL TABLE documents_fts USING fts5(
 
 ### 테스트 문서
 - `docs/PHASE_2.7_FINAL_TEST_REPORT.md` - 최종 테스트 보고서
-- `claudedocs/phase-2.7-comprehensive-test-document.md` - 종합 테스트 가이드  
-- `claudedocs/workflowmcp-user-guide.md` - 사용자 매뉴얼
+- `docs/phase-2.7-comprehensive-test-document.md` - 종합 테스트 가이드  
+- `docs/workflowmcp-user-guide.md` - 사용자 매뉴얼
 
 ## 📁 **프로젝트 구조**
 
@@ -422,8 +422,7 @@ workflow-mcp/
 │   ├── tasks/                  # Task JSON 백업
 │   └── plans/                  # Plan JSON 백업
 ├── docs/                       # 📚 문서
-│   └── PHASE_2.7_FINAL_TEST_REPORT.md
-├── claudedocs/                 # 📖 사용자 가이드
+│   ├── PHASE_2.7_FINAL_TEST_REPORT.md
 │   ├── workflowmcp-user-guide.md
 │   └── phase-2.7-comprehensive-test-document.md
 └── schemas/
@@ -487,8 +486,8 @@ MIT License - 자유롭게 사용, 수정, 배포 가능합니다.
 ## 🙋‍♂️ **지원 & 커뮤니티**
 
 - **GitHub Issues**: 버그 리포트 및 기능 요청
-- **문서**: `claudedocs/workflowmcp-user-guide.md`
-- **테스트 가이드**: `claudedocs/phase-2.7-comprehensive-test-document.md`
+- **문서**: `docs/workflowmcp-user-guide.md`
+- **테스트 가이드**: `docs/phase-2.7-comprehensive-test-document.md`
 - **API 문서**: MCP 서버 내장 help 시스템
 
 ---
