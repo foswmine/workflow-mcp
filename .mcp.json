@@ -2,7 +2,7 @@
   "mcpServers": {
     "workflow-mcp": {
       "command": "node",
-      "args": ["C:/dev/juk/edit/workflow-mcp/src/index.js"],
+      "args": ["./src/index.js"],
       "type": "stdio"
     }
   }

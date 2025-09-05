@@ -79,3 +79,6 @@ backup/
 # OS generated files
 .directory
 *.lnk
+
+# Claude configuration
+CLAUDE.md
