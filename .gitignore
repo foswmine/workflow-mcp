@@ -82,3 +82,6 @@ backup/
 
 # Claude configuration
 CLAUDE.md
+
+# MCP configuration (개인 설정)
+.mcp.json
