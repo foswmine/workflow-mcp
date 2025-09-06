@@ -4,17 +4,20 @@
  */
 
 import { v4 as uuidv4 } from 'uuid';
-import { validatePRD, validateRequirement, PRDStatus, PriorityLevels, MoscowPriority } from '../../schemas/prd-schema.js';
-import { FileStorage } from '../utils/FileStorage.js';
+// 대시보드 중심 접근: 복잡한 스키마 검증 제거
+import { SQLitePRDStorage } from '../database/SQLitePRDStorage.js';
 
 export class PRDManager {
   constructor() {
-    this.storage = new FileStorage('prds');
-    this.initializeStorage();
+    this.storage = new SQLitePRDStorage();
+    this.initialized = false;
   }
 
-  async initializeStorage() {
-    await this.storage.initialize();
+  async ensureInitialized() {
+    if (!this.initialized) {
+      await this.storage.initialize();
+      this.initialized = true;
+    }
   }
 
   /**
@@ -23,6 +26,7 @@ export class PRDManager {
    * @returns {Object} 생성된 PRD 객체
    */
   async createPRD(prdData) {
+    await this.ensureInitialized();
     try {
       // 기본 PRD 구조 생성
       const prd = {
@@ -85,18 +89,17 @@ export class PRDManager {
         });
       }
 
-      // PRD 유효성 검사
-      const validation = validatePRD(prd);
-      if (!validation.isValid) {
-        throw new Error(`PRD 유효성 검사 실패: ${JSON.stringify(validation.errors)}`);
+      // 간단한 기본 검증
+      if (!prd.title || prd.title.trim().length === 0) {
+        throw new Error('제목은 필수입니다');
       }
 
       // PRD 저장
-      await this.storage.save(prd.id, validation.value);
+      await this.storage.savePRD(prd);
 
       return {
         success: true,
-        prd: validation.value,
+        prd: prd,
         message: `PRD "${prd.title}" 생성 완료`
       };
 
@@ -111,8 +114,9 @@ export class PRDManager {
    * @returns {Array} PRD 요약 목록
    */
   async listPRDs(status = null) {
+    await this.ensureInitialized();
     try {
-      const allPRDs = await this.storage.listAll();
+      const allPRDs = await this.storage.listAllPRDs();
       
       let filteredPRDs = allPRDs;
       if (status) {
@@ -151,8 +155,9 @@ export class PRDManager {
    * @returns {Object} PRD 상세 정보
    */
   async getPRD(prdId) {
+    await this.ensureInitialized();
     try {
-      const prd = await this.storage.load(prdId);
+      const prd = await this.storage.getPRD(prdId);
       if (!prd) {
         throw new Error(`PRD를 찾을 수 없습니다: ${prdId}`);
       }
@@ -182,19 +187,20 @@ export class PRDManager {
    * @returns {Object} 업데이트된 PRD
    */
   async updatePRD(prdId, updates) {
+    await this.ensureInitialized();
     try {
-      const existingPRD = await this.storage.load(prdId);
+      const existingPRD = await this.storage.getPRD(prdId);
       if (!existingPRD) {
         throw new Error(`PRD를 찾을 수 없습니다: ${prdId}`);
       }
 
-      // 업데이트 적용
+      // 대시보드 호환 업데이트 적용 (기존 구조 유지)
       const updatedPRD = {
         ...existingPRD,
         ...updates,
         id: prdId, // ID는 변경 불가
-        updatedAt: new Date(),
-        lastModifiedBy: updates.lastModifiedBy || 'system'
+        updated_at: new Date().toISOString(), // 대시보드 형식
+        last_modified_by: updates.lastModifiedBy || 'system'
       };
 
       // 버전 관리
@@ -208,19 +214,23 @@ export class PRDManager {
         updatedPRD.version = `${major}.${minor}.${patch + 1}`;
       }
 
-      // 유효성 검사
-      const validation = validatePRD(updatedPRD);
-      if (!validation.isValid) {
-        throw new Error(`PRD 유효성 검사 실패: ${JSON.stringify(validation.errors)}`);
+      // 대시보드 호환 검증
+      if (updates.title !== undefined && (!updates.title || updates.title.trim().length === 0)) {
+        throw new Error('제목은 비어있을 수 없습니다');
+      }
+      
+      // requirements가 문자열 배열인 경우 그대로 유지 (대시보드 형식)
+      if (updates.requirements && Array.isArray(updates.requirements)) {
+        // 대시보드 형식 유지
       }
 
-      // 저장
-      await this.storage.save(prdId, validation.value);
+      // 저장 (updatedPRD 사용)
+      await this.storage.savePRD(updatedPRD);
 
       return {
         success: true,
-        prd: validation.value,
-        message: `PRD "${validation.value.title}" 업데이트 완료`
+        prd: updatedPRD,
+        message: `PRD "${updatedPRD.title}" 업데이트 완료`
       };
 
     } catch (error) {
@@ -235,8 +245,9 @@ export class PRDManager {
    * @returns {Object} 추가된 요구사항
    */
   async addRequirement(prdId, requirementData) {
+    await this.ensureInitialized();
     try {
-      const prd = await this.storage.load(prdId);
+      const prd = await this.storage.getPRD(prdId);
       if (!prd) {
         throw new Error(`PRD를 찾을 수 없습니다: ${prdId}`);
       }
@@ -247,17 +258,16 @@ export class PRDManager {
         tags: requirementData.tags || []
       };
 
-      // 요구사항 유효성 검사
-      const validation = validateRequirement(requirement);
-      if (!validation.isValid) {
-        throw new Error(`요구사항 유효성 검사 실패: ${JSON.stringify(validation.errors)}`);
+      // 간단한 요구사항 검증
+      if (!requirement || typeof requirement !== 'object' || !requirement.title) {
+        throw new Error('요구사항에 제목이 필요합니다');
       }
 
       // PRD에 요구사항 추가
-      prd.requirements.push(validation.value);
+      prd.requirements.push(requirement);
       prd.updatedAt = new Date();
       
-      await this.storage.save(prdId, prd);
+      await this.storage.savePRD(prd);
 
       return {
         success: true,
