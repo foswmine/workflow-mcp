@@ -51,7 +51,7 @@ export class MetricsCollector {
       this.metrics.responseTimes.shift();
     }
 
-    console.log(`Metric recorded: ${toolName} - ${duration}ms - ${status}`);
+    // console.log(`Metric recorded: ${toolName} - ${duration}ms - ${status}`);
   }
 
   /**
@@ -136,6 +136,6 @@ export class MetricsCollector {
       totalRequests: 0,
       startTime: Date.now()
     };
-    console.log('Metrics reset completed');
+    // console.log('Metrics reset completed');
   }
 }

@@ -5,7 +5,7 @@
 
 export class TaskManager {
   constructor() {
-    console.log('TaskManager initialized (skeleton)');
+    // console.log('TaskManager initialized (skeleton)');
   }
 
   async createTask(taskData) {

@@ -5,7 +5,7 @@
 
 export class PlanManager {
   constructor() {
-    console.log('PlanManager initialized (skeleton)');
+    // console.log('PlanManager initialized (skeleton)');
   }
 
   async createPlan(planData) {

@@ -183,7 +183,7 @@ class WorkflowMCPServer {
   async start() {
     const transport = new StdioServerTransport();
     await this.server.connect(transport);
-    console.error('WorkflowMCP Server started successfully');
+    // console.error('WorkflowMCP Server started successfully');
   }
 }
 

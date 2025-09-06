@@ -32,7 +32,7 @@ export class FileStorage {
         await fs.writeFile(this.indexFile, JSON.stringify({ items: {}, lastUpdated: new Date().toISOString() }, null, 2));
       }
 
-      console.log(`FileStorage initialized for ${this.dataType} at ${this.dataDir}`);
+      // console.log(`FileStorage initialized for ${this.dataType} at ${this.dataDir}`);
     } catch (error) {
       throw new Error(`Failed to initialize storage for ${this.dataType}: ${error.message}`);
     }
@@ -52,7 +52,7 @@ export class FileStorage {
       // 인덱스 업데이트
       await this.updateIndex(id, data);
 
-      console.log(`Data saved: ${this.dataType}/${id}`);
+      // console.log(`Data saved: ${this.dataType}/${id}`);
     } catch (error) {
       throw new Error(`Failed to save ${this.dataType} ${id}: ${error.message}`);
     }
@@ -92,7 +92,7 @@ export class FileStorage {
             items.push(data);
           }
         } catch (error) {
-          console.warn(`Failed to load ${this.dataType} ${id}: ${error.message}`);
+          // console.warn(`Failed to load ${this.dataType} ${id}: ${error.message}`);
           // 인덱스에서 제거
           await this.removeFromIndex(id);
         }
@@ -127,7 +127,7 @@ export class FileStorage {
       // 인덱스에서 제거
       await this.removeFromIndex(id);
 
-      console.log(`Data deleted: ${this.dataType}/${id}`);
+      // console.log(`Data deleted: ${this.dataType}/${id}`);
     } catch (error) {
       throw new Error(`Failed to delete ${this.dataType} ${id}: ${error.message}`);
     }
@@ -248,7 +248,7 @@ export class FileStorage {
       
       await fs.writeFile(this.indexFile, JSON.stringify(index, null, 2));
     } catch (error) {
-      console.warn(`Failed to update index for ${id}: ${error.message}`);
+      // console.warn(`Failed to update index for ${id}: ${error.message}`);
     }
   }
 
@@ -263,7 +263,7 @@ export class FileStorage {
       
       await fs.writeFile(this.indexFile, JSON.stringify(index, null, 2));
     } catch (error) {
-      console.warn(`Failed to remove ${id} from index: ${error.message}`);
+      // console.warn(`Failed to remove ${id} from index: ${error.message}`);
     }
   }
 

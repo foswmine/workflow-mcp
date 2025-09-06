@@ -3,7 +3,8 @@
     "workflow-mcp": {
       "command": "node",
       "args": ["./src/index.js"],
-      "type": "stdio"
+      "type": "stdio",
+	  "env":{}
     }
   }
 }
