@@ -5,6 +5,7 @@
 	let prds = [];
 	let loading = true;
 	let error = null;
+	let sortBy = 'created_desc'; // 기본 정렬: 최근 등록순
 
 	onMount(async () => {
 		await loadPRDs();
@@ -13,7 +14,7 @@
 	async function loadPRDs() {
 		try {
 			loading = true;
-			const response = await fetch('/api/prds');
+			const response = await fetch(`/api/prds?sort=${sortBy}`);
 			if (response.ok) {
 				prds = await response.json();
 			} else {
@@ -24,6 +25,11 @@
 		} finally {
 			loading = false;
 		}
+	}
+
+	// 정렬 변경 시 PRD 목록 재로드
+	async function handleSortChange() {
+		await loadPRDs();
 	}
 
 	async function deletePRD(id) {
@@ -37,7 +43,8 @@
 			if (response.ok) {
 				await loadPRDs();
 			} else {
-				alert('PRD 삭제 중 오류가 발생했습니다');
+				const errorData = await response.json();
+				alert('PRD 삭제 중 오류가 발생했습니다: ' + (errorData.error || 'Unknown error'));
 			}
 		} catch (e) {
 			alert('삭제 중 오류: ' + e.message);
@@ -48,6 +55,9 @@
 		switch (status) {
 			case 'active': return 'bg-green-100 text-green-800';
 			case 'inactive': return 'bg-gray-100 text-gray-800';
+			case 'draft': return 'bg-purple-100 text-purple-800';
+			case 'review': return 'bg-yellow-100 text-yellow-800';
+			case 'approved': return 'bg-emerald-100 text-emerald-800';
 			case 'completed': return 'bg-blue-100 text-blue-800';
 			default: return 'bg-gray-100 text-gray-800';
 		}
@@ -57,6 +67,9 @@
 		switch (status) {
 			case 'active': return '활성';
 			case 'inactive': return '비활성';
+			case 'draft': return '초안';
+			case 'review': return '검토중';
+			case 'approved': return '승인됨';
 			case 'completed': return '완료';
 			default: return status;
 		}
@@ -79,6 +92,49 @@
 			default: return priority;
 		}
 	}
+
+	function formatDate(dateValue) {
+		if (!dateValue) return '-';
+		
+		try {
+			let date;
+			
+			// ISO 문자열 형식인지 확인 (예: 2025-09-05T10:23:42.534Z)
+			if (typeof dateValue === 'string' && dateValue.includes('T')) {
+				date = new Date(dateValue);
+			}
+			// Unix timestamp 형식인지 확인 (예: 1757249412158.0)
+			else if (typeof dateValue === 'string' && /^\d+\.?\d*$/.test(dateValue)) {
+				date = new Date(parseFloat(dateValue));
+			}
+			// 이미 숫자인 경우
+			else if (typeof dateValue === 'number') {
+				date = new Date(dateValue);
+			}
+			// 기타 경우 직접 파싱 시도
+			else {
+				date = new Date(dateValue);
+			}
+			
+			// 유효한 날짜인지 확인
+			if (isNaN(date.getTime())) {
+				return '-';
+			}
+			
+			// 날짜와 시간을 모두 표시
+			return date.toLocaleString('ko-KR', {
+				year: 'numeric',
+				month: 'numeric', 
+				day: 'numeric',
+				hour: '2-digit',
+				minute: '2-digit',
+				hour12: false
+			});
+		} catch (error) {
+			console.error('Date formatting error:', error, dateValue);
+			return '-';
+		}
+	}
 </script>
 
 <svelte:head>
@@ -91,9 +147,27 @@
 			<h1 class="text-3xl font-bold text-gray-900">PRD 관리</h1>
 			<p class="text-gray-600 mt-1">프로젝트 요구사항 문서를 관리합니다</p>
 		</div>
-		<a href="/prds/new" class="btn btn-primary">
-			📋 새 PRD 작성
-		</a>
+		<div class="flex items-center space-x-4">
+			<div class="flex items-center space-x-2">
+				<label for="sortBy" class="text-sm font-medium text-gray-700">정렬:</label>
+				<select 
+					id="sortBy" 
+					bind:value={sortBy} 
+					on:change={handleSortChange}
+					class="form-select text-sm"
+				>
+					<option value="created_desc">최근 등록순</option>
+					<option value="created_asc">오래된 등록순</option>
+					<option value="updated_desc">최근 수정순</option>
+					<option value="updated_asc">오래된 수정순</option>
+					<option value="title_asc">제목 오름차순</option>
+					<option value="title_desc">제목 내림차순</option>
+				</select>
+			</div>
+			<a href="/prds/new" class="btn btn-primary">
+				새 PRD 작성
+			</a>
+		</div>
 	</div>
 
 	{#if loading}
@@ -112,7 +186,6 @@
 		</div>
 	{:else if prds.length === 0}
 		<div class="text-center py-12">
-			<div class="text-gray-400 text-6xl mb-4">📋</div>
 			<h3 class="text-lg font-medium text-gray-900 mb-2">PRD가 없습니다</h3>
 			<p class="text-gray-600 mb-6">첫 번째 PRD를 작성해보세요</p>
 			<a href="/prds/new" class="btn btn-primary">
@@ -158,8 +231,8 @@
 
 					<!-- 날짜 정보 -->
 					<div class="text-xs text-gray-400 mb-4">
-						<div>생성: {new Date(prd.created_at).toLocaleDateString('ko-KR')}</div>
-						<div>수정: {new Date(prd.updated_at).toLocaleDateString('ko-KR')}</div>
+						<div>생성: {formatDate(prd.created_at)}</div>
+						<div>수정: {formatDate(prd.updated_at)}</div>
 					</div>
 
 					<!-- 액션 버튼 -->
@@ -240,5 +313,9 @@
 		border-radius: 0.375rem;
 		font-size: 0.75rem;
 		font-weight: 500;
+	}
+
+	.form-select {
+		@apply border border-gray-300 rounded-md px-3 py-2 focus:ring-2 focus:ring-blue-500 focus:border-blue-500;
 	}
 </style>

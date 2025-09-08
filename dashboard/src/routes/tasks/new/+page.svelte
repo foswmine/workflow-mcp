@@ -8,25 +8,34 @@
 		status: 'pending',
 		priority: 'medium',
 		due_date: '',
-		plan_id: null
+		design_id: null,
+		assignee: '',
+		estimated_hours: 0,
+		actual_hours: 0,
+		tags: '',
+		notes: '',
+		details: '',
+		acceptance_criteria: '',
+		test_strategy: '',
+		created_by: 'dashboard'
 	};
 
-	let plans = [];
+	let designs = [];
 	let loading = false;
 	let error = null;
 
 	onMount(async () => {
-		await loadPlans();
+		await loadDesigns();
 	});
 
-	async function loadPlans() {
+	async function loadDesigns() {
 		try {
-			const response = await fetch('/api/plans');
+			const response = await fetch('/api/designs');
 			if (response.ok) {
-				plans = await response.json();
+				designs = await response.json();
 			}
 		} catch (e) {
-			console.error('Failed to load plans:', e);
+			console.error('Failed to load designs:', e);
 		}
 	}
 
@@ -44,8 +53,12 @@
 				...form,
 				title: form.title.trim(),
 				description: form.description?.trim() || '',
-				plan_id: form.plan_id || null,
-				due_date: form.due_date || null
+				design_id: form.design_id || null,
+				due_date: form.due_date || null,
+				tags: form.tags ? form.tags.split(',').map(tag => tag.trim()).filter(tag => tag) : [],
+				estimated_hours: Number(form.estimated_hours) || 0,
+				actual_hours: Number(form.actual_hours) || 0,
+				acceptance_criteria: form.acceptance_criteria ? form.acceptance_criteria.split('\n').filter(line => line.trim()) : []
 			};
 
 			const response = await fetch('/api/tasks', {
@@ -169,16 +182,120 @@
 					</div>
 
 					<div>
-						<label for="plan_id" class="block text-sm font-medium text-gray-700 mb-1">
-							연결된 계획
+						<label for="design_id" class="block text-sm font-medium text-gray-700 mb-1">
+							연결된 설계
 						</label>
-						<select id="plan_id" bind:value={form.plan_id} class="form-select w-full">
-							<option value={null}>계획 선택 (선택사항)</option>
-							{#each plans as plan}
-								<option value={plan.id}>{plan.title}</option>
+						<select id="design_id" bind:value={form.design_id} class="form-select w-full">
+							<option value={null}>설계 선택 (선택사항)</option>
+							{#each designs as design}
+								<option value={design.id}>{design.title}</option>
 							{/each}
 						</select>
 					</div>
+				</div>
+			</div>
+		</div>
+
+		<!-- 추가 정보 -->
+		<div class="card">
+			<h2 class="text-xl font-semibold text-gray-900 mb-4">추가 정보</h2>
+			
+			<div class="space-y-4">
+				<div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+					<div>
+						<label for="assignee" class="block text-sm font-medium text-gray-700 mb-1">
+							담당자
+						</label>
+						<input
+							id="assignee"
+							type="text"
+							bind:value={form.assignee}
+							class="form-input w-full"
+							placeholder="담당자 이름을 입력하세요"
+						/>
+					</div>
+
+					<div>
+						<label for="estimated_hours" class="block text-sm font-medium text-gray-700 mb-1">
+							예상 소요 시간 (시간)
+						</label>
+						<input
+							id="estimated_hours"
+							type="number"
+							min="0"
+							step="0.5"
+							bind:value={form.estimated_hours}
+							class="form-input w-full"
+							placeholder="0"
+						/>
+					</div>
+				</div>
+
+				<div>
+					<label for="tags" class="block text-sm font-medium text-gray-700 mb-1">
+						태그
+					</label>
+					<input
+						id="tags"
+						type="text"
+						bind:value={form.tags}
+						class="form-input w-full"
+						placeholder="태그를 쉼표로 구분하여 입력하세요 (예: 개발, 버그수정, 긴급)"
+					/>
+					<p class="text-sm text-gray-500 mt-1">쉼표(,)로 구분하여 여러 태그를 입력할 수 있습니다</p>
+				</div>
+
+				<div>
+					<label for="details" class="block text-sm font-medium text-gray-700 mb-1">
+						상세 내용
+					</label>
+					<textarea
+						id="details"
+						bind:value={form.details}
+						rows="3"
+						class="form-textarea w-full"
+						placeholder="작업의 상세한 요구사항이나 구현 방법을 입력하세요"
+					></textarea>
+				</div>
+
+				<div>
+					<label for="acceptance_criteria" class="block text-sm font-medium text-gray-700 mb-1">
+						완료 기준
+					</label>
+					<textarea
+						id="acceptance_criteria"
+						bind:value={form.acceptance_criteria}
+						rows="3"
+						class="form-textarea w-full"
+						placeholder="작업 완료를 판단하는 기준을 줄바꿈으로 구분하여 입력하세요"
+					></textarea>
+					<p class="text-sm text-gray-500 mt-1">각 기준을 새 줄에 입력하면 목록으로 저장됩니다</p>
+				</div>
+
+				<div>
+					<label for="test_strategy" class="block text-sm font-medium text-gray-700 mb-1">
+						테스트 전략
+					</label>
+					<textarea
+						id="test_strategy"
+						bind:value={form.test_strategy}
+						rows="3"
+						class="form-textarea w-full"
+						placeholder="이 작업을 테스트하는 방법을 입력하세요"
+					></textarea>
+				</div>
+
+				<div>
+					<label for="notes" class="block text-sm font-medium text-gray-700 mb-1">
+						메모
+					</label>
+					<textarea
+						id="notes"
+						bind:value={form.notes}
+						rows="2"
+						class="form-textarea w-full"
+						placeholder="기타 메모사항을 입력하세요"
+					></textarea>
 				</div>
 			</div>
 		</div>
@@ -212,11 +329,11 @@
 					</div>
 				{/if}
 
-				{#if form.plan_id}
-					{@const selectedPlan = plans.find(p => p.id == form.plan_id)}
-					{#if selectedPlan}
+				{#if form.design_id}
+					{@const selectedDesign = designs.find(d => d.id == form.design_id)}
+					{#if selectedDesign}
 						<div class="text-xs text-blue-600">
-							📅 {selectedPlan.title}
+							🎨 {selectedDesign.title}
 						</div>
 					{/if}
 				{/if}

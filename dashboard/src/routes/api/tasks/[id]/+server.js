@@ -1,14 +1,16 @@
 import { json } from '@sveltejs/kit';
-import { getTaskById, updateTask, updateTaskStatus, deleteTask } from '$lib/server/database.js';
+import { TaskManager } from '$lib/server/TaskManager.js';
+
+const taskManager = new TaskManager();
 
 /** @type {import('./$types').RequestHandler} */
 export async function GET({ params }) {
   try {
-    const task = await getTaskById(params.id);
-    if (!task) {
+    const result = await taskManager.getTask(params.id);
+    if (!result.success || !result.task) {
       return json({ error: 'Task not found' }, { status: 404 });
     }
-    return json(task);
+    return json(result.task);
   } catch (error) {
     console.error('Error fetching task:', error);
     return json({ error: 'Failed to fetch task' }, { status: 500 });
@@ -18,9 +20,12 @@ export async function GET({ params }) {
 /** @type {import('./$types').RequestHandler} */
 export async function PUT({ params, request }) {
   try {
-    const task = await request.json();
-    await updateTask(params.id, task);
-    return json({ success: true });
+    const taskData = await request.json();
+    const result = await taskManager.updateTask(params.id, taskData);
+    if (!result.success) {
+      return json({ error: result.error || 'Failed to update task' }, { status: 500 });
+    }
+    return json(result);
   } catch (error) {
     console.error('Error updating task:', error);
     return json({ error: 'Failed to update task' }, { status: 500 });
@@ -31,8 +36,11 @@ export async function PUT({ params, request }) {
 export async function PATCH({ params, request }) {
   try {
     const { status } = await request.json();
-    await updateTaskStatus(params.id, status);
-    return json({ success: true });
+    const result = await taskManager.updateTask(params.id, { status });
+    if (!result.success) {
+      return json({ error: result.error || 'Failed to update task status' }, { status: 500 });
+    }
+    return json(result);
   } catch (error) {
     console.error('Error updating task status:', error);
     return json({ error: 'Failed to update task status' }, { status: 500 });
@@ -42,8 +50,11 @@ export async function PATCH({ params, request }) {
 /** @type {import('./$types').RequestHandler} */
 export async function DELETE({ params }) {
   try {
-    await deleteTask(params.id);
-    return json({ success: true });
+    const result = await taskManager.deleteTask(params.id);
+    if (!result.success) {
+      return json({ error: result.error || 'Failed to delete task' }, { status: 500 });
+    }
+    return json(result);
   } catch (error) {
     console.error('Error deleting task:', error);
     return json({ error: 'Failed to delete task' }, { status: 500 });

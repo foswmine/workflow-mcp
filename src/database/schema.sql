@@ -469,3 +469,264 @@ LEFT JOIN document_relations dr1 ON d.id = dr1.parent_doc_id
 LEFT JOIN document_links dl ON d.id = dl.document_id
 GROUP BY d.id
 ORDER BY d.updated_at DESC;
+
+-- =============================================
+-- Test Management System (Phase 3.0)
+-- =============================================
+
+-- Test Cases Table
+CREATE TABLE IF NOT EXISTS test_cases (
+    id TEXT PRIMARY KEY,
+    title TEXT NOT NULL,
+    description TEXT,
+    type TEXT CHECK(type IN ('unit', 'integration', 'system', 'acceptance', 'regression')) DEFAULT 'unit',
+    status TEXT CHECK(status IN ('draft', 'ready', 'active', 'deprecated')) DEFAULT 'draft',
+    priority TEXT CHECK(priority IN ('High', 'Medium', 'Low')) DEFAULT 'Medium',
+    
+    -- Connection relationships
+    task_id TEXT REFERENCES tasks(id) ON DELETE SET NULL,
+    design_id TEXT REFERENCES designs(id) ON DELETE SET NULL,
+    prd_id TEXT REFERENCES prds(id) ON DELETE SET NULL,
+    
+    -- Test details
+    preconditions TEXT,
+    test_steps TEXT, -- JSON array of steps
+    expected_result TEXT,
+    test_data TEXT, -- JSON object for test data
+    
+    -- Metadata
+    created_at TEXT DEFAULT (datetime('now')),
+    updated_at TEXT DEFAULT (datetime('now')),
+    created_by TEXT DEFAULT 'system',
+    version INTEGER DEFAULT 1,
+    tags TEXT, -- JSON array
+    
+    -- Execution info
+    estimated_duration INTEGER DEFAULT 0, -- minutes
+    complexity TEXT CHECK(complexity IN ('Low', 'Medium', 'High')) DEFAULT 'Medium',
+    automation_status TEXT CHECK(automation_status IN ('manual', 'automated', 'semi_automated')) DEFAULT 'manual'
+);
+
+-- Test Executions Table
+CREATE TABLE IF NOT EXISTS test_executions (
+    id TEXT PRIMARY KEY,
+    test_case_id TEXT NOT NULL REFERENCES test_cases(id) ON DELETE CASCADE,
+    
+    -- Execution info
+    execution_date TEXT DEFAULT (datetime('now')),
+    executed_by TEXT DEFAULT 'system',
+    environment TEXT DEFAULT 'development', -- development, staging, production
+    
+    -- Result info
+    status TEXT CHECK(status IN ('pass', 'fail', 'blocked', 'skipped', 'pending')) NOT NULL,
+    actual_result TEXT,
+    notes TEXT,
+    defects_found TEXT, -- JSON array of defect IDs
+    
+    -- Time tracking
+    actual_duration INTEGER, -- minutes
+    started_at TEXT,
+    completed_at TEXT,
+    
+    -- Attachments (screenshots, logs, etc.)
+    attachments TEXT, -- JSON array
+    
+    created_at TEXT DEFAULT (datetime('now')),
+    updated_at TEXT DEFAULT (datetime('now'))
+);
+
+-- Test Defects/Issues Table
+CREATE TABLE IF NOT EXISTS test_defects (
+    id TEXT PRIMARY KEY,
+    title TEXT NOT NULL,
+    description TEXT,
+    severity TEXT CHECK(severity IN ('Critical', 'High', 'Medium', 'Low')) DEFAULT 'Medium',
+    status TEXT CHECK(status IN ('open', 'in_progress', 'resolved', 'closed', 'deferred')) DEFAULT 'open',
+    
+    -- Connection relationships
+    test_case_id TEXT REFERENCES test_cases(id) ON DELETE SET NULL,
+    test_execution_id TEXT REFERENCES test_executions(id) ON DELETE SET NULL,
+    related_task_id TEXT REFERENCES tasks(id) ON DELETE SET NULL, -- Task for fixing this defect
+    
+    -- Metadata
+    created_at TEXT DEFAULT (datetime('now')),
+    updated_at TEXT DEFAULT (datetime('now')),
+    created_by TEXT DEFAULT 'system',
+    assigned_to TEXT,
+    resolved_at TEXT,
+    
+    -- Additional info
+    steps_to_reproduce TEXT,
+    expected_behavior TEXT,
+    actual_behavior TEXT,
+    workaround TEXT,
+    tags TEXT -- JSON array
+);
+
+-- Test Case Dependencies (similar to task dependencies)
+CREATE TABLE IF NOT EXISTS test_case_dependencies (
+    id TEXT PRIMARY KEY,
+    test_case_id TEXT NOT NULL REFERENCES test_cases(id) ON DELETE CASCADE,
+    depends_on_test_case_id TEXT NOT NULL REFERENCES test_cases(id) ON DELETE CASCADE,
+    dependency_type TEXT CHECK(dependency_type IN ('prerequisite', 'blocks', 'related')) DEFAULT 'prerequisite',
+    created_at TEXT DEFAULT (datetime('now')),
+    
+    -- Prevent self-dependency
+    CHECK (test_case_id != depends_on_test_case_id),
+    UNIQUE(test_case_id, depends_on_test_case_id)
+);
+
+-- Test Suites (groups of test cases)
+CREATE TABLE IF NOT EXISTS test_suites (
+    id TEXT PRIMARY KEY,
+    name TEXT NOT NULL,
+    description TEXT,
+    type TEXT CHECK(type IN ('smoke', 'regression', 'integration', 'acceptance')) DEFAULT 'regression',
+    created_at TEXT DEFAULT (datetime('now')),
+    updated_at TEXT DEFAULT (datetime('now')),
+    created_by TEXT DEFAULT 'system'
+);
+
+-- Test Suite-Case relationships
+CREATE TABLE IF NOT EXISTS test_suite_cases (
+    id TEXT PRIMARY KEY,
+    test_suite_id TEXT NOT NULL REFERENCES test_suites(id) ON DELETE CASCADE,
+    test_case_id TEXT NOT NULL REFERENCES test_cases(id) ON DELETE CASCADE,
+    execution_order INTEGER DEFAULT 0,
+    created_at TEXT DEFAULT (datetime('now')),
+    
+    UNIQUE(test_suite_id, test_case_id)
+);
+
+-- =============================================
+-- Test Management Indexes
+-- =============================================
+
+-- Test cases indexes
+CREATE INDEX IF NOT EXISTS idx_test_cases_status ON test_cases(status);
+CREATE INDEX IF NOT EXISTS idx_test_cases_type ON test_cases(type);
+CREATE INDEX IF NOT EXISTS idx_test_cases_priority ON test_cases(priority);
+CREATE INDEX IF NOT EXISTS idx_test_cases_task_id ON test_cases(task_id);
+CREATE INDEX IF NOT EXISTS idx_test_cases_design_id ON test_cases(design_id);
+CREATE INDEX IF NOT EXISTS idx_test_cases_prd_id ON test_cases(prd_id);
+CREATE INDEX IF NOT EXISTS idx_test_cases_created_at ON test_cases(created_at);
+
+-- Test executions indexes
+CREATE INDEX IF NOT EXISTS idx_test_executions_test_case_id ON test_executions(test_case_id);
+CREATE INDEX IF NOT EXISTS idx_test_executions_status ON test_executions(status);
+CREATE INDEX IF NOT EXISTS idx_test_executions_execution_date ON test_executions(execution_date);
+CREATE INDEX IF NOT EXISTS idx_test_executions_environment ON test_executions(environment);
+
+-- Test defects indexes
+CREATE INDEX IF NOT EXISTS idx_test_defects_status ON test_defects(status);
+CREATE INDEX IF NOT EXISTS idx_test_defects_severity ON test_defects(severity);
+CREATE INDEX IF NOT EXISTS idx_test_defects_test_case_id ON test_defects(test_case_id);
+CREATE INDEX IF NOT EXISTS idx_test_defects_assigned_to ON test_defects(assigned_to);
+
+-- =============================================
+-- Test Management Views
+-- =============================================
+
+-- Test cases with execution summary
+CREATE VIEW IF NOT EXISTS test_cases_with_stats AS
+SELECT 
+    tc.*,
+    COUNT(te.id) AS total_executions,
+    COUNT(CASE WHEN te.status = 'pass' THEN 1 END) AS passed_executions,
+    COUNT(CASE WHEN te.status = 'fail' THEN 1 END) AS failed_executions,
+    COUNT(CASE WHEN te.status = 'blocked' THEN 1 END) AS blocked_executions,
+    MAX(te.execution_date) AS last_execution_date,
+    (SELECT status FROM test_executions WHERE test_case_id = tc.id ORDER BY execution_date DESC LIMIT 1) AS last_execution_status,
+    CASE 
+        WHEN COUNT(te.id) > 0 THEN 
+            ROUND((COUNT(CASE WHEN te.status = 'pass' THEN 1 END) * 100.0) / COUNT(te.id), 2)
+        ELSE 0 
+    END AS pass_rate_percentage
+FROM test_cases tc
+LEFT JOIN test_executions te ON tc.id = te.test_case_id
+GROUP BY tc.id;
+
+-- Test execution summary by date
+CREATE VIEW IF NOT EXISTS test_execution_summary AS
+SELECT 
+    DATE(execution_date) AS execution_date,
+    environment,
+    COUNT(*) AS total_executions,
+    COUNT(CASE WHEN status = 'pass' THEN 1 END) AS passed,
+    COUNT(CASE WHEN status = 'fail' THEN 1 END) AS failed,
+    COUNT(CASE WHEN status = 'blocked' THEN 1 END) AS blocked,
+    COUNT(CASE WHEN status = 'skipped' THEN 1 END) AS skipped,
+    ROUND((COUNT(CASE WHEN status = 'pass' THEN 1 END) * 100.0) / COUNT(*), 2) AS pass_rate
+FROM test_executions
+GROUP BY DATE(execution_date), environment
+ORDER BY execution_date DESC;
+
+-- Test coverage by task
+CREATE VIEW IF NOT EXISTS test_coverage_by_task AS
+SELECT 
+    t.id AS task_id,
+    t.title AS task_title,
+    t.status AS task_status,
+    COUNT(tc.id) AS test_cases_count,
+    COUNT(CASE WHEN tc.status = 'active' THEN 1 END) AS active_test_cases,
+    COUNT(DISTINCT te.id) AS total_executions,
+    COUNT(CASE WHEN te.status = 'pass' THEN 1 END) AS passed_executions,
+    CASE 
+        WHEN COUNT(tc.id) > 0 THEN 
+            ROUND((COUNT(CASE WHEN tc.status = 'active' THEN 1 END) * 100.0) / COUNT(tc.id), 2)
+        ELSE 0 
+    END AS test_readiness_percentage
+FROM tasks t
+LEFT JOIN test_cases tc ON t.id = tc.task_id
+LEFT JOIN test_executions te ON tc.id = te.test_case_id
+GROUP BY t.id
+ORDER BY test_readiness_percentage DESC;
+
+-- Active defects summary
+CREATE VIEW IF NOT EXISTS active_defects_summary AS
+SELECT 
+    td.*,
+    tc.title AS test_case_title,
+    tc.type AS test_case_type,
+    t.title AS related_task_title,
+    t.assignee AS task_assignee
+FROM test_defects td
+LEFT JOIN test_cases tc ON td.test_case_id = tc.id
+LEFT JOIN tasks t ON td.related_task_id = t.id
+WHERE td.status IN ('open', 'in_progress')
+ORDER BY 
+    CASE td.severity 
+        WHEN 'Critical' THEN 1 
+        WHEN 'High' THEN 2 
+        WHEN 'Medium' THEN 3 
+        WHEN 'Low' THEN 4 
+    END, td.created_at DESC;
+
+-- =============================================
+-- Test Management Triggers
+-- =============================================
+
+-- Update test case timestamp when executions are added
+CREATE TRIGGER IF NOT EXISTS update_test_case_on_execution
+    AFTER INSERT ON test_executions
+BEGIN
+    UPDATE test_cases 
+    SET updated_at = datetime('now')
+    WHERE id = NEW.test_case_id;
+END;
+
+-- Automatically resolve defects when related task is completed
+CREATE TRIGGER IF NOT EXISTS auto_resolve_defects_on_task_completion
+    AFTER UPDATE ON tasks
+    WHEN OLD.status != 'done' AND NEW.status = 'done'
+BEGIN
+    UPDATE test_defects 
+    SET status = 'resolved', 
+        resolved_at = datetime('now'),
+        updated_at = datetime('now')
+    WHERE related_task_id = NEW.id 
+      AND status IN ('open', 'in_progress');
+END;
+
+-- Update schema version for test management
+UPDATE system_config SET value = '3.0.0', updated_at = datetime('now') WHERE key = 'schema_version';

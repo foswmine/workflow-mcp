@@ -191,6 +191,20 @@
 								>
 									시작
 								</button>
+								<a
+									href="/tasks/{task.id}"
+									class="text-xs px-2 py-1 bg-gray-50 text-gray-700 rounded hover:bg-gray-100"
+									title="상세보기"
+								>
+									상세
+								</a>
+								<a
+									href="/tasks/{task.id}/edit"
+									class="text-xs px-2 py-1 bg-yellow-50 text-yellow-700 rounded hover:bg-yellow-100"
+									title="편집"
+								>
+									편집
+								</a>
 								<button 
 									class="text-xs px-2 py-1 text-red-600 hover:text-red-800"
 									on:click={() => deleteTask(task.id)}
@@ -252,6 +266,20 @@
 								>
 									대기
 								</button>
+								<a
+									href="/tasks/{task.id}"
+									class="text-xs px-2 py-1 bg-gray-50 text-gray-700 rounded hover:bg-gray-100"
+									title="상세보기"
+								>
+									상세
+								</a>
+								<a
+									href="/tasks/{task.id}/edit"
+									class="text-xs px-2 py-1 bg-yellow-50 text-yellow-700 rounded hover:bg-yellow-100"
+									title="편집"
+								>
+									편집
+								</a>
 								<button 
 									class="text-xs px-2 py-1 text-red-600 hover:text-red-800"
 									on:click={() => deleteTask(task.id)}
@@ -307,6 +335,20 @@
 								>
 									재시작
 								</button>
+								<a
+									href="/tasks/{task.id}"
+									class="text-xs px-2 py-1 bg-gray-50 text-gray-700 rounded hover:bg-gray-100"
+									title="상세보기"
+								>
+									상세
+								</a>
+								<a
+									href="/tasks/{task.id}/edit"
+									class="text-xs px-2 py-1 bg-yellow-50 text-yellow-700 rounded hover:bg-yellow-100"
+									title="편집"
+								>
+									편집
+								</a>
 								<button 
 									class="text-xs px-2 py-1 text-red-600 hover:text-red-800"
 									on:click={() => deleteTask(task.id)}

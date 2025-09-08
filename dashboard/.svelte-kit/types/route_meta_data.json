@@ -3,11 +3,17 @@
 	"/api/dashboard": [
 		"src/routes/api/dashboard/+server.js"
 	],
-	"/api/plans": [
-		"src/routes/api/plans/+server.js"
+	"/api/designs": [
+		"src/routes/api/designs/+server.js"
 	],
-	"/api/plans/[id]": [
-		"src/routes/api/plans/[id]/+server.js"
+	"/api/designs/[id]": [
+		"src/routes/api/designs/[id]/+server.js"
+	],
+	"/api/documents": [
+		"src/routes/api/documents/+server.js"
+	],
+	"/api/documents/[id]": [
+		"src/routes/api/documents/[id]/+server.js"
 	],
 	"/api/prds": [
 		"src/routes/api/prds/+server.js"
@@ -21,13 +27,43 @@
 	"/api/tasks/[id]": [
 		"src/routes/api/tasks/[id]/+server.js"
 	],
+	"/api/tasks/[id]/tests": [
+		"src/routes/api/tasks/[id]/tests/+server.js"
+	],
+	"/api/tests": [
+		"src/routes/api/tests/+server.js"
+	],
+	"/api/tests/link-task": [
+		"src/routes/api/tests/link-task/+server.js"
+	],
+	"/api/tests/[id]": [
+		"src/routes/api/tests/[id]/+server.js"
+	],
+	"/api/tests/[id]/execute": [
+		"src/routes/api/tests/[id]/execute/+server.js"
+	],
+	"/api/tests/[id]/executions": [
+		"src/routes/api/tests/[id]/executions/+server.js"
+	],
 	"/database": [],
+	"/designs": [],
+	"/designs/new": [],
+	"/designs/[id]": [],
+	"/designs/[id]/edit": [],
+	"/documents": [],
+	"/documents/[id]": [],
 	"/gantt": [],
 	"/kanban": [],
-	"/plans": [],
-	"/plans/new": [],
 	"/prds": [],
 	"/prds/new": [],
+	"/prds/[id]": [],
+	"/prds/[id]/edit": [],
 	"/tasks": [],
-	"/tasks/new": []
+	"/tasks/new": [],
+	"/tasks/[id]": [],
+	"/tasks/[id]/edit": [],
+	"/tests": [],
+	"/tests/new": [],
+	"/tests/[id]": [],
+	"/tests/[id]/edit": []
 }

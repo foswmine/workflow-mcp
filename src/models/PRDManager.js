@@ -7,6 +7,31 @@ import { v4 as uuidv4 } from 'uuid';
 // 대시보드 중심 접근: 복잡한 스키마 검증 제거
 import { SQLitePRDStorage } from '../database/SQLitePRDStorage.js';
 
+// PRD 상태 enum
+export const PRDStatus = {
+  DRAFT: 'draft',
+  ACTIVE: 'active',
+  IN_REVIEW: 'in_review',
+  APPROVED: 'approved',
+  COMPLETED: 'completed',
+  CANCELLED: 'cancelled'
+};
+
+// 우선순위 enum (데이터베이스 스키마와 일치하도록 대문자)
+export const PriorityLevels = {
+  HIGH: 'High',
+  MEDIUM: 'Medium',
+  LOW: 'Low'
+};
+
+// Moscow 우선순위
+export const MoscowPriority = {
+  MUST: 'must',
+  SHOULD: 'should', 
+  COULD: 'could',
+  WONT: 'wont'
+};
+
 export class PRDManager {
   constructor() {
     this.storage = new SQLitePRDStorage();
@@ -28,6 +53,9 @@ export class PRDManager {
   async createPRD(prdData) {
     await this.ensureInitialized();
     try {
+      // 우선순위 정규화 (대문자 → 소문자)
+      const normalizedPriority = this.normalizePriority(prdData.priority);
+      
       // 기본 PRD 구조 생성
       const prd = {
         id: uuidv4(),
@@ -35,6 +63,7 @@ export class PRDManager {
         description: prdData.description,
         version: '1.0.0',
         status: PRDStatus.DRAFT,
+        priority: normalizedPriority,
         createdAt: new Date(),
         updatedAt: new Date(),
         createdBy: prdData.createdBy || 'system',
@@ -64,7 +93,7 @@ export class PRDManager {
               title: req.substring(0, 100),
               description: req,
               type: 'functional',
-              priority: prdData.priority || PriorityLevels.MEDIUM,
+              priority: normalizedPriority,
               moscow: MoscowPriority.MUST,
               acceptanceCriteria: [`${req} 기능이 정상적으로 동작해야 함`],
               dependencies: [],
@@ -78,7 +107,7 @@ export class PRDManager {
               title: req.title,
               description: req.description,
               type: req.type || 'functional',
-              priority: req.priority || PriorityLevels.MEDIUM,
+              priority: this.normalizePriority(req.priority) || PriorityLevels.MEDIUM,
               moscow: req.moscow || MoscowPriority.MUST,
               acceptanceCriteria: req.acceptanceCriteria || [],
               dependencies: req.dependencies || [],
@@ -332,5 +361,28 @@ export class PRDManager {
       grouped[req.priority]++;
     });
     return grouped;
+  }
+
+  /**
+   * 우선순위 정규화 (대소문자 구분 없이 데이터베이스 형식으로 변환)
+   * @param {string} priority - 우선순위 값
+   * @returns {string} 정규화된 대문자 우선순위 (High, Medium, Low)
+   */
+  normalizePriority(priority) {
+    if (!priority) return PriorityLevels.MEDIUM;
+    
+    const normalizedValue = priority.toLowerCase();
+    
+    // 소문자로 받은 우선순위를 데이터베이스 형식(대문자)으로 변환
+    switch (normalizedValue) {
+      case 'high':
+        return PriorityLevels.HIGH;
+      case 'medium':
+        return PriorityLevels.MEDIUM;
+      case 'low':
+        return PriorityLevels.LOW;
+      default:
+        return PriorityLevels.MEDIUM;
+    }
   }
 }

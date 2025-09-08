@@ -14,31 +14,38 @@
 
 	const tableSchemas = {
 		prds: [
-			{ name: 'id', label: 'ID', type: 'number', readonly: true },
+			{ name: 'id', label: 'ID', type: 'text', readonly: true },
 			{ name: 'title', label: '제목', type: 'text' },
 			{ name: 'description', label: '설명', type: 'textarea' },
-			{ name: 'priority', label: '우선순위', type: 'select', options: ['low', 'medium', 'high', 'critical'] },
+			{ name: 'requirements', label: '요구사항', type: 'json-array' },
+			{ name: 'priority', label: '우선순위', type: 'select', options: ['Low', 'Medium', 'High', 'Critical'] },
 			{ name: 'status', label: '상태', type: 'select', options: ['draft', 'active', 'completed', 'cancelled'] },
 			{ name: 'created_at', label: '생성일', type: 'datetime', readonly: true },
 			{ name: 'updated_at', label: '수정일', type: 'datetime', readonly: true }
 		],
 		tasks: [
-			{ name: 'id', label: 'ID', type: 'number', readonly: true },
+			{ name: 'id', label: 'ID', type: 'text', readonly: true },
 			{ name: 'title', label: '제목', type: 'text' },
 			{ name: 'description', label: '설명', type: 'textarea' },
 			{ name: 'status', label: '상태', type: 'select', options: ['pending', 'in_progress', 'completed', 'cancelled'] },
-			{ name: 'priority', label: '우선순위', type: 'select', options: ['low', 'medium', 'high', 'critical'] },
+			{ name: 'priority', label: '우선순위', type: 'select', options: ['Low', 'Medium', 'High', 'Critical'] },
+			{ name: 'assignee', label: '담당자', type: 'text' },
+			{ name: 'estimated_hours', label: '예상시간', type: 'number' },
 			{ name: 'due_date', label: '마감일', type: 'date' },
-			{ name: 'prd_id', label: 'PRD ID', type: 'number' },
-			{ name: 'plan_id', label: '계획 ID', type: 'number' },
+			{ name: 'plan_id', label: '계획 ID', type: 'text' },
 			{ name: 'created_at', label: '생성일', type: 'datetime', readonly: true },
 			{ name: 'updated_at', label: '수정일', type: 'datetime', readonly: true }
 		],
 		plans: [
-			{ name: 'id', label: 'ID', type: 'number', readonly: true },
+			{ name: 'id', label: 'ID', type: 'text', readonly: true },
 			{ name: 'title', label: '제목', type: 'text' },
 			{ name: 'description', label: '설명', type: 'textarea' },
+			{ name: 'milestones', label: '마일스톤', type: 'json-array' },
 			{ name: 'status', label: '상태', type: 'select', options: ['draft', 'active', 'completed', 'cancelled'] },
+			{ name: 'start_date', label: '시작일', type: 'date' },
+			{ name: 'end_date', label: '종료일', type: 'date' },
+			{ name: 'prd_id', label: 'PRD ID', type: 'text' },
+			{ name: 'progress', label: '진행률', type: 'json' },
 			{ name: 'created_at', label: '생성일', type: 'datetime', readonly: true },
 			{ name: 'updated_at', label: '수정일', type: 'datetime', readonly: true }
 		]

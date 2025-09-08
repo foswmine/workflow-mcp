@@ -136,6 +136,9 @@
 					<select id="status" bind:value={form.status} class="form-select w-full">
 						<option value="active">활성</option>
 						<option value="inactive">비활성</option>
+						<option value="draft">초안</option>
+						<option value="review">검토중</option>
+						<option value="approved">승인됨</option>
 						<option value="completed">완료</option>
 					</select>
 				</div>

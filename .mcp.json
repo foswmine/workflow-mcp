@@ -4,7 +4,13 @@
       "command": "node",
       "args": ["./src/index.js"],
       "type": "stdio",
-	  "env":{}
+      "env": {}
+    },
+    "sqlite": {
+      "command": "uvx",
+      "args": ["mcp-server-sqlite", "--db-path", "./data/workflow.db"],
+      "type": "stdio",
+      "env": {}
     }
   }
 }
