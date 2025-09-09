@@ -9,6 +9,8 @@
 		priority: 'medium',
 		due_date: '',
 		design_id: null,
+		prd_id: null,
+		project_id: null, // 프로젝트 연결 추가
 		assignee: '',
 		estimated_hours: 0,
 		actual_hours: 0,
@@ -21,11 +23,13 @@
 	};
 
 	let designs = [];
+	let prds = [];
+	let projects = []; // 프로젝트 목록 추가
 	let loading = false;
 	let error = null;
 
 	onMount(async () => {
-		await loadDesigns();
+		await Promise.all([loadDesigns(), loadPRDs(), loadProjects()]);
 	});
 
 	async function loadDesigns() {
@@ -36,6 +40,28 @@
 			}
 		} catch (e) {
 			console.error('Failed to load designs:', e);
+		}
+	}
+
+	async function loadPRDs() {
+		try {
+			const response = await fetch('/api/prds');
+			if (response.ok) {
+				prds = await response.json();
+			}
+		} catch (e) {
+			console.error('Failed to load PRDs:', e);
+		}
+	}
+
+	async function loadProjects() {
+		try {
+			const response = await fetch('/api/projects');
+			if (response.ok) {
+				projects = await response.json();
+			}
+		} catch (e) {
+			console.error('Failed to load projects:', e);
 		}
 	}
 
@@ -182,6 +208,20 @@
 					</div>
 
 					<div>
+						<label for="prd_id" class="block text-sm font-medium text-gray-700 mb-1">
+							연결된 요구사항
+						</label>
+						<select id="prd_id" bind:value={form.prd_id} class="form-select w-full">
+							<option value={null}>요구사항 선택 (선택사항)</option>
+							{#each prds as prd}
+								<option value={prd.id}>{prd.title}</option>
+							{/each}
+						</select>
+					</div>
+				</div>
+
+				<div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+					<div>
 						<label for="design_id" class="block text-sm font-medium text-gray-700 mb-1">
 							연결된 설계
 						</label>
@@ -189,6 +229,18 @@
 							<option value={null}>설계 선택 (선택사항)</option>
 							{#each designs as design}
 								<option value={design.id}>{design.title}</option>
+							{/each}
+						</select>
+					</div>
+
+					<div>
+						<label for="project_id" class="block text-sm font-medium text-gray-700 mb-1">
+							연결된 프로젝트
+						</label>
+						<select id="project_id" bind:value={form.project_id} class="form-select w-full">
+							<option value={null}>프로젝트 선택 (선택사항)</option>
+							{#each projects as project}
+								<option value={project.id}>{project.name}</option>
 							{/each}
 						</select>
 					</div>
@@ -327,6 +379,15 @@
 					<div class="text-xs text-gray-500 mb-2">
 						마감: {new Date(form.due_date).toLocaleDateString('ko-KR')}
 					</div>
+				{/if}
+
+				{#if form.project_id}
+					{@const selectedProject = projects.find(p => p.id == form.project_id)}
+					{#if selectedProject}
+						<div class="text-xs text-green-600 mb-2">
+							📁 프로젝트: {selectedProject.name}
+						</div>
+					{/if}
 				{/if}
 
 				{#if form.design_id}

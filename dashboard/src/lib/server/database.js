@@ -778,11 +778,18 @@ export async function getPriorityDistribution() {
   const database = await getDatabase();
   return await database.all(`
     SELECT 
-      priority,
+      CASE 
+        WHEN LOWER(priority) = 'high' THEN 'High'
+        WHEN LOWER(priority) = 'medium' THEN 'Medium'
+        WHEN LOWER(priority) = 'low' THEN 'Low'
+        WHEN LOWER(priority) = 'critical' THEN 'Critical'
+        ELSE priority
+      END as priority,
       COUNT(*) as count,
       COUNT(CASE WHEN status = 'completed' THEN 1 END) as completed
     FROM tasks
-    GROUP BY priority
+    WHERE priority IS NOT NULL AND priority != ''
+    GROUP BY LOWER(priority)
   `);
 }
 

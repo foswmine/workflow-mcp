@@ -76,6 +76,7 @@ export class TaskManager {
         createdAt: new Date().toISOString(),
         updatedAt: new Date().toISOString(),
         planId: taskData.planId || taskData.design_id || null,
+        prd_id: taskData.prd_id || null, // PRD 연결 정보 추가
         version: 1,
         createdBy: taskData.createdBy || taskData.created_by || 'system',
         tags: taskData.tags || [],
@@ -104,6 +105,11 @@ export class TaskManager {
 
       // Task 저장
       await this.storage.saveTask(task);
+
+      // PRD 연결 정보가 있으면 prd_task_links 테이블에 저장
+      if (task.prd_id) {
+        await this.createPrdTaskLink(task.prd_id, task.id, 'direct', task.createdBy);
+      }
 
       return {
         success: true,
@@ -251,6 +257,18 @@ export class TaskManager {
 
       // 저장
       await this.storage.saveTask(updatedTask);
+
+      // PRD 연결 정보가 변경되었으면 prd_task_links 테이블 업데이트
+      if (updates.prd_id !== undefined && updates.prd_id !== existingTask.prd_id) {
+        // 기존 연결 삭제
+        if (existingTask.prd_id) {
+          await this.deletePrdTaskLink(existingTask.prd_id, taskId);
+        }
+        // 새 연결 생성
+        if (updates.prd_id) {
+          await this.createPrdTaskLink(updates.prd_id, taskId, 'direct', 'dashboard');
+        }
+      }
 
       return {
         success: true,
@@ -403,5 +421,147 @@ export class TaskManager {
     }
     
     return false;
+  }
+
+  /**
+   * PRD-Task 연결 생성
+   * @param {string} prdId - PRD ID
+   * @param {string} taskId - Task ID
+   * @param {string} linkType - 연결 타입 ('direct', 'derived', 'related')
+   * @param {string} createdBy - 생성자
+   */
+  async createPrdTaskLink(prdId, taskId, linkType = 'direct', createdBy = 'system') {
+    try {
+      await this.storage.createPrdTaskLink(prdId, taskId, linkType, createdBy);
+    } catch (error) {
+      console.error('PRD-Task 연결 생성 오류:', error);
+      // 연결 생성 실패는 메인 작업 실패로 이어지지 않도록 로그만 남김
+    }
+  }
+
+  /**
+   * PRD-Task 연결 삭제
+   * @param {string} prdId - PRD ID
+   * @param {string} taskId - Task ID
+   */
+  async deletePrdTaskLink(prdId, taskId) {
+    try {
+      await this.storage.deletePrdTaskLink(prdId, taskId);
+    } catch (error) {
+      console.error('PRD-Task 연결 삭제 오류:', error);
+      // 연결 삭제 실패는 메인 작업 실패로 이어지지 않도록 로그만 남김
+    }
+  }
+
+  /**
+   * Task의 PRD 연결 정보 조회
+   * @param {string} taskId - Task ID
+   * @returns {Array} PRD 연결 목록
+   */
+  async getTaskPrdLinks(taskId) {
+    try {
+      return await this.storage.getTaskPrdLinks(taskId);
+    } catch (error) {
+      console.error('Task PRD 연결 정보 조회 오류:', error);
+      return [];
+    }
+  }
+
+  /**
+   * 특정 PRD에 연결된 모든 작업 조회 (직접 + 간접 연결)
+   * @param {string} prdId - PRD ID
+   * @returns {Object} 연결된 작업 목록
+   */
+  async getTasksByPRD(prdId) {
+    await this.ensureInitialized();
+    try {
+      // 1. 직접 연결된 작업 조회 (prd_task_links 테이블)
+      const directTasks = await this.storage.getTasksByPRDDirect(prdId);
+      
+      // 2. 간접 연결된 작업 조회 (PRD -> 설계 -> 작업)
+      const indirectTasks = await this.storage.getTasksByPRDIndirect(prdId);
+      
+      // 3. 연결 타입 정보 추가
+      const allTasks = [
+        ...directTasks.map(task => ({ ...task, linkType: 'direct' })),
+        ...indirectTasks.map(task => ({ ...task, linkType: 'indirect' }))
+      ];
+      
+      // 4. 중복 제거 (같은 작업이 직접/간접 모두에 연결된 경우)
+      const uniqueTasks = [];
+      const seenTaskIds = new Set();
+      
+      for (const task of allTasks) {
+        if (!seenTaskIds.has(task.id)) {
+          uniqueTasks.push(task);
+          seenTaskIds.add(task.id);
+        }
+      }
+      
+      // 5. 요약 정보와 함께 반환
+      const tasksWithSummary = uniqueTasks.map(task => ({
+        ...task,
+        summary: {
+          isOverdue: this.isTaskOverdue(task),
+          daysRemaining: this.calculateDaysRemaining(task),
+          completionPercentage: this.calculateCompletionPercentage(task)
+        }
+      }));
+
+      return {
+        success: true,
+        tasks: tasksWithSummary,
+        total: tasksWithSummary.length,
+        statusBreakdown: this.getStatusBreakdown(tasksWithSummary),
+        message: `PRD "${prdId}"에 연결된 작업 ${tasksWithSummary.length}개 조회 완료`
+      };
+
+    } catch (error) {
+      throw new Error(`PRD별 작업 목록 조회 실패: ${error.message}`);
+    }
+  }
+
+  /**
+   * 작업의 추가 연결들을 업데이트
+   * @param {string} taskId - 작업 ID
+   * @param {Array} additionalConnections - 추가 연결 배열
+   * @returns {Object} 성공 여부
+   */
+  async updateAdditionalConnections(taskId, additionalConnections) {
+    await this.ensureInitialized();
+    
+    try {
+      // 기존 추가 연결들 삭제 (직접 컬럼 제외)
+      await this.storage.deleteAdditionalConnections(taskId);
+      
+      // 새 연결들 추가
+      for (const connection of additionalConnections) {
+        if (connection.entity_type && connection.entity_id) {
+          await this.storage.addAdditionalConnection(taskId, connection);
+        }
+      }
+      
+      return {
+        success: true,
+        message: '추가 연결 업데이트 완료'
+      };
+    } catch (error) {
+      throw new Error(`추가 연결 업데이트 실패: ${error.message}`);
+    }
+  }
+
+  /**
+   * 작업의 추가 연결들을 조회
+   * @param {string} taskId - 작업 ID
+   * @returns {Array} 추가 연결 배열
+   */
+  async getAdditionalConnections(taskId) {
+    await this.ensureInitialized();
+    
+    try {
+      return await this.storage.getAdditionalConnections(taskId);
+    } catch (error) {
+      throw new Error(`추가 연결 조회 실패: ${error.message}`);
+    }
   }
 }

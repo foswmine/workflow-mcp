@@ -9,6 +9,24 @@ PRAGMA foreign_keys = ON;
 -- Core Tables
 -- =============================================
 
+-- Projects (Phase 3 addition)
+CREATE TABLE IF NOT EXISTS projects (
+    id TEXT PRIMARY KEY,
+    name TEXT NOT NULL,
+    description TEXT,
+    status TEXT CHECK(status IN ('planning', 'active', 'on_hold', 'completed')) DEFAULT 'planning',
+    priority TEXT CHECK(priority IN ('High', 'Medium', 'Low')) DEFAULT 'Medium',
+    start_date TEXT, -- ISO string
+    end_date TEXT, -- ISO string
+    created_at TEXT NOT NULL,
+    updated_at TEXT,
+    created_by TEXT DEFAULT 'system',
+    manager TEXT, -- Project manager
+    tags TEXT, -- JSON array as text
+    progress INTEGER DEFAULT 0, -- 0-100%
+    notes TEXT
+);
+
 -- PRDs (Product Requirements Documents)
 CREATE TABLE IF NOT EXISTS prds (
     id TEXT PRIMARY KEY,
@@ -19,6 +37,9 @@ CREATE TABLE IF NOT EXISTS prds (
     status TEXT CHECK(status IN ('draft', 'review', 'approved', 'archived')) DEFAULT 'draft',
     created_at TEXT NOT NULL,
     updated_at TEXT,
+    
+    -- Project relationship
+    project_id TEXT REFERENCES projects(id),
     
     -- Metadata
     version INTEGER DEFAULT 1,
@@ -42,6 +63,10 @@ CREATE TABLE IF NOT EXISTS tasks (
     
     -- Phase 2 additions
     plan_id TEXT, -- Foreign key to plans
+    prd_id TEXT, -- Foreign key to PRDs (직접 연결)
+    
+    -- Project relationship
+    project_id TEXT REFERENCES projects(id),
     
     -- Metadata
     version INTEGER DEFAULT 1,
@@ -146,6 +171,21 @@ CREATE TABLE IF NOT EXISTS plan_task_links (
     FOREIGN KEY (task_id) REFERENCES tasks(id) ON DELETE CASCADE
 );
 
+-- PRD-Task direct connections (many-to-many)
+CREATE TABLE IF NOT EXISTS prd_task_links (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    prd_id TEXT NOT NULL,
+    task_id TEXT NOT NULL,
+    link_type TEXT CHECK(link_type IN ('direct', 'derived', 'related')) DEFAULT 'direct',
+    created_at TEXT NOT NULL,
+    created_by TEXT,
+    notes TEXT, -- Optional notes about the connection
+    
+    UNIQUE(prd_id, task_id),
+    FOREIGN KEY (prd_id) REFERENCES prds(id) ON DELETE CASCADE,
+    FOREIGN KEY (task_id) REFERENCES tasks(id) ON DELETE CASCADE
+);
+
 -- =============================================
 -- Indexes for Performance
 -- =============================================
@@ -178,6 +218,10 @@ CREATE INDEX IF NOT EXISTS idx_prd_plan_plan ON prd_plan_links(plan_id);
 
 CREATE INDEX IF NOT EXISTS idx_plan_task_plan ON plan_task_links(plan_id);
 CREATE INDEX IF NOT EXISTS idx_plan_task_task ON plan_task_links(task_id);
+
+CREATE INDEX IF NOT EXISTS idx_prd_task_prd ON prd_task_links(prd_id);
+CREATE INDEX IF NOT EXISTS idx_prd_task_task ON prd_task_links(task_id);
+CREATE INDEX IF NOT EXISTS idx_prd_task_type ON prd_task_links(link_type);
 
 -- =============================================
 -- Views for Common Queries
@@ -384,6 +428,9 @@ CREATE TABLE IF NOT EXISTS documents (
     created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
     updated_at DATETIME DEFAULT CURRENT_TIMESTAMP,
     
+    -- Project relationship
+    project_id TEXT REFERENCES projects(id),
+    
     -- Metadata
     version INTEGER DEFAULT 1,
     created_by TEXT,
@@ -487,6 +534,9 @@ CREATE TABLE IF NOT EXISTS test_cases (
     task_id TEXT REFERENCES tasks(id) ON DELETE SET NULL,
     design_id TEXT REFERENCES designs(id) ON DELETE SET NULL,
     prd_id TEXT REFERENCES prds(id) ON DELETE SET NULL,
+    
+    -- Project relationship
+    project_id TEXT REFERENCES projects(id),
     
     -- Test details
     preconditions TEXT,

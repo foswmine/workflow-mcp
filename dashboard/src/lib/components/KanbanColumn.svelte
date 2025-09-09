@@ -84,14 +84,38 @@
 					{/if}
 
 					<!-- Tags -->
-					{#if task.tags && Array.isArray(JSON.parse(task.tags || '[]')) && JSON.parse(task.tags).length > 0}
-						<div class="flex flex-wrap gap-1 mb-3">
-							{#each JSON.parse(task.tags) as tag}
-								<span class="inline-flex items-center px-2 py-1 rounded-full text-xs bg-gray-100 text-gray-700">
-									{tag}
-								</span>
-							{/each}
-						</div>
+					{#if task.tags}
+						{@const parsedTags = (() => {
+							try {
+								// tags가 이미 배열이면 그대로 사용
+								if (Array.isArray(task.tags)) return task.tags;
+								// 문자열이면 JSON 파싱 시도
+								if (typeof task.tags === 'string') {
+									// JSON 배열 형태인지 확인
+									if (task.tags.startsWith('[') && task.tags.endsWith(']')) {
+										return JSON.parse(task.tags);
+									}
+									// 쉼표로 구분된 문자열인지 확인
+									return task.tags.split(',').map(tag => tag.trim()).filter(tag => tag);
+								}
+								return [];
+							} catch (e) {
+								// JSON 파싱 실패 시 쉼표로 구분된 문자열로 처리
+								if (typeof task.tags === 'string') {
+									return task.tags.split(',').map(tag => tag.trim()).filter(tag => tag);
+								}
+								return [];
+							}
+						})()}
+						{#if parsedTags.length > 0}
+							<div class="flex flex-wrap gap-1 mb-3">
+								{#each parsedTags as tag}
+									<span class="inline-flex items-center px-2 py-1 rounded-full text-xs bg-gray-100 text-gray-700">
+										{tag}
+									</span>
+								{/each}
+							</div>
+						{/if}
 					{/if}
 
 					<!-- Due Date -->

@@ -59,7 +59,11 @@
       "mcp__workflow-mcp__create_task",
       "mcp__workflow-mcp__get_task",
       "mcp__workflow-mcp__update_task",
-      "mcp__workflow-mcp__delete_task"
+      "mcp__workflow-mcp__delete_task",
+      "mcp__playwright__playwright_close",
+      "mcp__playwright__playwright_post",
+      "mcp__playwright__playwright_press_key",
+      "Bash(npm install:*)"
     ],
     "deny": [],
     "ask": []

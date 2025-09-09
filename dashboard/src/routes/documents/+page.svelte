@@ -14,6 +14,9 @@
 		category: '',
 		status: ''
 	};
+	
+	// 정렬 옵션
+	let sortBy = 'updated'; // 'updated', 'created', 'title'
 
 	// 문서 유형 옵션
 	const docTypes = [
@@ -38,7 +41,7 @@
 			}
 			
 			const data = await response.json();
-			documents = data || [];
+			documents = data.documents || [];
 			filterDocuments();
 		} catch (err) {
 			console.error('Error loading documents:', err);
@@ -50,7 +53,8 @@
 	}
 
 	function filterDocuments() {
-		filteredDocuments = documents.filter(doc => {
+		// 필터링
+		let filtered = documents.filter(doc => {
 			const matchesSearch = !filters.search || 
 				doc.title.toLowerCase().includes(filters.search.toLowerCase()) ||
 				(doc.summary && doc.summary.toLowerCase().includes(filters.search.toLowerCase()));
@@ -61,9 +65,28 @@
 
 			return matchesSearch && matchesType && matchesCategory && matchesStatus;
 		});
+		
+		// 정렬
+		filteredDocuments = filtered.sort((a, b) => {
+			switch (sortBy) {
+				case 'updated':
+					return new Date(b.updated_at) - new Date(a.updated_at);
+				case 'created':
+					return new Date(b.created_at) - new Date(a.created_at);
+				case 'title':
+					return a.title.localeCompare(b.title);
+				default:
+					return new Date(b.updated_at) - new Date(a.updated_at);
+			}
+		});
 	}
 
 	function handleFilterChange() {
+		filterDocuments();
+	}
+	
+	// 정렬 옵션 변경 시 재정렬
+	$: if (sortBy && documents.length > 0) {
 		filterDocuments();
 	}
 
@@ -128,7 +151,19 @@
 			<h1 class="text-2xl font-bold text-gray-900">문서 관리</h1>
 			<p class="mt-2 text-sm text-gray-700">프로젝트 문서를 관리하고 검색하세요.</p>
 		</div>
-		<div class="mt-4 sm:mt-0">
+		<div class="mt-4 sm:mt-0 flex items-center gap-4">
+			<!-- 정렬 옵션 -->
+			<div class="flex items-center gap-2">
+				<label class="text-sm text-gray-600">정렬:</label>
+				<select 
+					bind:value={sortBy}
+					class="text-sm border border-gray-300 rounded px-2 py-1 bg-white"
+				>
+					<option value="updated">최근 수정</option>
+					<option value="created">최근 등록</option>
+					<option value="title">제목 순</option>
+				</select>
+			</div>
 			<button
 				type="button"
 				on:click={loadDocuments}

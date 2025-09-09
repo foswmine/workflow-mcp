@@ -22,12 +22,24 @@
 	let loading = false;
 	let error = null;
 	let initialLoading = true;
+	let prds = [];
 	
 	onMount(async () => {
 		try {
-			const response = await fetch(`/api/designs/${$page.params.id}`);
-			if (response.ok) {
-				const design = await response.json();
+			// PRD 목록과 설계 정보를 병렬로 로드
+			const [designResponse, prdsResponse] = await Promise.all([
+				fetch(`/api/designs/${$page.params.id}`),
+				fetch('/api/prds')
+			]);
+			
+			// PRD 목록 로드
+			if (prdsResponse.ok) {
+				prds = await prdsResponse.json();
+			}
+			
+			// 설계 정보 로드
+			if (designResponse.ok) {
+				const design = await designResponse.json();
 				form = {
 					title: design.title || '',
 					description: design.description || '',
@@ -217,15 +229,18 @@
 
 					<div>
 						<label for="requirement_id" class="block text-sm font-medium text-gray-700 mb-1">
-							연관 요구사항 ID
+							연관 요구사항
 						</label>
-						<input
+						<select
 							id="requirement_id"
-							type="text"
 							bind:value={form.requirement_id}
-							class="form-input w-full"
-							placeholder="연관된 PRD ID (선택사항)"
-						/>
+							class="form-select w-full"
+						>
+							<option value="">-- 요구사항 선택 (선택사항) --</option>
+							{#each prds as prd}
+								<option value={prd.id}>{prd.title}</option>
+							{/each}
+						</select>
 					</div>
 
 					<div class="md:col-span-2">

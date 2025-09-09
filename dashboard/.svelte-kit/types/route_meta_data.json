@@ -21,11 +21,32 @@
 	"/api/prds/[id]": [
 		"src/routes/api/prds/[id]/+server.js"
 	],
+	"/api/prds/[id]/designs": [
+		"src/routes/api/prds/[id]/designs/+server.js"
+	],
+	"/api/prds/[id]/tasks": [
+		"src/routes/api/prds/[id]/tasks/+server.js"
+	],
+	"/api/projects": [
+		"src/routes/api/projects/+server.js"
+	],
+	"/api/projects/[id]": [
+		"src/routes/api/projects/[id]/+server.js"
+	],
+	"/api/projects/[id]/links": [
+		"src/routes/api/projects/[id]/links/+server.js"
+	],
+	"/api/relationships": [
+		"src/routes/api/relationships/+server.js"
+	],
 	"/api/tasks": [
 		"src/routes/api/tasks/+server.js"
 	],
 	"/api/tasks/[id]": [
 		"src/routes/api/tasks/[id]/+server.js"
+	],
+	"/api/tasks/[id]/connections": [
+		"src/routes/api/tasks/[id]/connections/+server.js"
 	],
 	"/api/tasks/[id]/tests": [
 		"src/routes/api/tasks/[id]/tests/+server.js"
@@ -54,10 +75,15 @@
 	"/documents/[id]": [],
 	"/gantt": [],
 	"/kanban": [],
+	"/network": [],
 	"/prds": [],
 	"/prds/new": [],
 	"/prds/[id]": [],
 	"/prds/[id]/edit": [],
+	"/projects": [],
+	"/projects/new": [],
+	"/projects/[id]": [],
+	"/projects/[id]/edit": [],
 	"/tasks": [],
 	"/tasks/new": [],
 	"/tasks/[id]": [],

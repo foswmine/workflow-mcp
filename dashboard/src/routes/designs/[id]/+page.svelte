@@ -5,6 +5,7 @@
 	let design = null;
 	let loading = true;
 	let error = null;
+	let linkedPrd = null;
 	
 	function formatDate(dateValue) {
 		if (!dateValue) return '-';
@@ -54,6 +55,18 @@
 			const response = await fetch(`/api/designs/${$page.params.id}`);
 			if (response.ok) {
 				design = await response.json();
+				
+				// 연결된 요구사항이 있으면 해당 PRD 정보를 가져오기
+				if (design.requirement_id) {
+					try {
+						const prdResponse = await fetch(`/api/prds/${design.requirement_id}`);
+						if (prdResponse.ok) {
+							linkedPrd = await prdResponse.json();
+						}
+					} catch (e) {
+						console.error('연결된 PRD 정보 로드 실패:', e);
+					}
+				}
 			} else {
 				error = '설계를 찾을 수 없습니다';
 			}
@@ -100,6 +113,7 @@
 					<div>
 						<label class="block text-sm font-medium text-gray-700 mb-1">제목</label>
 						<div class="text-gray-900 font-medium">{design.title}</div>
+						<div class="text-xs text-gray-500 mt-1 font-mono">ID: {design.id}</div>
 					</div>
 					<div>
 						<label class="block text-sm font-medium text-gray-700 mb-1">설계 타입</label>
@@ -123,10 +137,26 @@
 						<label class="block text-sm font-medium text-gray-700 mb-1">생성일</label>
 						<div class="text-gray-600">{formatDate(design.created_at)}</div>
 					</div>
+					<div>
+						<label class="block text-sm font-medium text-gray-700 mb-1">최종 수정일</label>
+						<div class="text-gray-600">{formatDate(design.updated_at)}</div>
+					</div>
 					{#if design.requirement_id}
 						<div>
 							<label class="block text-sm font-medium text-gray-700 mb-1">연관 요구사항</label>
-							<div class="text-gray-600">{design.requirement_id}</div>
+							{#if linkedPrd}
+								<a 
+									href="/prds/{design.requirement_id}" 
+									class="text-blue-600 hover:text-blue-800 hover:underline font-medium"
+									title="요구사항 상세보기"
+								>
+									{linkedPrd.title}
+								</a>
+								<div class="text-xs text-gray-500 mt-1">ID: {design.requirement_id}</div>
+							{:else}
+								<div class="text-gray-600">{design.requirement_id}</div>
+								<div class="text-xs text-gray-400">(요구사항 정보 로드 실패)</div>
+							{/if}
 						</div>
 					{/if}
 				</div>
@@ -220,28 +250,6 @@
 				</div>
 			{/if}
 
-			<!-- 메타데이터 -->
-			<div class="card">
-				<h2 class="text-xl font-semibold text-gray-900 mb-4">메타데이터</h2>
-				<div class="grid grid-cols-1 md:grid-cols-2 gap-4 text-sm">
-					<div>
-						<label class="block text-sm font-medium text-gray-700 mb-1">ID</label>
-						<div class="text-gray-600 font-mono">{design.id}</div>
-					</div>
-					<div>
-						<label class="block text-sm font-medium text-gray-700 mb-1">최종 수정일</label>
-						<div class="text-gray-600">{formatDate(design.updated_at)}</div>
-					</div>
-					<div>
-						<label class="block text-sm font-medium text-gray-700 mb-1">버전</label>
-						<div class="text-gray-600">{design.version || 1}</div>
-					</div>
-					<div>
-						<label class="block text-sm font-medium text-gray-700 mb-1">생성자</label>
-						<div class="text-gray-600">{design.created_by || 'system'}</div>
-					</div>
-				</div>
-			</div>
 		</div>
 	{/if}
 </div>

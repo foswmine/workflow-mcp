@@ -361,6 +361,76 @@ export class DesignManager {
   }
 
   /**
+   * 특정 요구사항(PRD)에 연결된 설계 목록 조회
+   * @param {string} requirementId - PRD ID
+   * @returns {Object} 연결된 설계 목록
+   */
+  async getDesignsByRequirement(requirementId) {
+    await this.ensureInitialized();
+    try {
+      const designs = await this.storage.getDesignsByRequirement(requirementId);
+      
+      // 각 설계에 추가 정보 추가 (타입별 아이콘, 상태별 색상 등)
+      const enrichedDesigns = designs.map(design => ({
+        ...design,
+        typeIcon: this.getTypeIcon(design.design_type),
+        statusColor: this.getStatusColor(design.status),
+        daysFromLastUpdate: this.calculateDaysFromDate(design.updated_at)
+      }));
+
+      return {
+        success: true,
+        designs: enrichedDesigns,
+        total: enrichedDesigns.length,
+        statusBreakdown: this.getStatusBreakdown(enrichedDesigns),
+        typeBreakdown: this.getTypeBreakdown(enrichedDesigns),
+        message: `요구사항 "${requirementId}"에 연결된 설계 ${enrichedDesigns.length}개 조회 완료`
+      };
+
+    } catch (error) {
+      throw new Error(`요구사항별 설계 목록 조회 실패: ${error.message}`);
+    }
+  }
+
+  /**
+   * 설계 타입별 아이콘 반환
+   */
+  getTypeIcon(designType) {
+    const icons = {
+      [DesignType.SYSTEM]: '⚙️',
+      [DesignType.ARCHITECTURE]: '🏗️', 
+      [DesignType.UI_UX]: '🎨',
+      [DesignType.DATABASE]: '🗄️',
+      [DesignType.API]: '🔌'
+    };
+    return icons[designType] || '📋';
+  }
+
+  /**
+   * 상태별 색상 반환
+   */
+  getStatusColor(status) {
+    const colors = {
+      [DesignStatus.DRAFT]: 'gray',
+      [DesignStatus.REVIEW]: 'yellow',
+      [DesignStatus.APPROVED]: 'green',
+      [DesignStatus.IMPLEMENTED]: 'blue'
+    };
+    return colors[status] || 'gray';
+  }
+
+  /**
+   * 날짜로부터 경과 일수 계산
+   */
+  calculateDaysFromDate(dateString) {
+    if (!dateString) return null;
+    const date = new Date(dateString);
+    const today = new Date();
+    const diffTime = today - date;
+    return Math.floor(diffTime / (1000 * 60 * 60 * 24));
+  }
+
+  /**
    * 우선순위 정규화 (대소문자 구분 없이 소문자로 변환)
    * @param {string} priority - 우선순위 값
    * @returns {string} 정규화된 소문자 우선순위 (high, medium, low)

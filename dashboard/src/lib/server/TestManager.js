@@ -241,6 +241,7 @@ export class TestManager {
       // 저장
       await this.storage.saveTestCase(updatedTestCase);
 
+
       return {
         success: true,
         testCase: await this.storage.getTestCase(testCaseId),
@@ -341,6 +342,7 @@ export class TestManager {
       throw new Error(`Test 실행 기록 조회 실패: ${error.message}`);
     }
   }
+
 
   /**
    * 상태별 분류

@@ -17,10 +17,22 @@ export async function GET({ url }) {
 		const doc_type = url.searchParams.get('doc_type');
 		const category = url.searchParams.get('category');
 		const status = url.searchParams.get('status');
+		const linked_entity_type = url.searchParams.get('linked_entity_type');
+		const linked_entity_id = url.searchParams.get('linked_entity_id');
 		const limit = parseInt(url.searchParams.get('limit') || '50');
 
-		let sql = 'SELECT * FROM documents WHERE 1=1'; // document_overview view가 없을 수 있으므로 직접 테이블 사용
-		const params = [];
+		let sql, params = [];
+
+		// 연결된 엔티티로 필터링하는 경우
+		if (linked_entity_type && linked_entity_id) {
+			sql = `SELECT d.*, dl.link_type 
+				   FROM documents d 
+				   LEFT JOIN document_links dl ON d.id = dl.document_id 
+				   WHERE dl.entity_type = ? AND dl.entity_id = ?`;
+			params.push(linked_entity_type, linked_entity_id);
+		} else {
+			sql = 'SELECT * FROM documents WHERE 1=1';
+		}
 
 		if (doc_type) {
 			sql += ' AND doc_type = ?';
@@ -44,7 +56,7 @@ export async function GET({ url }) {
 		
 		await db.close();
 
-		return json(documents);
+		return json({ documents });
 		
 	} catch (error) {
 		console.error('Error fetching documents:', error);

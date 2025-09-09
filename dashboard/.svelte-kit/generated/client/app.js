@@ -24,7 +24,12 @@ export const nodes = [
 	() => import('./nodes/20'),
 	() => import('./nodes/21'),
 	() => import('./nodes/22'),
-	() => import('./nodes/23')
+	() => import('./nodes/23'),
+	() => import('./nodes/24'),
+	() => import('./nodes/25'),
+	() => import('./nodes/26'),
+	() => import('./nodes/27'),
+	() => import('./nodes/28')
 ];
 
 export const server_loads = [];
@@ -40,18 +45,23 @@ export const dictionary = {
 		"/documents/[id]": [9],
 		"/gantt": [10],
 		"/kanban": [11],
-		"/prds": [12],
-		"/prds/new": [13],
-		"/prds/[id]": [14],
-		"/prds/[id]/edit": [15],
-		"/tasks": [16],
-		"/tasks/new": [17],
-		"/tasks/[id]": [18],
-		"/tasks/[id]/edit": [19],
-		"/tests": [20],
-		"/tests/new": [21],
-		"/tests/[id]": [22],
-		"/tests/[id]/edit": [23]
+		"/network": [12],
+		"/prds": [13],
+		"/prds/new": [14],
+		"/prds/[id]": [15],
+		"/prds/[id]/edit": [16],
+		"/projects": [17],
+		"/projects/new": [18],
+		"/projects/[id]": [19],
+		"/projects/[id]/edit": [20],
+		"/tasks": [21],
+		"/tasks/new": [22],
+		"/tasks/[id]": [23],
+		"/tasks/[id]/edit": [24],
+		"/tests": [25],
+		"/tests/new": [26],
+		"/tests/[id]": [27],
+		"/tests/[id]/edit": [28]
 	};
 
 export const hooks = {

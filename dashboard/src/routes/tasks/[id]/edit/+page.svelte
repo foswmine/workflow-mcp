@@ -12,6 +12,8 @@
 		estimatedHours: 0,
 		actualHours: 0,
 		dueDate: '',
+		prd_id: null,
+		design_id: null,
 		tags: '',
 		notes: '',
 		details: '',
@@ -24,6 +26,21 @@
 	let error = null;
 	let initialLoading = true;
 	let designs = [];
+	let prds = [];
+	let tests = [];
+	let documents = [];
+	let additionalLinks = [];
+	let availableEntities = {
+		prd: [],
+		design: [],
+		test: [],
+		document: []
+	};
+
+	// 새 연결 추가를 위한 변수들
+	let newConnectionType = '';
+	let newConnectionEntityId = '';
+	let showingConnections = [];
 	
 	function formatDate(dateValue) {
 		if (!dateValue) return '-';
@@ -54,10 +71,34 @@
 	
 	onMount(async () => {
 		try {
-			// Load designs for the dropdown
-			const designsResponse = await fetch('/api/designs');
+			// Load designs, PRDs, tests, and documents in parallel
+			const [designsResponse, prdsResponse, testsResponse, documentsResponse] = await Promise.all([
+				fetch('/api/designs'),
+				fetch('/api/prds'),
+				fetch('/api/tests'),
+				fetch('/api/documents')
+			]);
+			
 			if (designsResponse.ok) {
 				designs = await designsResponse.json();
+				availableEntities.design = designs;
+			}
+			
+			if (prdsResponse.ok) {
+				prds = await prdsResponse.json();
+				availableEntities.prd = prds;
+			}
+
+			if (testsResponse.ok) {
+				const testsData = await testsResponse.json();
+				tests = testsData;
+				availableEntities.test = testsData;
+			}
+
+			if (documentsResponse.ok) {
+				const documentsData = await documentsResponse.json();
+				documents = documentsData.documents || documentsData;
+				availableEntities.document = documents;
 			}
 			
 			// Load task data
@@ -73,13 +114,17 @@
 					estimatedHours: task.estimatedHours || 0,
 					actualHours: task.actualHours || 0,
 					dueDate: formatDate(task.dueDate) || '',
-					designId: task.designId || task.planId || null,
+					design_id: task.design_id || task.designId || task.planId || null,
+					prd_id: task.prd_id || null,
 					tags: Array.isArray(task.tags) ? task.tags.join(', ') : '',
 					notes: task.notes || '',
 					details: task.details || '',
 					acceptanceCriteria: Array.isArray(task.acceptanceCriteria) ? task.acceptanceCriteria : [],
 					testStrategy: task.testStrategy || ''
 				};
+
+				// 기존 추가 연결들을 로드
+				await loadExistingConnections();
 			} else {
 				error = '작업을 찾을 수 없습니다';
 			}
@@ -100,6 +145,64 @@
 	function removeCriteria(index) {
 		form.acceptanceCriteria = form.acceptanceCriteria.filter((_, i) => i !== index);
 	}
+
+	// 기존 연결들을 로드하는 함수
+	async function loadExistingConnections() {
+		try {
+			const response = await fetch(`/api/tasks/${$page.params.id}/connections`);
+			if (response.ok) {
+				const connections = await response.json();
+				showingConnections = connections.map(conn => ({
+					...conn,
+					isNew: false
+				}));
+			}
+		} catch (e) {
+			console.error('연결 정보 로드 오류:', e);
+		}
+	}
+
+	// 새 연결을 추가하는 함수
+	function addNewConnection() {
+		if (!newConnectionType || !newConnectionEntityId) {
+			return;
+		}
+
+		const newConnection = {
+			id: Date.now(), // 임시 ID
+			entity_type: newConnectionType,
+			entity_id: newConnectionEntityId,
+			isNew: true
+		};
+
+		showingConnections = [...showingConnections, newConnection];
+		newConnectionType = '';
+		newConnectionEntityId = '';
+	}
+
+	// 연결을 제거하는 함수
+	function removeConnection(index) {
+		showingConnections = showingConnections.filter((_, i) => i !== index);
+	}
+
+	// 연결 유형별 표시 이름을 반환하는 함수
+	function getConnectionTypeLabel(type) {
+		const labels = {
+			prd: '요구사항',
+			design: '설계',
+			test: '테스트',
+			document: '문서',
+			other: '기타'
+		};
+		return labels[type] || type;
+	}
+
+	// 엔터티 이름을 가져오는 함수
+	function getEntityName(type, id) {
+		const entities = availableEntities[type] || [];
+		const entity = entities.find(e => e.id === id);
+		return entity ? entity.title || entity.name || `ID: ${id}` : `ID: ${id}`;
+	}
 	
 	async function handleSubmit() {
 		if (!form.title.trim()) {
@@ -119,7 +222,8 @@
 				tags: form.tags ? form.tags.split(',').map(tag => tag.trim()).filter(tag => tag) : [],
 				estimatedHours: Number(form.estimatedHours) || 0,
 				actualHours: Number(form.actualHours) || 0,
-				acceptanceCriteria: form.acceptanceCriteria
+				acceptanceCriteria: form.acceptanceCriteria,
+				additionalConnections: showingConnections
 			};
 			
 			const response = await fetch(`/api/tasks/${$page.params.id}`, {
@@ -248,10 +352,24 @@
 						</div>
 
 						<div>
-							<label for="designId" class="block text-sm font-medium text-gray-700 mb-1">
+							<label for="prd_id" class="block text-sm font-medium text-gray-700 mb-1">
+								연결된 요구사항
+							</label>
+							<select id="prd_id" bind:value={form.prd_id} class="form-select w-full">
+								<option value={null}>요구사항 선택 (선택사항)</option>
+								{#each prds as prd}
+									<option value={prd.id}>{prd.title}</option>
+								{/each}
+							</select>
+						</div>
+					</div>
+
+					<div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+						<div>
+							<label for="design_id" class="block text-sm font-medium text-gray-700 mb-1">
 								연결된 설계
 							</label>
-							<select id="designId" bind:value={form.designId} class="form-select w-full">
+							<select id="design_id" bind:value={form.design_id} class="form-select w-full">
 								<option value={null}>설계 선택 (선택사항)</option>
 								{#each designs as design}
 									<option value={design.id}>{design.title}</option>
@@ -364,6 +482,83 @@
 							class="form-textarea w-full"
 							placeholder="기타 메모사항을 입력하세요"
 						></textarea>
+					</div>
+				</div>
+			</div>
+
+			<!-- 추가 연결 -->
+			<div class="card">
+				<h2 class="text-xl font-semibold text-gray-900 mb-4">추가 연결</h2>
+				
+				<!-- 기존 연결 목록 -->
+				{#if showingConnections.length > 0}
+					<div class="space-y-2 mb-4">
+						{#each showingConnections as connection, index}
+							<div class="flex items-center space-x-2 p-3 bg-blue-50 rounded-lg">
+								<span class="text-sm font-medium text-blue-800">
+									{getConnectionTypeLabel(connection.entity_type)}
+								</span>
+								<span class="text-sm text-blue-600 flex-1">
+									{getEntityName(connection.entity_type, connection.entity_id)}
+								</span>
+								<button
+									type="button"
+									class="text-red-600 hover:text-red-800 text-sm"
+									on:click={() => removeConnection(index)}
+								>
+									삭제
+								</button>
+							</div>
+						{/each}
+					</div>
+				{/if}
+
+				<!-- 새 연결 추가 -->
+				<div class="space-y-3">
+					<div class="grid grid-cols-1 md:grid-cols-3 gap-3">
+						<!-- 연결 유형 선택 -->
+						<div>
+							<label class="block text-sm font-medium text-gray-700 mb-1">
+								연결 유형
+							</label>
+							<select bind:value={newConnectionType} class="form-select w-full">
+								<option value="">유형 선택</option>
+								<option value="prd">요구사항</option>
+								<option value="design">설계</option>
+								<option value="test">테스트</option>
+								<option value="document">문서</option>
+								<option value="other">기타</option>
+							</select>
+						</div>
+
+						<!-- 항목 선택 -->
+						<div>
+							<label class="block text-sm font-medium text-gray-700 mb-1">
+								항목 선택
+							</label>
+							<select bind:value={newConnectionEntityId} class="form-select w-full" disabled={!newConnectionType}>
+								<option value="">항목 선택</option>
+								{#if newConnectionType && availableEntities[newConnectionType]}
+									{#each availableEntities[newConnectionType] as entity}
+										<option value={entity.id}>
+											{entity.title || entity.name || `ID: ${entity.id}`}
+										</option>
+									{/each}
+								{/if}
+							</select>
+						</div>
+
+						<!-- 추가 버튼 -->
+						<div class="flex items-end">
+							<button
+								type="button"
+								class="btn btn-primary w-full"
+								on:click={addNewConnection}
+								disabled={!newConnectionType || !newConnectionEntityId}
+							>
+								연결 추가
+							</button>
+						</div>
 					</div>
 				</div>
 			</div>

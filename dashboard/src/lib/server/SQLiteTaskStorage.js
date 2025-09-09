@@ -45,9 +45,9 @@ export class SQLiteTaskStorage {
       INSERT OR REPLACE INTO tasks (
         id, title, description, status, priority, assigned_to,
         estimated_hours, actual_hours, due_date, created_at, updated_at,
-        plan_id, version, created_by, tags, notes,
+        plan_id, prd_id, version, created_by, tags, notes,
         details, acceptance_criteria, test_strategy, status_changed_at, completed_at
-      ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+      ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
     `);
 
     const result = await stmt.run(
@@ -63,6 +63,7 @@ export class SQLiteTaskStorage {
       task.createdAt,
       task.updatedAt,
       task.planId,
+      task.prd_id || null, // PRD 연결 정보 추가
       task.version || 1,
       task.createdBy || 'system',
       JSON.stringify(task.tags || []),
@@ -301,6 +302,7 @@ export class SQLiteTaskStorage {
       createdAt: row.created_at,
       updatedAt: row.updated_at,
       planId: row.plan_id,
+      prd_id: row.prd_id, // PRD 연결 정보 추가
       version: row.version,
       createdBy: row.created_by,
       tags: this.safeJsonParse(row.tags, []),
@@ -324,6 +326,162 @@ export class SQLiteTaskStorage {
       console.warn('JSON 파싱 실패:', jsonString);
       return defaultValue;
     }
+  }
+
+  /**
+   * PRD-Task 연결 생성
+   */
+  async createPrdTaskLink(prdId, taskId, linkType = 'direct', createdBy = 'system') {
+    const db = await this.getDatabase();
+    
+    const result = await db.run(`
+      INSERT OR REPLACE INTO prd_task_links (
+        prd_id, task_id, link_type, created_at, created_by
+      ) VALUES (?, ?, ?, ?, ?)
+    `, prdId, taskId, linkType, new Date().toISOString(), createdBy);
+    
+    return result;
+  }
+
+  /**
+   * PRD-Task 연결 삭제
+   */
+  async deletePrdTaskLink(prdId, taskId) {
+    const db = await this.getDatabase();
+    
+    const result = await db.run(`
+      DELETE FROM prd_task_links WHERE prd_id = ? AND task_id = ?
+    `, prdId, taskId);
+    
+    return result.changes > 0;
+  }
+
+  /**
+   * Task의 PRD 연결 정보 조회
+   */
+  async getTaskPrdLinks(taskId) {
+    const db = await this.getDatabase();
+    
+    const links = await db.all(`
+      SELECT * FROM prd_task_links WHERE task_id = ?
+    `, taskId);
+    
+    return links;
+  }
+
+  /**
+   * PRD의 연결된 Task 목록 조회
+   */
+  async getPrdTaskLinks(prdId) {
+    const db = await this.getDatabase();
+    
+    const links = await db.all(`
+      SELECT * FROM prd_task_links WHERE prd_id = ?
+    `, prdId);
+    
+    return links;
+  }
+
+  /**
+   * PRD에 직접 연결된 작업 목록 조회
+   */
+  async getTasksByPRDDirect(prdId) {
+    const db = await this.getDatabase();
+    
+    const rows = await db.all(`
+      SELECT t.* FROM tasks t
+      JOIN prd_task_links ptl ON t.id = ptl.task_id
+      WHERE ptl.prd_id = ?
+      ORDER BY t.created_at DESC
+    `, prdId);
+    
+    const tasks = [];
+    for (const row of rows) {
+      const task = this.formatTaskRow(row);
+      
+      // 각 task의 dependencies 조회
+      const dependencies = await db.all(
+        'SELECT prerequisite_task_id FROM task_dependencies WHERE dependent_task_id = ?',
+        task.id
+      );
+      task.dependencies = dependencies.map(dep => dep.prerequisite_task_id);
+      
+      tasks.push(task);
+    }
+    
+    return tasks;
+  }
+
+  /**
+   * PRD에 간접 연결된 작업 목록 조회 (PRD -> 설계 -> 작업)
+   */
+  async getTasksByPRDIndirect(prdId) {
+    const db = await this.getDatabase();
+    
+    const rows = await db.all(`
+      SELECT DISTINCT t.* FROM tasks t
+      JOIN designs d ON t.design_id = d.id
+      WHERE d.requirement_id = ?
+      ORDER BY t.created_at DESC
+    `, prdId);
+    
+    const tasks = [];
+    for (const row of rows) {
+      const task = this.formatTaskRow(row);
+      
+      // 각 task의 dependencies 조회
+      const dependencies = await db.all(
+        'SELECT prerequisite_task_id FROM task_dependencies WHERE dependent_task_id = ?',
+        task.id
+      );
+      task.dependencies = dependencies.map(dep => dep.prerequisite_task_id);
+      
+      tasks.push(task);
+    }
+    
+    return tasks;
+  }
+
+  /**
+   * 작업의 추가 연결들을 삭제 (직접 컬럼 제외)
+   * @param {string} taskId - 작업 ID
+   */
+  async deleteAdditionalConnections(taskId) {
+    const db = await this.getDatabase();
+    await db.run(`
+      DELETE FROM prd_task_links 
+      WHERE task_id = ? AND entity_type NOT IN ('prd', 'design')
+    `, taskId);
+  }
+
+  /**
+   * 작업에 추가 연결을 추가
+   * @param {string} taskId - 작업 ID
+   * @param {Object} connection - 연결 정보
+   */
+  async addAdditionalConnection(taskId, connection) {
+    const db = await this.getDatabase();
+    await db.run(`
+      INSERT INTO prd_task_links (task_id, prd_id, entity_type, entity_id, created_at)
+      VALUES (?, NULL, ?, ?, datetime('now'))
+    `, [taskId, connection.entity_type, connection.entity_id]);
+  }
+
+  /**
+   * 작업의 추가 연결들을 조회
+   * @param {string} taskId - 작업 ID
+   * @returns {Array} 추가 연결 배열
+   */
+  async getAdditionalConnections(taskId) {
+    const db = await this.getDatabase();
+    const rows = await db.all(`
+      SELECT entity_type, entity_id, created_at
+      FROM prd_task_links 
+      WHERE task_id = ? AND entity_type NOT IN ('prd', 'design')
+      ORDER BY created_at DESC
+    `, taskId);
+    
+    return rows;
   }
 
   async cleanup() {

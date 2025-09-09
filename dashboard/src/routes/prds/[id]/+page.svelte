@@ -3,6 +3,20 @@
 	import { onMount } from 'svelte';
 	
 	let prd = null;
+	let linkedDesigns = [];
+	let linkedDocuments = [];
+	let linkedTasks = {
+		direct: [],
+		indirect: [],
+		all: []
+	};
+	let taskStatistics = {
+		total: 0,
+		direct: 0,
+		indirect: 0,
+		completed: 0,
+		progress: 0
+	};
 	let loading = true;
 	let error = null;
 	
@@ -51,13 +65,33 @@
 
 	onMount(async () => {
 		try {
-			const response = await fetch(`/api/prds/${$page.params.id}`);
-			if (response.ok) {
-				prd = await response.json();
+			// PRD 기본 정보, 연결된 설계, 연결된 작업을 병렬로 로드
+			const [prdResponse, designsResponse, tasksResponse] = await Promise.all([
+				fetch(`/api/prds/${$page.params.id}`),
+				fetch(`/api/prds/${$page.params.id}/designs`),
+				fetch(`/api/prds/${$page.params.id}/tasks`)
+			]);
+
+			if (prdResponse.ok) {
+				prd = await prdResponse.json();
 			} else {
 				error = 'PRD를 찾을 수 없습니다';
 			}
+
+			if (designsResponse.ok) {
+				const designsData = await designsResponse.json();
+				linkedDesigns = designsData.designs || [];
+			}
+
+			if (tasksResponse.ok) {
+				const tasksData = await tasksResponse.json();
+				linkedTasks = tasksData.tasks || { direct: [], indirect: [], all: [] };
+				taskStatistics = tasksData.statistics || {
+					total: 0, direct: 0, indirect: 0, completed: 0, progress: 0
+				};
+			}
 		} catch (e) {
+			console.error('Data loading error:', e);
 			error = '데이터를 불러오는 중 오류가 발생했습니다';
 		} finally {
 			loading = false;
@@ -100,6 +134,7 @@
 					<div>
 						<label class="block text-sm font-medium text-gray-700 mb-1">제목</label>
 						<div class="text-gray-900 font-medium">{prd.title}</div>
+						<div class="text-xs text-gray-500 mt-1 font-mono">ID: {prd.id}</div>
 					</div>
 					<div>
 						<label class="block text-sm font-medium text-gray-700 mb-1">우선순위</label>
@@ -116,6 +151,10 @@
 					<div>
 						<label class="block text-sm font-medium text-gray-700 mb-1">생성일</label>
 						<div class="text-gray-600">{formatDate(prd.created_at)}</div>
+					</div>
+					<div>
+						<label class="block text-sm font-medium text-gray-700 mb-1">최종 수정일</label>
+						<div class="text-gray-600">{formatDate(prd.updated_at)}</div>
 					</div>
 				</div>
 				
@@ -159,28 +198,164 @@
 				</div>
 			{/if}
 
-			<!-- 메타데이터 -->
-			<div class="card">
-				<h2 class="text-xl font-semibold text-gray-900 mb-4">메타데이터</h2>
-				<div class="grid grid-cols-1 md:grid-cols-2 gap-4 text-sm">
-					<div>
-						<label class="block text-sm font-medium text-gray-700 mb-1">ID</label>
-						<div class="text-gray-600 font-mono">{prd.id}</div>
+			<!-- 연결된 설계 -->
+			{#if linkedDesigns && linkedDesigns.length > 0}
+				<div class="card">
+					<div class="flex items-center justify-between mb-4">
+						<h2 class="text-xl font-semibold text-gray-900">📐 연결된 설계 ({linkedDesigns.length}개)</h2>
 					</div>
-					<div>
-						<label class="block text-sm font-medium text-gray-700 mb-1">최종 수정일</label>
-						<div class="text-gray-600">{formatDate(prd.updated_at)}</div>
-					</div>
-					<div>
-						<label class="block text-sm font-medium text-gray-700 mb-1">연결된 작업</label>
-						<div class="text-gray-600">{prd.task_count || 0}개</div>
-					</div>
-					<div>
-						<label class="block text-sm font-medium text-gray-700 mb-1">완료된 작업</label>
-						<div class="text-gray-600">{prd.completed_tasks || 0}개</div>
+					<div class="grid gap-3">
+						{#each linkedDesigns as design}
+							<div class="p-4 bg-gray-50 rounded-lg border hover:bg-gray-100 transition-colors">
+								<div class="flex items-start justify-between">
+									<div class="flex-1">
+										<div class="flex items-center space-x-2 mb-2">
+											<span class="text-lg">{design.typeIcon || '📋'}</span>
+											<h3 class="font-medium text-gray-900">
+												<a href="/designs/{design.id}" class="text-blue-600 hover:text-blue-800 hover:underline">
+													{design.title}
+												</a>
+											</h3>
+										</div>
+										<div class="flex items-center space-x-2 mb-2">
+											<span class="badge badge-status-{design.statusColor}">
+												{design.status === 'draft' ? '초안' : 
+												 design.status === 'review' ? '검토중' : 
+												 design.status === 'approved' ? '승인' :
+												 design.status === 'implemented' ? '구현완료' : design.status}
+											</span>
+											<span class="badge badge-gray">
+												{design.design_type === 'system' ? '시스템' :
+												 design.design_type === 'architecture' ? '아키텍처' :
+												 design.design_type === 'ui_ux' ? 'UI/UX' :
+												 design.design_type === 'database' ? '데이터베이스' :
+												 design.design_type === 'api' ? 'API' : design.design_type}
+											</span>
+										</div>
+										{#if design.description}
+											<p class="text-gray-600 text-sm">
+												{design.description.length > 100 ? 
+												 design.description.substring(0, 100) + '...' : design.description}
+											</p>
+										{/if}
+										{#if design.daysFromLastUpdate !== null}
+											<div class="text-xs text-gray-500 mt-2">
+												{design.daysFromLastUpdate === 0 ? '오늘 수정됨' :
+												 `${design.daysFromLastUpdate}일 전 수정됨`}
+											</div>
+										{/if}
+									</div>
+								</div>
+							</div>
+						{/each}
 					</div>
 				</div>
-			</div>
+			{/if}
+
+			<!-- 연결된 작업 -->
+			{#if taskStatistics.total > 0}
+				<div class="card">
+					<div class="flex items-center justify-between mb-4">
+						<h2 class="text-xl font-semibold text-gray-900">📋 연결된 작업 ({taskStatistics.total}개)</h2>
+						<div class="flex items-center space-x-4">
+							<div class="text-sm text-gray-600">
+								진행률: <span class="font-semibold text-blue-600">{taskStatistics.progress}%</span>
+							</div>
+							<div class="w-24 bg-gray-200 rounded-full h-2">
+								<div class="bg-blue-600 h-2 rounded-full" style="width: {taskStatistics.progress}%"></div>
+							</div>
+						</div>
+					</div>
+
+					<!-- 통계 요약 -->
+					<div class="grid grid-cols-2 md:grid-cols-4 gap-4 mb-4 p-4 bg-gray-50 rounded-lg">
+						<div class="text-center">
+							<div class="text-lg font-semibold text-gray-900">{taskStatistics.total}</div>
+							<div class="text-sm text-gray-600">전체</div>
+						</div>
+						<div class="text-center">
+							<div class="text-lg font-semibold text-blue-600">{taskStatistics.direct}</div>
+							<div class="text-sm text-gray-600">직접 연결</div>
+						</div>
+						<div class="text-center">
+							<div class="text-lg font-semibold text-purple-600">{taskStatistics.indirect}</div>
+							<div class="text-sm text-gray-600">간접 연결</div>
+						</div>
+						<div class="text-center">
+							<div class="text-lg font-semibold text-green-600">{taskStatistics.completed}</div>
+							<div class="text-sm text-gray-600">완료</div>
+						</div>
+					</div>
+
+					<!-- 직접 연결 작업 -->
+					{#if linkedTasks.direct && linkedTasks.direct.length > 0}
+						<div class="mb-6">
+							<h3 class="text-lg font-medium text-gray-900 mb-3">직접 연결 작업 ({linkedTasks.direct.length}개)</h3>
+							<div class="grid gap-3">
+								{#each linkedTasks.direct as task}
+									<div class="p-3 bg-blue-50 rounded-lg border border-blue-200">
+										<div class="flex items-center justify-between">
+											<div class="flex-1">
+												<h4 class="font-medium text-gray-900">
+													<a href="/tasks/{task.id}" class="text-blue-700 hover:text-blue-900 hover:underline">
+														{task.title}
+													</a>
+												</h4>
+												<div class="flex items-center space-x-2 mt-1">
+													<span class="badge {task.status === 'done' || task.status === 'completed' ? 'badge-green' : 
+																		task.status === 'in_progress' ? 'badge-blue' : 
+																		task.status === 'blocked' ? 'badge-red' : 'badge-gray'}">
+														{task.status === 'done' || task.status === 'completed' ? '완료' : 
+														 task.status === 'in_progress' ? '진행중' : 
+														 task.status === 'blocked' ? '차단됨' : '대기중'}
+													</span>
+													<span class="badge {task.priority === 'high' ? 'badge-red' : 
+																		task.priority === 'medium' ? 'badge-yellow' : 'badge-green'}">
+														{task.priority === 'high' ? '높음' : task.priority === 'medium' ? '보통' : '낮음'}
+													</span>
+												</div>
+											</div>
+										</div>
+									</div>
+								{/each}
+							</div>
+						</div>
+					{/if}
+
+					<!-- 간접 연결 작업 -->
+					{#if linkedTasks.indirect && linkedTasks.indirect.length > 0}
+						<div>
+							<h3 class="text-lg font-medium text-gray-900 mb-3">간접 연결 작업 ({linkedTasks.indirect.length}개)</h3>
+							<div class="grid gap-3">
+								{#each linkedTasks.indirect as task}
+									<div class="p-3 bg-purple-50 rounded-lg border border-purple-200">
+										<div class="flex items-center justify-between">
+											<div class="flex-1">
+												<h4 class="font-medium text-gray-900">
+													<a href="/tasks/{task.id}" class="text-purple-700 hover:text-purple-900 hover:underline">
+														{task.title}
+													</a>
+												</h4>
+												<div class="flex items-center space-x-2 mt-1">
+													<span class="badge {task.status === 'done' || task.status === 'completed' ? 'badge-green' : 
+																		task.status === 'in_progress' ? 'badge-blue' : 
+																		task.status === 'blocked' ? 'badge-red' : 'badge-gray'}">
+														{task.status === 'done' || task.status === 'completed' ? '완료' : 
+														 task.status === 'in_progress' ? '진행중' : 
+														 task.status === 'blocked' ? '차단됨' : '대기중'}
+													</span>
+													<span class="text-xs text-purple-600">설계를 통한 연결</span>
+												</div>
+											</div>
+										</div>
+									</div>
+								{/each}
+							</div>
+						</div>
+					{/if}
+				</div>
+			{/if}
+
 		</div>
 	{/if}
 </div>
@@ -189,6 +364,21 @@
 	.badge {
 		@apply inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium;
 	}
+	
+	/* Badge color variations */
+	.badge-green { @apply bg-green-100 text-green-800; }
+	.badge-blue { @apply bg-blue-100 text-blue-800; }
+	.badge-red { @apply bg-red-100 text-red-800; }
+	.badge-yellow { @apply bg-yellow-100 text-yellow-800; }
+	.badge-purple { @apply bg-purple-100 text-purple-800; }
+	.badge-gray { @apply bg-gray-100 text-gray-800; }
+	
+	/* Badge status colors */
+	.badge-status-green { @apply bg-green-100 text-green-800; }
+	.badge-status-blue { @apply bg-blue-100 text-blue-800; }
+	.badge-status-yellow { @apply bg-yellow-100 text-yellow-800; }
+	.badge-status-gray { @apply bg-gray-100 text-gray-800; }
+	
 	.card {
 		@apply bg-white rounded-lg shadow p-6;
 	}

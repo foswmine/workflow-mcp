@@ -1,4 +1,5 @@
 <script>
+	import { onMount } from 'svelte';
 	import { goto } from '$app/navigation';
 
 	let form = {
@@ -7,13 +8,27 @@
 		requirements: [],
 		acceptance_criteria: [],
 		priority: 'medium',
-		status: 'active'
+		status: 'active',
+		project_id: ''
 	};
 
+	let projects = [];
 	let newRequirement = '';
 	let newCriteria = '';
 	let loading = false;
 	let error = null;
+
+	// 프로젝트 목록 로드
+	onMount(async () => {
+		try {
+			const response = await fetch('/api/projects');
+			if (response.ok) {
+				projects = await response.json();
+			}
+		} catch (e) {
+			console.error('프로젝트 목록 로드 실패:', e);
+		}
+	});
 
 	function addRequirement() {
 		if (newRequirement.trim()) {
@@ -116,6 +131,19 @@
 						placeholder="PRD 제목을 입력하세요"
 						required
 					/>
+				</div>
+
+				<div class="md:col-span-2">
+					<label for="project_id" class="block text-sm font-medium text-gray-700 mb-1">
+						프로젝트 연결
+					</label>
+					<select id="project_id" bind:value={form.project_id} class="form-select w-full">
+						<option value="">프로젝트 선택 (선택사항)</option>
+						{#each projects as project}
+							<option value={project.id}>{project.name}</option>
+						{/each}
+					</select>
+					<p class="text-sm text-gray-500 mt-1">이 PRD를 특정 프로젝트와 연결할 수 있습니다.</p>
 				</div>
 
 				<div>

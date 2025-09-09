@@ -21,11 +21,30 @@ export async function GET({ params }) {
 export async function PUT({ params, request }) {
   try {
     const taskData = await request.json();
-    const result = await taskManager.updateTask(params.id, taskData);
-    if (!result.success) {
-      return json({ error: result.error || 'Failed to update task' }, { status: 500 });
+    
+    // additionalConnections 처리
+    if (taskData.additionalConnections) {
+      const additionalConnections = taskData.additionalConnections;
+      delete taskData.additionalConnections;
+      
+      const result = await taskManager.updateTask(params.id, taskData);
+      if (!result.success) {
+        return json({ error: result.error || 'Failed to update task' }, { status: 500 });
+      }
+      
+      // 추가 연결들을 prd_task_links 테이블에 저장
+      if (additionalConnections && additionalConnections.length > 0) {
+        await taskManager.updateAdditionalConnections(params.id, additionalConnections);
+      }
+      
+      return json(result);
+    } else {
+      const result = await taskManager.updateTask(params.id, taskData);
+      if (!result.success) {
+        return json({ error: result.error || 'Failed to update task' }, { status: 500 });
+      }
+      return json(result);
     }
-    return json(result);
   } catch (error) {
     console.error('Error updating task:', error);
     return json({ error: 'Failed to update task' }, { status: 500 });
