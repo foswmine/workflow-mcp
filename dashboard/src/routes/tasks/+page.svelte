@@ -4,6 +4,7 @@
 	let tasks = [];
 	let loading = true;
 	let error = null;
+	let sortBy = 'updated'; // 'updated', 'created', 'title'
 
 	onMount(async () => {
 		await loadTasks();
@@ -65,7 +66,8 @@
 
 	function getStatusColor(status) {
 		switch (status) {
-			case 'completed': return 'bg-green-100 text-green-800';
+			case 'completed':
+			case 'done': return 'bg-green-100 text-green-800';
 			case 'in_progress': return 'bg-blue-100 text-blue-800';
 			case 'pending': return 'bg-gray-100 text-gray-800';
 			default: return 'bg-gray-100 text-gray-800';
@@ -74,7 +76,8 @@
 
 	function getStatusLabel(status) {
 		switch (status) {
-			case 'completed': return '완료';
+			case 'completed':
+			case 'done': return '완료';
 			case 'in_progress': return '진행중';
 			case 'pending': return '대기중';
 			default: return status;
@@ -99,11 +102,25 @@
 		}
 	}
 
-	// 상태별 그룹화
+	// 정렬 로직
+	$: sortedTasks = tasks.sort((a, b) => {
+		switch (sortBy) {
+			case 'updated':
+				return new Date(b.updatedAt || b.updated_at) - new Date(a.updatedAt || a.updated_at);
+			case 'created':
+				return new Date(b.createdAt || b.created_at) - new Date(a.createdAt || a.created_at);
+			case 'title':
+				return a.title.localeCompare(b.title);
+			default:
+				return new Date(b.updatedAt || b.updated_at) - new Date(a.updatedAt || a.updated_at);
+		}
+	});
+
+	// 상태별 그룹화 (정렬된 데이터 사용)
 	$: tasksByStatus = {
-		pending: tasks.filter(t => t.status === 'pending'),
-		in_progress: tasks.filter(t => t.status === 'in_progress'),  
-		completed: tasks.filter(t => t.status === 'completed')
+		pending: sortedTasks.filter(t => t.status === 'pending'),
+		in_progress: sortedTasks.filter(t => t.status === 'in_progress'),  
+		completed: sortedTasks.filter(t => t.status === 'completed' || t.status === 'done')
 	};
 </script>
 
@@ -117,9 +134,23 @@
 			<h1 class="text-3xl font-bold text-gray-900">작업 관리</h1>
 			<p class="text-gray-600 mt-1">프로젝트 작업을 관리합니다</p>
 		</div>
-		<a href="/tasks/new" class="btn btn-primary">
-			✅ 새 작업 추가
-		</a>
+		<div class="flex items-center gap-4">
+			<!-- 정렬 옵션 -->
+			<div class="flex items-center gap-2">
+				<label class="text-sm text-gray-600">정렬:</label>
+				<select 
+					bind:value={sortBy}
+					class="text-sm border border-gray-300 rounded px-2 py-1 bg-white"
+				>
+					<option value="updated">최근 수정</option>
+					<option value="created">최근 등록</option>
+					<option value="title">제목 순</option>
+				</select>
+			</div>
+			<a href="/tasks/new" class="btn btn-primary">
+				✅ 새 작업 추가
+			</a>
+		</div>
 	</div>
 
 	{#if loading}
@@ -256,7 +287,7 @@
 							<div class="flex space-x-1">
 								<button 
 									class="flex-1 text-xs px-2 py-1 bg-green-50 text-green-700 rounded hover:bg-green-100"
-									on:click={() => updateTaskStatus(task.id, 'completed')}
+									on:click={() => updateTaskStatus(task.id, 'done')}
 								>
 									완료
 								</button>

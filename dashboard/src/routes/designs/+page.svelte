@@ -4,6 +4,7 @@
 	let designs = [];
 	let loading = true;
 	let error = null;
+	let sortBy = 'updated'; // 'updated', 'created', 'title'
 
 	onMount(async () => {
 		await loadDesigns();
@@ -123,12 +124,26 @@
 		}
 	}
 
-	// 상태별 그룹화
+	// 정렬 로직
+	$: sortedDesigns = designs.sort((a, b) => {
+		switch (sortBy) {
+			case 'updated':
+				return new Date(b.updated_at) - new Date(a.updated_at);
+			case 'created':
+				return new Date(b.created_at) - new Date(a.created_at);
+			case 'title':
+				return a.title.localeCompare(b.title);
+			default:
+				return new Date(b.updated_at) - new Date(a.updated_at);
+		}
+	});
+
+	// 상태별 그룹화 (정렬된 데이터 사용)
 	$: designsByStatus = {
-		draft: designs.filter(d => d.status === 'draft'),
-		review: designs.filter(d => d.status === 'review'),  
-		approved: designs.filter(d => d.status === 'approved'),
-		implemented: designs.filter(d => d.status === 'implemented')
+		draft: sortedDesigns.filter(d => d.status === 'draft'),
+		review: sortedDesigns.filter(d => d.status === 'review'),  
+		approved: sortedDesigns.filter(d => d.status === 'approved'),
+		implemented: sortedDesigns.filter(d => d.status === 'implemented')
 	};
 </script>
 
@@ -142,9 +157,23 @@
 			<h1 class="text-3xl font-bold text-gray-900">설계 관리</h1>
 			<p class="text-gray-600 mt-1">시스템 설계를 관리합니다</p>
 		</div>
-		<a href="/designs/new" class="btn btn-primary">
-			🎨 새 설계 추가
-		</a>
+		<div class="flex items-center gap-4">
+			<!-- 정렬 옵션 -->
+			<div class="flex items-center gap-2">
+				<label class="text-sm text-gray-600">정렬:</label>
+				<select 
+					bind:value={sortBy}
+					class="text-sm border border-gray-300 rounded px-2 py-1 bg-white"
+				>
+					<option value="updated">최근 수정</option>
+					<option value="created">최근 등록</option>
+					<option value="title">제목 순</option>
+				</select>
+			</div>
+			<a href="/designs/new" class="btn btn-primary">
+				🎨 새 설계 추가
+			</a>
+		</div>
 	</div>
 
 	{#if loading}
