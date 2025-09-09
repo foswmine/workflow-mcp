@@ -3,7 +3,7 @@
 	import * as d3 from 'd3';
 
 	export let data = [];
-	export let type = 'tasks'; // 'tasks' or 'plans'
+	export let type = 'tasks'; // 'tasks' or 'projects'
 	
 	let container;
 	let width = 800;
@@ -66,13 +66,17 @@
 			return;
 		}
 
-		// Set up scales
+		// Set up scales with safe date handling
+		const allDates = processedData.flatMap(d => [d.startDate, d.endDate]).filter(date => date && !isNaN(date.getTime()));
+		const dateExtent = d3.extent(allDates);
+		
+		// Ensure we have valid date range
 		const xScale = d3.scaleTime()
-			.domain(d3.extent(processedData.flatMap(d => [d.startDate, d.endDate])))
+			.domain(dateExtent.length === 2 && dateExtent[0] && dateExtent[1] ? dateExtent : [new Date(), new Date(Date.now() + 7 * 24 * 60 * 60 * 1000)])
 			.range([0, chartWidth]);
 
 		const yScale = d3.scaleBand()
-			.domain(processedData.map(d => d.name))
+			.domain(processedData.map(d => d.name).filter(name => name))
 			.range([0, chartHeight])
 			.padding(0.1);
 
@@ -92,13 +96,27 @@
 			.enter()
 			.append('rect')
 			.attr('class', 'gantt-bar')
-			.attr('x', d => xScale(d.startDate))
-			.attr('y', d => yScale(d.name))
+			.attr('x', d => {
+				const x = xScale(d.startDate);
+				return isNaN(x) ? 0 : x;
+			})
+			.attr('y', d => {
+				const y = yScale(d.name);
+				return isNaN(y) ? 0 : y;
+			})
 			.attr('width', d => {
-				const width = xScale(d.endDate) - xScale(d.startDate);
+				const startX = xScale(d.startDate);
+				const endX = xScale(d.endDate);
+				if (isNaN(startX) || isNaN(endX)) {
+					return 10; // fallback 너비
+				}
+				const width = endX - startX;
 				return Math.max(width, 10); // 최소 10px 너비 보장
 			})
-			.attr('height', yScale.bandwidth())
+			.attr('height', () => {
+				const height = yScale.bandwidth();
+				return isNaN(height) ? 20 : height; // fallback 높이
+			})
 			.attr('fill', d => getStatusColor(d.status))
 			.attr('opacity', 0.8)
 			.on('mouseover', function(event, d) {
@@ -168,36 +186,62 @@
 	}
 
 	function processData(items) {
+		console.log('=== processData debug ===');
+		console.log('Type:', type, 'Items:', items.length);
+		
 		return items
 			.filter(item => {
 				if (type === 'tasks') {
-					return item.created_at; // Tasks must have created date
+					return item.createdAt; // Tasks must have created date
 				} else {
-					return item.created_at; // Plans must have created date
+					return item.created_at || item.createdAt; // Projects might use either format
 				}
 			})
 			.map(item => {
 				let startDate, endDate;
 				
 				if (type === 'tasks') {
-					startDate = new Date(item.created_at);
-					endDate = item.due_date ? new Date(item.due_date) : new Date(Date.now() + 7 * 24 * 60 * 60 * 1000); // Default to 1 week from now
+					startDate = new Date(item.createdAt);
+					endDate = item.dueDate ? new Date(item.dueDate) : new Date(Date.now() + 7 * 24 * 60 * 60 * 1000); // Default to 1 week from now
 				} else {
-					startDate = new Date(item.created_at);
-					// For plans, try to extract timeline info or default to 30 days
-					endDate = new Date(Date.now() + 30 * 24 * 60 * 60 * 1000);
+					// For projects, handle different date field formats
+					const createDate = item.created_at || item.createdAt;
+					startDate = new Date(createDate);
 					
-					// Try to parse timeline if it exists
+					// Use project's start_date if available, otherwise use created_at
+					if (item.start_date) {
+						startDate = new Date(item.start_date);
+					}
+					
+					// Use project's end_date if available, otherwise default to 30 days from start
+					if (item.end_date) {
+						endDate = new Date(item.end_date);
+					} else {
+						endDate = new Date(startDate.getTime() + 30 * 24 * 60 * 60 * 1000);
+					}
+					
+					// Try to parse timeline if it exists (fallback)
 					if (item.timeline) {
 						try {
 							const timeline = JSON.parse(item.timeline);
+							if (timeline.start_date) {
+								startDate = new Date(timeline.start_date);
+							}
 							if (timeline.end_date) {
 								endDate = new Date(timeline.end_date);
 							}
 						} catch (e) {
-							// Use default
+							// Use default values already set above
 						}
 					}
+				}
+
+				// 날짜 유효성 검증
+				if (!startDate || isNaN(startDate.getTime())) {
+					startDate = new Date(); // 현재 날짜로 fallback
+				}
+				if (!endDate || isNaN(endDate.getTime())) {
+					endDate = new Date(startDate.getTime() + 7 * 24 * 60 * 60 * 1000); // 7일 후로 fallback
 				}
 
 				// endDate가 startDate보다 이전이면 최소 1일 후로 설정
@@ -205,13 +249,19 @@
 					endDate = new Date(startDate.getTime() + 24 * 60 * 60 * 1000); // 1일 후
 				}
 
-				return {
-					name: item.title.length > 30 ? item.title.substring(0, 30) + '...' : item.title,
+				// 프로젝트는 name, 작업은 title 필드 사용
+				const itemTitle = item.name || item.title || 'Untitled';
+				
+				const result = {
+					name: itemTitle.length > 30 ? itemTitle.substring(0, 30) + '...' : itemTitle,
 					startDate,
 					endDate,
-					status: item.status,
+					status: item.status || 'pending',
 					originalItem: item
 				};
+				
+				console.log('Processed item:', result.name, 'Start:', result.startDate, 'End:', result.endDate);
+				return result;
 			})
 			.sort((a, b) => a.startDate - b.startDate);
 	}

@@ -716,20 +716,44 @@ export async function deletePlan(id) {
 export async function getDashboardStats() {
   const database = await getDatabase();
   
-  const stats = await database.get(`
-    SELECT 
-      COUNT(DISTINCT p.id) as total_prds,
-      COUNT(DISTINCT t.id) as total_tasks,
-      COUNT(DISTINCT d.id) as total_designs,
-      COUNT(CASE WHEN t.status = 'completed' THEN 1 END) as completed_tasks,
-      COUNT(CASE WHEN t.status = 'in_progress' THEN 1 END) as in_progress_tasks,
-      COUNT(CASE WHEN t.status = 'pending' THEN 1 END) as pending_tasks,
-      COUNT(CASE WHEN p.status = 'active' THEN 1 END) as active_prds,
-      COUNT(CASE WHEN d.status = 'approved' THEN 1 END) as approved_designs
-    FROM prds p
-    LEFT JOIN plans pl ON p.id = d.requirement_id
-    LEFT JOIN tasks t ON d.id = t.plan_id
-  `);
+  // 각 테이블에서 독립적으로 통계를 가져와서 조합
+  const [prdStats, taskStats, designStats] = await Promise.all([
+    // PRD 통계
+    database.get(`
+      SELECT 
+        COUNT(*) as total_prds,
+        COUNT(CASE WHEN status = 'active' THEN 1 END) as active_prds
+      FROM prds
+    `),
+    // Task 통계  
+    database.get(`
+      SELECT 
+        COUNT(*) as total_tasks,
+        COUNT(CASE WHEN status = 'completed' THEN 1 END) as completed_tasks,
+        COUNT(CASE WHEN status = 'in_progress' THEN 1 END) as in_progress_tasks,
+        COUNT(CASE WHEN status = 'pending' THEN 1 END) as pending_tasks
+      FROM tasks
+    `),
+    // Design 통계 (계획으로 표시)
+    database.get(`
+      SELECT 
+        COUNT(*) as total_plans,
+        COUNT(CASE WHEN status = 'approved' THEN 1 END) as active_plans
+      FROM designs
+    `)
+  ]);
+  
+  // 통계 조합
+  const stats = {
+    total_prds: prdStats.total_prds,
+    total_tasks: taskStats.total_tasks,
+    total_plans: designStats.total_plans,
+    completed_tasks: taskStats.completed_tasks,
+    in_progress_tasks: taskStats.in_progress_tasks,
+    pending_tasks: taskStats.pending_tasks,
+    active_prds: prdStats.active_prds,
+    active_plans: designStats.active_plans
+  };
   
   return stats;
 }

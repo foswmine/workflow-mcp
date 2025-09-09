@@ -3,10 +3,10 @@
 	import GanttChart from '$lib/components/GanttChart.svelte';
 	
 	let tasks = [];
-	let plans = [];
+	let projects = [];
 	let loading = true;
 	let error = null;
-	let selectedView = 'tasks'; // 'tasks' or 'plans'
+	let selectedView = 'tasks'; // 'tasks' or 'projects'
 
 	onMount(async () => {
 		await loadData();
@@ -15,14 +15,14 @@
 	async function loadData() {
 		try {
 			loading = true;
-			const [tasksResponse, plansResponse] = await Promise.all([
+			const [tasksResponse, projectsResponse] = await Promise.all([
 				fetch('/api/tasks'),
-				fetch('/api/plans')
+				fetch('/api/projects')
 			]);
 
-			if (tasksResponse.ok && plansResponse.ok) {
+			if (tasksResponse.ok && projectsResponse.ok) {
 				tasks = await tasksResponse.json();
-				plans = await plansResponse.json();
+				projects = await projectsResponse.json();
 			} else {
 				error = 'Failed to load data';
 			}
@@ -51,10 +51,10 @@
 					작업 기반
 				</button>
 				<button 
-					class="px-3 py-1 text-sm rounded-md transition-colors {selectedView === 'plans' ? 'bg-white text-blue-600 shadow-sm' : 'text-gray-600 hover:text-gray-900'}"
-					on:click={() => selectedView = 'plans'}
+					class="px-3 py-1 text-sm rounded-md transition-colors {selectedView === 'projects' ? 'bg-white text-blue-600 shadow-sm' : 'text-gray-600 hover:text-gray-900'}"
+					on:click={() => selectedView = 'projects'}
 				>
-					계획 기반
+					프로젝트 기반
 				</button>
 			</div>
 			
@@ -77,15 +77,15 @@
 		<div class="card">
 			<div class="mb-4 flex items-center justify-between">
 				<h3 class="text-lg font-semibold text-gray-900">
-					{selectedView === 'tasks' ? '작업별 타임라인' : '계획별 타임라인'}
+					{selectedView === 'tasks' ? '작업별 타임라인' : '프로젝트별 타임라인'}
 				</h3>
 				<div class="text-sm text-gray-500">
-					총 {selectedView === 'tasks' ? tasks.length : plans.length}개 항목
+					총 {selectedView === 'tasks' ? tasks.length : projects.length}개 항목
 				</div>
 			</div>
 			
 			<GanttChart 
-				data={selectedView === 'tasks' ? tasks : plans}
+				data={selectedView === 'tasks' ? tasks : projects}
 				type={selectedView}
 			/>
 		</div>
