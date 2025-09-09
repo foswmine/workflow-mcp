@@ -13,7 +13,9 @@
 		test_steps: '',
 		expected_result: '',
 		tags: [],
-		task_id: ''
+		task_id: '',
+		design_id: '',
+		prd_id: ''
 	};
 	
 	let newTag = '';
@@ -21,6 +23,8 @@
 	let error = null;
 	let initialLoading = true;
 	let tasks = [];
+	let designs = [];
+	let prds = [];
 	
 	const testTypes = [
 		{ value: 'unit', label: '단위 테스트' },
@@ -45,10 +49,29 @@
 	
 	onMount(async () => {
 		try {
+			// Load all required data in parallel
+			const [tasksResponse, designsResponse, prdsResponse, testResponse] = await Promise.all([
+				fetch('/api/tasks'),
+				fetch('/api/designs'),
+				fetch('/api/prds'),
+				fetch(`/api/tests/${$page.params.id}`)
+			]);
+			
+			if (tasksResponse.ok) {
+				tasks = await tasksResponse.json();
+			}
+
+			if (designsResponse.ok) {
+				designs = await designsResponse.json();
+			}
+			
+			if (prdsResponse.ok) {
+				prds = await prdsResponse.json();
+			}
+			
 			// 테스트 케이스 정보 로드
-			const response = await fetch(`/api/tests/${$page.params.id}`);
-			if (response.ok) {
-				const testCase = await response.json();
+			if (testResponse.ok) {
+				const testCase = await testResponse.json();
 				form = {
 					title: testCase.title || '',
 					description: testCase.description || '',
@@ -59,20 +82,12 @@
 					test_steps: testCase.test_steps || '',
 					expected_result: testCase.expected_result || '',
 					tags: Array.isArray(testCase.tags) ? testCase.tags : [],
-					task_id: testCase.task_id || ''
+					task_id: testCase.task_id || '',
+					design_id: testCase.design_id || '',
+					prd_id: testCase.prd_id || ''
 				};
 			} else {
 				error = '테스트 케이스를 찾을 수 없습니다';
-			}
-			
-			// 작업 목록 로드
-			try {
-				const tasksResponse = await fetch('/api/tasks');
-				if (tasksResponse.ok) {
-					tasks = await tasksResponse.json();
-				}
-			} catch (e) {
-				console.error('작업 목록 로드 실패:', e);
 			}
 			
 		} catch (e) {
@@ -92,7 +107,7 @@
 	function removeTag(index) {
 		form.tags = form.tags.filter((_, i) => i !== index);
 	}
-	
+
 	async function handleSubmit() {
 		if (!form.title.trim()) {
 			error = '제목을 입력해주세요';
@@ -114,11 +129,13 @@
 					type: form.type,
 					priority: form.priority.charAt(0).toUpperCase() + form.priority.slice(1), // Medium, High, Low 형식으로 변환
 					status: form.status,
-					preconditions: form.preconditions.trim(),
-					test_steps: form.test_steps.trim(),
-					expected_result: form.expected_result.trim(),
+					preconditions: (form.preconditions || '').toString().trim(),
+					test_steps: (form.test_steps || '').toString().trim(),
+					expected_result: (form.expected_result || '').toString().trim(),
 					tags: form.tags,
-					task_id: form.task_id || null
+					task_id: form.task_id || null,
+					design_id: form.design_id || null,
+					prd_id: form.prd_id || null
 				})
 			});
 			
@@ -227,6 +244,30 @@
 							<option value="">-- 관련 작업 선택 --</option>
 							{#each tasks as task}
 								<option value={task.id}>{task.title}</option>
+							{/each}
+						</select>
+					</div>
+
+					<div>
+						<label for="design_id" class="block text-sm font-medium text-gray-700 mb-2">
+							관련 설계
+						</label>
+						<select id="design_id" bind:value={form.design_id} class="input-field">
+							<option value="">-- 관련 설계 선택 --</option>
+							{#each designs as design}
+								<option value={design.id}>{design.title}</option>
+							{/each}
+						</select>
+					</div>
+
+					<div>
+						<label for="prd_id" class="block text-sm font-medium text-gray-700 mb-2">
+							관련 요구사항
+						</label>
+						<select id="prd_id" bind:value={form.prd_id} class="input-field">
+							<option value="">-- 관련 요구사항 선택 --</option>
+							{#each prds as prd}
+								<option value={prd.id}>{prd.title}</option>
 							{/each}
 						</select>
 					</div>

@@ -6,6 +6,8 @@
 	let loading = true;
 	let error = null;
 	let relatedTask = null;
+	let relatedDesign = null;
+	let relatedPrd = null;
 	let executions = [];
 	
 	function formatDate(dateValue) {
@@ -48,16 +50,42 @@
 			if (response.ok) {
 				testCase = await response.json();
 				
-				// 연결된 작업 정보 가져오기
+				// 연결된 정보 가져오기 (병렬로 처리)
+				const relatedDataPromises = [];
+				
+				// 연결된 작업 정보
 				if (testCase.task_id) {
-					try {
-						const taskResponse = await fetch(`/api/tasks/${testCase.task_id}`);
-						if (taskResponse.ok) {
-							relatedTask = await taskResponse.json();
-						}
-					} catch (e) {
-						console.error('작업 정보 로딩 실패:', e);
-					}
+					relatedDataPromises.push(
+						fetch(`/api/tasks/${testCase.task_id}`)
+							.then(res => res.ok ? res.json() : null)
+							.then(data => { relatedTask = data; })
+							.catch(e => console.error('작업 정보 로딩 실패:', e))
+					);
+				}
+				
+				// 연결된 설계 정보
+				if (testCase.design_id) {
+					relatedDataPromises.push(
+						fetch(`/api/designs/${testCase.design_id}`)
+							.then(res => res.ok ? res.json() : null)
+							.then(data => { relatedDesign = data; })
+							.catch(e => console.error('설계 정보 로딩 실패:', e))
+					);
+				}
+				
+				// 연결된 요구사항 정보
+				if (testCase.prd_id) {
+					relatedDataPromises.push(
+						fetch(`/api/prds/${testCase.prd_id}`)
+							.then(res => res.ok ? res.json() : null)
+							.then(data => { relatedPrd = data; })
+							.catch(e => console.error('요구사항 정보 로딩 실패:', e))
+					);
+				}
+				
+				// 모든 연결된 정보를 병렬로 로드
+				if (relatedDataPromises.length > 0) {
+					await Promise.all(relatedDataPromises);
 				}
 
 				// 실행 이력 가져오기
@@ -139,6 +167,7 @@
 					<div>
 						<label class="block text-sm font-medium text-gray-700 mb-1">제목</label>
 						<div class="text-gray-900 font-medium">{testCase.title}</div>
+						<div class="text-xs text-gray-500 mt-1 font-mono">ID: {testCase.id}</div>
 					</div>
 					<div>
 						<label class="block text-sm font-medium text-gray-700 mb-1">테스트 유형</label>
@@ -162,11 +191,31 @@
 						<label class="block text-sm font-medium text-gray-700 mb-1">생성일</label>
 						<div class="text-gray-600">{formatDate(testCase.created_at)}</div>
 					</div>
+					<div>
+						<label class="block text-sm font-medium text-gray-700 mb-1">최종 수정일</label>
+						<div class="text-gray-600">{formatDate(testCase.updated_at)}</div>
+					</div>
 					{#if relatedTask}
 						<div>
 							<label class="block text-sm font-medium text-gray-700 mb-1">연결된 작업</label>
 							<a href="/tasks/{relatedTask.id}" class="text-blue-600 hover:text-blue-800 font-medium">
 								{relatedTask.title}
+							</a>
+						</div>
+					{/if}
+					{#if relatedDesign}
+						<div>
+							<label class="block text-sm font-medium text-gray-700 mb-1">연결된 설계</label>
+							<a href="/designs/{relatedDesign.id}" class="text-green-600 hover:text-green-800 font-medium">
+								{relatedDesign.title}
+							</a>
+						</div>
+					{/if}
+					{#if relatedPrd}
+						<div>
+							<label class="block text-sm font-medium text-gray-700 mb-1">연결된 요구사항</label>
+							<a href="/prds/{relatedPrd.id}" class="text-purple-600 hover:text-purple-800 font-medium">
+								{relatedPrd.title}
 							</a>
 						</div>
 					{/if}
@@ -276,26 +325,6 @@
 				</div>
 			{/if}
 
-			<!-- 메타데이터 -->
-			<div class="card">
-				<h2 class="text-xl font-semibold text-gray-900 mb-4">메타데이터</h2>
-				<div class="grid grid-cols-1 md:grid-cols-2 gap-4 text-sm">
-					<div>
-						<label class="block text-sm font-medium text-gray-700 mb-1">ID</label>
-						<div class="text-gray-600 font-mono">{testCase.id}</div>
-					</div>
-					<div>
-						<label class="block text-sm font-medium text-gray-700 mb-1">최종 수정일</label>
-						<div class="text-gray-600">{formatDate(testCase.updated_at)}</div>
-					</div>
-					{#if testCase.created_by}
-						<div>
-							<label class="block text-sm font-medium text-gray-700 mb-1">생성자</label>
-							<div class="text-gray-600">{testCase.created_by}</div>
-						</div>
-					{/if}
-				</div>
-			</div>
 		</div>
 	{/if}
 </div>

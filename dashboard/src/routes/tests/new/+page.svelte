@@ -12,7 +12,11 @@
   let expected_result = '';
   let tags = '';
   let task_id = '';
+  let design_id = '';
+  let prd_id = '';
   let tasks = [];
+  let designs = [];
+  let prds = [];
   let isSubmitting = false;
 
   const testTypes = [
@@ -38,12 +42,26 @@
 
   onMount(async () => {
     try {
-      const response = await fetch('/api/tasks');
-      if (response.ok) {
-        tasks = await response.json();
+      // 모든 관련 데이터를 병렬로 로드
+      const [tasksResponse, designsResponse, prdsResponse] = await Promise.all([
+        fetch('/api/tasks'),
+        fetch('/api/designs'),
+        fetch('/api/prds')
+      ]);
+      
+      if (tasksResponse.ok) {
+        tasks = await tasksResponse.json();
+      }
+      
+      if (designsResponse.ok) {
+        designs = await designsResponse.json();
+      }
+      
+      if (prdsResponse.ok) {
+        prds = await prdsResponse.json();
       }
     } catch (error) {
-      console.error('작업 목록 로드 실패:', error);
+      console.error('데이터 로드 실패:', error);
     }
   });
 
@@ -66,7 +84,9 @@
         test_steps,
         expected_result,
         tags: tags ? tags.split(',').map(tag => tag.trim()).filter(tag => tag) : [],
-        task_id: task_id || null
+        task_id: task_id || null,
+        design_id: design_id || null,
+        prd_id: prd_id || null
       };
 
       const response = await fetch('/api/tests', {
@@ -185,6 +205,38 @@
             <option value="">-- 관련 작업 선택 --</option>
             {#each tasks as task}
               <option value={task.id}>{task.title}</option>
+            {/each}
+          </select>
+        </div>
+
+        <div>
+          <label for="design_id" class="block text-sm font-medium text-gray-700 mb-2">
+            관련 설계 (선택)
+          </label>
+          <select
+            id="design_id"
+            bind:value={design_id}
+            class="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+          >
+            <option value="">-- 관련 설계 선택 --</option>
+            {#each designs as design}
+              <option value={design.id}>{design.title}</option>
+            {/each}
+          </select>
+        </div>
+
+        <div>
+          <label for="prd_id" class="block text-sm font-medium text-gray-700 mb-2">
+            관련 요구사항 (선택)
+          </label>
+          <select
+            id="prd_id"
+            bind:value={prd_id}
+            class="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+          >
+            <option value="">-- 관련 요구사항 선택 --</option>
+            {#each prds as prd}
+              <option value={prd.id}>{prd.title}</option>
             {/each}
           </select>
         </div>
