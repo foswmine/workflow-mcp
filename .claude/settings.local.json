@@ -63,7 +63,20 @@
       "mcp__playwright__playwright_close",
       "mcp__playwright__playwright_post",
       "mcp__playwright__playwright_press_key",
-      "Bash(npm install:*)"
+      "Bash(npm install:*)",
+      "Bash(netstat:*)",
+      "Bash(taskkill:*)",
+      "mcp__workflow-mcp__list_test_cases",
+      "mcp__workflow-mcp__add_task_connection",
+      "Bash(Ctrl+C)",
+      "mcp__workflow-mcp__get_task_connections",
+      "mcp__workflow-mcp__create_test_case",
+      "mcp__workflow-mcp__get_test_connections",
+      "mcp__workflow-mcp__add_test_connection",
+      "mcp__workflow-mcp__create_project",
+      "mcp__workflow-mcp__list_projects",
+      "mcp__workflow-mcp__get_project",
+      "mcp__workflow-mcp__remove_task_connection"
     ],
     "deny": [],
     "ask": []

@@ -109,9 +109,10 @@ export class DesignManager {
    * Design 목록 조회
    * @param {string} status - 필터링할 상태 (옵션)
    * @param {string} design_type - 설계 타입 필터 (옵션)
+   * @param {string} sortBy - 정렬 방식 (updated_desc, updated_asc, created_desc, created_asc, title_asc, title_desc)
    * @returns {Array} Design 목록
    */
-  async listDesigns(status = null, design_type = null) {
+  async listDesigns(status = null, design_type = null, sortBy = 'updated_desc') {
     await this.ensureInitialized();
     try {
       const allDesigns = await this.storage.listAllDesigns();
@@ -122,6 +123,29 @@ export class DesignManager {
       }
       if (design_type) {
         filteredDesigns = filteredDesigns.filter(design => design.design_type === design_type);
+      }
+
+      // 정렬 처리
+      switch (sortBy) {
+        case 'updated_asc':
+          filteredDesigns.sort((a, b) => new Date(a.updated_at) - new Date(b.updated_at));
+          break;
+        case 'created_desc':
+          filteredDesigns.sort((a, b) => new Date(b.created_at) - new Date(a.created_at));
+          break;
+        case 'created_asc':
+          filteredDesigns.sort((a, b) => new Date(a.created_at) - new Date(b.created_at));
+          break;
+        case 'title_asc':
+          filteredDesigns.sort((a, b) => a.title.localeCompare(b.title));
+          break;
+        case 'title_desc':
+          filteredDesigns.sort((a, b) => b.title.localeCompare(a.title));
+          break;
+        case 'updated_desc':
+        default:
+          filteredDesigns.sort((a, b) => new Date(b.updated_at) - new Date(a.updated_at));
+          break;
       }
 
       // 요약 정보와 함께 반환
@@ -165,12 +189,35 @@ export class DesignManager {
       // 연관 요구사항 정보 조회 (만약 있다면)
       let requirementInfo = null;
       if (design.requirement_id) {
-        // 추후 PRDManager와 연동하여 요구사항 정보 조회
-        requirementInfo = {
-          id: design.requirement_id,
-          title: '연관 요구사항', // 실제로는 PRD에서 조회
-          status: 'unknown'
-        };
+        try {
+          // 대시보드 API를 통해 PRD 정보 조회
+          const response = await fetch(`http://localhost:3301/api/prds/${design.requirement_id}`);
+          if (response.ok) {
+            const prdData = await response.json();
+            requirementInfo = {
+              id: design.requirement_id,
+              title: prdData.title,
+              status: prdData.status,
+              priority: prdData.priority,
+              description: prdData.description
+            };
+          } else {
+            // API 호출 실패 시 기본 정보
+            requirementInfo = {
+              id: design.requirement_id,
+              title: '연관 요구사항 (API 호출 실패)',
+              status: 'unknown'
+            };
+          }
+        } catch (error) {
+          console.error('PRD 정보 조회 실패:', error);
+          // 실패 시 기본 정보 유지
+          requirementInfo = {
+            id: design.requirement_id,
+            title: '연관 요구사항 (정보 로드 실패)',
+            status: 'unknown'
+          };
+        }
       }
 
       return {

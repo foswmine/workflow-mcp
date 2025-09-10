@@ -8,8 +8,9 @@ export async function GET({ url }) {
   try {
     const status = url.searchParams.get('status');
     const type = url.searchParams.get('type');
+    const sortBy = url.searchParams.get('sortBy');
     
-    const result = await testManager.listTestCases(status, type);
+    const result = await testManager.listTestCases(status, type, sortBy);
     const testCases = result && result.testCases ? result.testCases : [];
     return json(testCases);
   } catch (error) {

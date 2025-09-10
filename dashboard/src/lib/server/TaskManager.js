@@ -128,7 +128,7 @@ export class TaskManager {
    * @param {string} assignee - 담당자 필터 (옵션)
    * @returns {Array} Task 목록
    */
-  async listTasks(status = null, assignee = null) {
+  async listTasks(status = null, assignee = null, sortBy = 'updated_desc') {
     await this.ensureInitialized();
     try {
       const allTasks = await this.storage.listAllTasks();
@@ -139,6 +139,29 @@ export class TaskManager {
       }
       if (assignee) {
         filteredTasks = filteredTasks.filter(task => task.assignee === assignee);
+      }
+
+      // 정렬 적용
+      switch (sortBy) {
+        case 'updated_asc':
+          filteredTasks.sort((a, b) => new Date(a.updatedAt || a.updated_at) - new Date(b.updatedAt || b.updated_at));
+          break;
+        case 'created_desc':
+          filteredTasks.sort((a, b) => new Date(b.createdAt || b.created_at) - new Date(a.createdAt || a.created_at));
+          break;
+        case 'created_asc':
+          filteredTasks.sort((a, b) => new Date(a.createdAt || a.created_at) - new Date(b.createdAt || b.created_at));
+          break;
+        case 'title_asc':
+          filteredTasks.sort((a, b) => a.title.localeCompare(b.title));
+          break;
+        case 'title_desc':
+          filteredTasks.sort((a, b) => b.title.localeCompare(a.title));
+          break;
+        case 'updated_desc':
+        default:
+          filteredTasks.sort((a, b) => new Date(b.updatedAt || b.updated_at) - new Date(a.updatedAt || a.updated_at));
+          break;
       }
 
       // 요약 정보와 함께 반환
@@ -157,7 +180,8 @@ export class TaskManager {
         tasks: tasksWithSummary,
         total: tasksWithSummary.length,
         statusBreakdown: this.getStatusBreakdown(tasksWithSummary),
-        message: `Task ${tasksWithSummary.length}개 조회 완료`
+        sortBy,
+        message: `Task ${tasksWithSummary.length}개 조회 완료 (정렬: ${sortBy})`
       };
 
     } catch (error) {

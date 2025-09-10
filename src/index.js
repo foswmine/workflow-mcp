@@ -11,6 +11,7 @@ import { CallToolRequestSchema, ListToolsRequestSchema } from '@modelcontextprot
 import { PRDManager } from '../dashboard/src/lib/server/PRDManager.js';
 import { TaskManager } from '../dashboard/src/lib/server/TaskManager.js';
 import { DesignManager } from '../dashboard/src/lib/server/DesignManager.js';
+import { ProjectManager } from '../dashboard/src/lib/server/ProjectManager.js';
 import { DocumentManager } from './models/DocumentManager.js';
 import TestManager from './models/TestManager.js';
 import { MetricsCollector } from './utils/MetricsCollector.js';
@@ -36,6 +37,7 @@ class WorkflowMCPServer {
     this.prdManager = new PRDManager();
     this.taskManager = new TaskManager();
     this.designManager = new DesignManager();
+    this.projectManager = new ProjectManager();
     this.documentManager = new DocumentManager();
     this.testManager = new TestManager();
     this.metricsCollector = new MetricsCollector();
@@ -66,8 +68,22 @@ class WorkflowMCPServer {
                 },
                 priority: { 
                   type: 'string', 
-                  enum: ['High', 'Medium', 'Low'],
+                  enum: ['high', 'medium', 'low'],
                   description: 'Priority level'
+                },
+                status: { 
+                  type: 'string', 
+                  enum: ['active', 'inactive', 'draft', 'review', 'approved', 'completed'],
+                  description: 'PRD status'
+                },
+                project_id: { 
+                  type: 'string', 
+                  description: 'Related project ID (optional)' 
+                },
+                acceptance_criteria: { 
+                  type: 'array', 
+                  items: { type: 'string' },
+                  description: 'List of acceptance criteria'
                 }
               },
               required: ['title', 'description', 'requirements']
@@ -81,8 +97,17 @@ class WorkflowMCPServer {
               properties: {
                 status: { 
                   type: 'string', 
-                  enum: ['draft', 'approved', 'completed'],
+                  enum: ['active', 'inactive', 'draft', 'review', 'approved', 'completed'],
                   description: 'Filter by status (optional)'
+                },
+                sort_by: { 
+                  type: 'string', 
+                  enum: ['created_desc', 'created_asc', 'updated_desc', 'updated_asc', 'title_asc', 'title_desc'],
+                  description: 'Sort order (optional)'
+                },
+                project_id: { 
+                  type: 'string', 
+                  description: 'Filter by project ID (optional)'
                 }
               }
             }
@@ -153,6 +178,12 @@ class WorkflowMCPServer {
                   type: 'string', 
                   enum: ['system', 'architecture', 'ui_ux', 'database', 'api'],
                   description: 'Filter by design type (optional)'
+                },
+                sort_by: { 
+                  type: 'string', 
+                  enum: ['updated_desc', 'updated_asc', 'created_desc', 'created_asc', 'title_asc', 'title_desc'],
+                  description: 'Sort order (optional)',
+                  default: 'updated_desc'
                 }
               }
             }
@@ -238,7 +269,13 @@ class WorkflowMCPServer {
                   enum: ['pending', 'in_progress', 'done', 'blocked'],
                   description: 'Filter by status (optional)'
                 },
-                assignee: { type: 'string', description: 'Filter by assignee (optional)' }
+                assignee: { type: 'string', description: 'Filter by assignee (optional)' },
+                sort_by: { 
+                  type: 'string', 
+                  enum: ['updated_desc', 'updated_asc', 'created_desc', 'created_asc', 'title_asc', 'title_desc'], 
+                  description: 'Sort order (optional)', 
+                  default: 'updated_desc' 
+                }
               }
             }
           },
@@ -593,7 +630,13 @@ class WorkflowMCPServer {
                 },
                 task_id: { type: 'string', description: 'Filter by task ID (optional)' },
                 design_id: { type: 'string', description: 'Filter by design ID (optional)' },
-                prd_id: { type: 'string', description: 'Filter by PRD ID (optional)' }
+                prd_id: { type: 'string', description: 'Filter by PRD ID (optional)' },
+                sort_by: { 
+                  type: 'string', 
+                  enum: ['updated_desc', 'updated_asc', 'created_desc', 'created_asc', 'title_asc', 'title_desc'], 
+                  description: 'Sort order (optional)', 
+                  default: 'updated_desc' 
+                }
               }
             }
           },
@@ -715,6 +758,206 @@ class WorkflowMCPServer {
               },
               required: ['test_case_id', 'task_id']
             }
+          },
+          {
+            name: 'get_test_connections',
+            description: 'Get all connections for a specific test case (tasks, designs, requirements)',
+            inputSchema: {
+              type: 'object',
+              properties: {
+                test_case_id: { type: 'string', description: 'Test case unique identifier' }
+              },
+              required: ['test_case_id']
+            }
+          },
+          {
+            name: 'add_test_connection',
+            description: 'Add a new connection between a test case and another entity',
+            inputSchema: {
+              type: 'object',
+              properties: {
+                test_case_id: { type: 'string', description: 'Test case unique identifier' },
+                entity_type: { 
+                  type: 'string', 
+                  enum: ['task', 'design', 'prd'],
+                  description: 'Type of entity to connect'
+                },
+                entity_id: { type: 'string', description: 'Entity unique identifier' }
+              },
+              required: ['test_case_id', 'entity_type', 'entity_id']
+            }
+          },
+          {
+            name: 'remove_test_connection',
+            description: 'Remove a connection between a test case and another entity',
+            inputSchema: {
+              type: 'object',
+              properties: {
+                test_case_id: { type: 'string', description: 'Test case unique identifier' },
+                entity_type: { 
+                  type: 'string', 
+                  enum: ['task', 'design', 'prd'],
+                  description: 'Type of entity to disconnect'
+                },
+                entity_id: { type: 'string', description: 'Entity unique identifier' }
+              },
+              required: ['test_case_id', 'entity_type', 'entity_id']
+            }
+          },
+          {
+            name: 'get_task_connections',
+            description: 'Get all connections for a specific task (PRDs, designs, documents, tests)',
+            inputSchema: {
+              type: 'object',
+              properties: {
+                task_id: { type: 'string', description: 'Task unique identifier' }
+              },
+              required: ['task_id']
+            }
+          },
+          {
+            name: 'add_task_connection',
+            description: 'Add a new connection between a task and another entity',
+            inputSchema: {
+              type: 'object',
+              properties: {
+                task_id: { type: 'string', description: 'Task unique identifier' },
+                entity_type: { 
+                  type: 'string', 
+                  enum: ['prd', 'design', 'document', 'test'],
+                  description: 'Type of entity to connect'
+                },
+                entity_id: { type: 'string', description: 'ID of the entity to connect' },
+                connection_type: { 
+                  type: 'string', 
+                  enum: ['related', 'dependent', 'blocking', 'reference'],
+                  description: 'Type of connection',
+                  default: 'related'
+                }
+              },
+              required: ['task_id', 'entity_type', 'entity_id']
+            }
+          },
+          {
+            name: 'remove_task_connection',
+            description: 'Remove a connection between a task and another entity',
+            inputSchema: {
+              type: 'object',
+              properties: {
+                task_id: { type: 'string', description: 'Task unique identifier' },
+                entity_type: { 
+                  type: 'string', 
+                  enum: ['prd', 'design', 'document', 'test'],
+                  description: 'Type of entity to disconnect'
+                },
+                entity_id: { type: 'string', description: 'ID of the entity to disconnect' }
+              },
+              required: ['task_id', 'entity_type', 'entity_id']
+            }
+          },
+          // Project Management Tools
+          {
+            name: 'create_project',
+            description: 'Create a new project with structured format',
+            inputSchema: {
+              type: 'object',
+              properties: {
+                name: { type: 'string', description: 'Project name' },
+                description: { type: 'string', description: 'Project description' },
+                status: { 
+                  type: 'string', 
+                  enum: ['planning', 'active', 'on_hold', 'completed'],
+                  description: 'Project status'
+                },
+                priority: { 
+                  type: 'string', 
+                  enum: ['High', 'Medium', 'Low'],
+                  description: 'Priority level'
+                },
+                manager: { type: 'string', description: 'Project manager' },
+                start_date: { type: 'string', description: 'Start date (ISO string)' },
+                end_date: { type: 'string', description: 'End date (ISO string)' },
+                tags: { 
+                  type: 'array', 
+                  items: { type: 'string' },
+                  description: 'Project tags'
+                },
+                notes: { type: 'string', description: 'Project notes' }
+              },
+              required: ['name']
+            }
+          },
+          {
+            name: 'list_projects',
+            description: 'List all projects with filtering and sorting',
+            inputSchema: {
+              type: 'object',
+              properties: {
+                status: { 
+                  type: 'string', 
+                  enum: ['planning', 'active', 'on_hold', 'completed'],
+                  description: 'Filter by status (optional)'
+                },
+                priority: { 
+                  type: 'string', 
+                  enum: ['High', 'Medium', 'Low'],
+                  description: 'Filter by priority (optional)'
+                },
+                sort_by: { 
+                  type: 'string', 
+                  enum: ['name', 'updated_desc', 'created_desc', 'priority'],
+                  description: 'Sort order (optional)'
+                }
+              }
+            }
+          },
+          {
+            name: 'get_project',
+            description: 'Get detailed project information by ID',
+            inputSchema: {
+              type: 'object',
+              properties: {
+                project_id: { type: 'string', description: 'Project unique identifier' }
+              },
+              required: ['project_id']
+            }
+          },
+          {
+            name: 'update_project',
+            description: 'Update existing project with new information',
+            inputSchema: {
+              type: 'object',
+              properties: {
+                project_id: { type: 'string', description: 'Project unique identifier' },
+                updates: { 
+                  type: 'object',
+                  description: 'Fields to update (name, description, status, etc.)'
+                }
+              },
+              required: ['project_id', 'updates']
+            }
+          },
+          {
+            name: 'delete_project',
+            description: 'Delete a project (only if no related data exists)',
+            inputSchema: {
+              type: 'object',
+              properties: {
+                project_id: { type: 'string', description: 'Project unique identifier' }
+              },
+              required: ['project_id']
+            }
+          },
+          {
+            name: 'get_project_analytics',
+            description: 'Get comprehensive project analytics and progress metrics',
+            inputSchema: {
+              type: 'object',
+              properties: {
+                project_id: { type: 'string', description: 'Project unique identifier' }
+              },
+              required: ['project_id']
+            }
           }
         ]
       };
@@ -733,7 +976,7 @@ class WorkflowMCPServer {
             result = await this.prdManager.createPRD(args);
             break;
           case 'list_prds':
-            result = await this.prdManager.listPRDs(args.status);
+            result = await this.prdManager.listPRDs(args.status, args.sort_by, args.project_id);
             break;
           case 'get_prd':
             result = await this.prdManager.getPRD(args.prd_id);
@@ -747,7 +990,7 @@ class WorkflowMCPServer {
             result = await this.designManager.createDesign(args);
             break;
           case 'list_designs':
-            result = await this.designManager.listDesigns(args.status, args.design_type);
+            result = await this.designManager.listDesigns(args.status, args.design_type, args.sort_by);
             break;
           case 'get_design':
             result = await this.designManager.getDesign(args.design_id);
@@ -764,7 +1007,7 @@ class WorkflowMCPServer {
             result = await this.taskManager.createTask(args);
             break;
           case 'list_tasks':
-            result = await this.taskManager.listTasks(args.status, args.assignee);
+            result = await this.taskManager.listTasks(args.status, args.assignee, args.sort_by);
             break;
           case 'get_task':
             result = await this.taskManager.getTask(args.task_id);
@@ -806,6 +1049,48 @@ class WorkflowMCPServer {
             break;
           case 'link_test_to_task':
             result = await this.testManager.linkTestToTask(args.test_case_id, args.task_id);
+            break;
+          case 'get_test_connections':
+            result = await this.getTestConnections(args.test_case_id);
+            break;
+          case 'add_test_connection':
+            result = await this.addTestConnection(args.test_case_id, args.entity_type, args.entity_id);
+            break;
+          case 'remove_test_connection':
+            result = await this.removeTestConnection(args.test_case_id, args.entity_type, args.entity_id);
+            break;
+          case 'get_task_connections':
+            result = await this.getTaskConnections(args.task_id);
+            break;
+          case 'add_task_connection':
+            result = await this.addTaskConnection(args.task_id, args.entity_type, args.entity_id, args.connection_type);
+            break;
+          case 'remove_task_connection':
+            result = await this.removeTaskConnection(args.task_id, args.entity_type, args.entity_id);
+            break;
+          
+          // Project management cases
+          case 'create_project':
+            result = await this.projectManager.createProject(args);
+            break;
+          case 'list_projects':
+            result = await this.projectManager.listProjects(args.status, args.sort_by);
+            break;
+          case 'get_project':
+            result = await this.projectManager.getProject(args.project_id);
+            break;
+          case 'update_project':
+            result = await this.projectManager.updateProject(args.project_id, args.updates);
+            break;
+          case 'delete_project':
+            result = await this.projectManager.deleteProject(args.project_id);
+            break;
+          case 'get_project_analytics':
+            // get_project already returns analytics, so we can use the same method
+            result = await this.projectManager.getProject(args.project_id);
+            if (result.success) {
+              result = result.analytics || result;
+            }
             break;
           
           // Document management cases
@@ -1055,6 +1340,80 @@ ${result.documents.map(doc =>
 
 ✅ ${result.message}`;
 
+      case 'get_task_connections':
+        const { connections } = result;
+        let connectionsText = `🔗 작업 "${connections.task_title}" 연결 정보 (총 ${result.total_connections}개)
+
+`;
+
+        if (connections.connected_prds.length > 0) {
+          connectionsText += `📋 **연결된 요구사항** (${connections.connected_prds.length}개):
+${connections.connected_prds.map(prd => 
+`  • [${prd.id}] ${prd.title}
+    📊 ${prd.status} | 🎯 ${prd.priority} | 🔗 ${prd.connection_type}
+    ${prd.description ? `📝 ${prd.description.substring(0, 100)}${prd.description.length > 100 ? '...' : ''}` : ''}`
+).join('\n\n')}
+
+`;
+        }
+
+        if (connections.connected_designs.length > 0) {
+          connectionsText += `🏗️ **연결된 설계** (${connections.connected_designs.length}개):
+${connections.connected_designs.map(design => 
+`  • [${design.id}] ${design.title}
+    🔧 ${design.design_type} | 📊 ${design.status} | 🎯 ${design.priority} | 🔗 ${design.connection_type}
+    ${design.description ? `📝 ${design.description.substring(0, 100)}${design.description.length > 100 ? '...' : ''}` : ''}`
+).join('\n\n')}
+
+`;
+        }
+
+        if (connections.connected_documents.length > 0) {
+          connectionsText += `📄 **연결된 문서** (${connections.connected_documents.length}개):
+${connections.connected_documents.map(doc => 
+`  • [${doc.id}] ${doc.title}
+    📋 ${doc.doc_type} | 📊 ${doc.status} | 🔗 ${doc.connection_type}
+    ${doc.summary ? `📝 ${doc.summary.substring(0, 100)}${doc.summary.length > 100 ? '...' : ''}` : ''}`
+).join('\n\n')}
+
+`;
+        }
+
+        if (connections.connected_tests.length > 0) {
+          connectionsText += `🧪 **연결된 테스트** (${connections.connected_tests.length}개):
+${connections.connected_tests.map(test => 
+`  • [${test.id}] ${test.title}
+    🔬 ${test.type} | 📊 ${test.status} | 🎯 ${test.priority} | 🔗 ${test.connection_type}
+    ${test.description ? `📝 ${test.description.substring(0, 100)}${test.description.length > 100 ? '...' : ''}` : ''}`
+).join('\n\n')}
+
+`;
+        }
+
+        if (result.total_connections === 0) {
+          connectionsText += `💡 **연결된 항목이 없습니다**
+- \`add_task_connection\`으로 PRD, 설계, 문서, 테스트를 연결하세요`;
+        }
+
+        return connectionsText;
+
+      case 'add_task_connection':
+        return `🔗 작업 연결 추가 완료!
+
+**작업**: ${result.task_title}
+**연결 항목**: ${result.entity_type} "${result.entity_title}"
+**연결 유형**: ${result.connection_type}
+
+✅ ${result.message}`;
+
+      case 'remove_task_connection':
+        return `🔗 작업 연결 해제 완료!
+
+**작업**: ${result.task_title}
+**해제 항목**: ${result.entity_type} "${result.entity_title}"
+
+✅ ${result.message}`;
+
       default:
         return JSON.stringify(result, null, 2);
     }
@@ -1109,7 +1468,7 @@ ${result.documents.map(doc =>
     // 독립적인 데이터베이스 연결 사용 (shared connection 문제 방지)
     const db = await open({
       filename: './data/workflow.db',
-      driver: sqlite3.Database
+      driver: sqlite3.default.Database
     });
     
     let query = `
@@ -1160,7 +1519,7 @@ ${result.documents.map(doc =>
     // 새로운 데이터베이스 연결 생성 (DocumentManager 인스턴스를 재사용하지 않음)
     const db = await open({
       filename: './data/workflow.db',
-      driver: sqlite3.Database
+      driver: sqlite3.default.Database
     });
     
     const searchQuery = `
@@ -1203,7 +1562,7 @@ ${result.documents.map(doc =>
     // 문서가 PRD와 연결되어 있는지 확인
     const db = await open({
       filename: './data/workflow.db',
-      driver: sqlite3.Database
+      driver: sqlite3.default.Database
     });
     
     const linkCheck = await db.get(`
@@ -1222,7 +1581,7 @@ ${result.documents.map(doc =>
     // 직접 문서 업데이트 (DocumentManager 우회)
     const updateDb = await open({
       filename: './data/workflow.db',
-      driver: sqlite3.Database
+      driver: sqlite3.default.Database
     });
 
     let updateFields = [];
@@ -1280,7 +1639,7 @@ ${result.documents.map(doc =>
     // 문서 존재 확인 및 연결 생성 (직접 구현)
     const db = await open({
       filename: './data/workflow.db',
-      driver: sqlite3.Database
+      driver: sqlite3.default.Database
     });
 
     // 문서 확인
@@ -1313,6 +1672,415 @@ ${result.documents.map(doc =>
       is_new: !existingLink,
       message: `문서 "${document.title}"를 PRD "${prd.prd.title}"에 연결 완료 (${link_type})`
     };
+  }
+
+  // Task Connection Management Methods
+  async getTaskConnections(task_id) {
+    const sqlite3 = await import('sqlite3');
+    const { open } = await import('sqlite');
+    
+    const db = await open({
+      filename: './data/workflow.db',
+      driver: sqlite3.default.Database
+    });
+
+    try {
+      // 작업 확인
+      const task = await db.get('SELECT id, title FROM tasks WHERE id = ?', [task_id]);
+      if (!task) {
+        throw new Error(`Task not found: ${task_id}`);
+      }
+
+      const connections = {
+        task_title: task.title,
+        connected_prds: [],
+        connected_designs: [],
+        connected_documents: [],
+        connected_tests: []
+      };
+
+      // 작업의 전체 정보 조회 (prd_id, design_id 포함)
+      const fullTask = await db.get('SELECT * FROM tasks WHERE id = ?', [task_id]);
+      
+      // 연결된 PRD 조회 (task 테이블의 prd_id 필드)
+      if (fullTask.prd_id) {
+        const prd = await db.get('SELECT id, title, description, status, priority FROM prds WHERE id = ?', [fullTask.prd_id]);
+        if (prd) {
+          connections.connected_prds.push({
+            id: prd.id,
+            title: prd.title,
+            description: prd.description,
+            status: prd.status,
+            priority: prd.priority,
+            connection_type: 'primary'
+          });
+        }
+      }
+
+      // 연결된 설계 조회 (task 테이블의 design_id 필드)
+      if (fullTask.design_id) {
+        const design = await db.get('SELECT id, title, description, status, priority, design_type FROM designs WHERE id = ?', [fullTask.design_id]);
+        if (design) {
+          connections.connected_designs.push({
+            id: design.id,
+            title: design.title,
+            description: design.description,
+            status: design.status,
+            priority: design.priority,
+            design_type: design.design_type,
+            connection_type: 'primary'
+          });
+        }
+      }
+
+      // 연결된 문서 조회
+      const documents = await db.all(`
+        SELECT d.id, d.title, d.summary, d.doc_type, d.status, dl.link_type
+        FROM documents d
+        JOIN document_links dl ON d.id = dl.document_id
+        WHERE dl.linked_entity_type = 'task' AND dl.linked_entity_id = ?
+      `, [task_id]);
+      
+      connections.connected_documents = documents.map(doc => ({
+        id: doc.id,
+        title: doc.title,
+        summary: doc.summary,
+        doc_type: doc.doc_type,
+        status: doc.status,
+        connection_type: doc.link_type || 'related'
+      }));
+
+      // 연결된 테스트 조회
+      const tests = await db.all(`
+        SELECT id, title, description, status, type, priority
+        FROM test_cases
+        WHERE task_id = ?
+      `, [task_id]);
+      
+      connections.connected_tests = tests.map(test => ({
+        id: test.id,
+        title: test.title,
+        description: test.description,
+        status: test.status,
+        type: test.type,
+        priority: test.priority,
+        connection_type: 'primary'
+      }));
+
+      await db.close();
+      return {
+        success: true,
+        connections,
+        total_connections: connections.connected_prds.length + 
+                         connections.connected_designs.length + 
+                         connections.connected_documents.length + 
+                         connections.connected_tests.length
+      };
+    } catch (error) {
+      await db.close();
+      throw error;
+    }
+  }
+
+  async addTaskConnection(task_id, entity_type, entity_id, connection_type = 'related') {
+    const sqlite3 = await import('sqlite3');
+    const { open } = await import('sqlite');
+    
+    const db = await open({
+      filename: './data/workflow.db',
+      driver: sqlite3.default.Database
+    });
+
+    try {
+      // 작업 확인
+      const task = await db.get('SELECT id, title FROM tasks WHERE id = ?', [task_id]);
+      if (!task) {
+        throw new Error(`Task not found: ${task_id}`);
+      }
+
+      let entity = null;
+      let tableName = '';
+      let updateField = '';
+      
+      // 엔티티 타입별 처리
+      switch (entity_type) {
+        case 'prd':
+          tableName = 'prds';
+          updateField = 'prd_id';
+          entity = await db.get('SELECT id, title FROM prds WHERE id = ?', [entity_id]);
+          break;
+        case 'design':
+          tableName = 'designs';
+          updateField = 'design_id';
+          entity = await db.get('SELECT id, title FROM designs WHERE id = ?', [entity_id]);
+          break;
+        case 'document':
+          tableName = 'documents';
+          entity = await db.get('SELECT id, title FROM documents WHERE id = ?', [entity_id]);
+          break;
+        case 'test':
+          tableName = 'test_cases';
+          entity = await db.get('SELECT id, title FROM test_cases WHERE id = ?', [entity_id]);
+          break;
+        default:
+          throw new Error(`Unsupported entity type: ${entity_type}`);
+      }
+
+      if (!entity) {
+        throw new Error(`${entity_type} not found: ${entity_id}`);
+      }
+
+      // 연결 처리
+      if (entity_type === 'prd' || entity_type === 'design') {
+        // PRD와 Design은 task 테이블의 필드 업데이트
+        await db.run(`UPDATE tasks SET ${updateField} = ? WHERE id = ?`, [entity_id, task_id]);
+      } else if (entity_type === 'document') {
+        // 문서는 document_links 테이블 사용
+        const existingLink = await db.get(`
+          SELECT id FROM document_links 
+          WHERE document_id = ? AND linked_entity_type = 'task' AND linked_entity_id = ?
+        `, [entity_id, task_id]);
+
+        if (!existingLink) {
+          await db.run(`
+            INSERT INTO document_links (document_id, linked_entity_type, linked_entity_id, link_type)
+            VALUES (?, 'task', ?, ?)
+          `, [entity_id, task_id, connection_type]);
+        }
+      } else if (entity_type === 'test') {
+        // 테스트는 test_cases 테이블의 task_id 필드 업데이트
+        await db.run('UPDATE test_cases SET task_id = ? WHERE id = ?', [task_id, entity_id]);
+      }
+
+      await db.close();
+      return {
+        success: true,
+        task_title: task.title,
+        entity_title: entity.title,
+        entity_type,
+        connection_type,
+        message: `${entity_type} "${entity.title}"를 작업 "${task.title}"에 연결 완료`
+      };
+    } catch (error) {
+      await db.close();
+      throw error;
+    }
+  }
+
+  async removeTaskConnection(task_id, entity_type, entity_id) {
+    const sqlite3 = await import('sqlite3');
+    const { open } = await import('sqlite');
+    
+    const db = await open({
+      filename: './data/workflow.db',
+      driver: sqlite3.default.Database
+    });
+
+    try {
+      // 작업 확인
+      const task = await db.get('SELECT id, title FROM tasks WHERE id = ?', [task_id]);
+      if (!task) {
+        throw new Error(`Task not found: ${task_id}`);
+      }
+
+      let entity = null;
+      let updateField = '';
+      
+      // 엔티티 타입별 처리
+      switch (entity_type) {
+        case 'prd':
+          updateField = 'prd_id';
+          entity = await db.get('SELECT id, title FROM prds WHERE id = ?', [entity_id]);
+          break;
+        case 'design':
+          updateField = 'design_id';
+          entity = await db.get('SELECT id, title FROM designs WHERE id = ?', [entity_id]);
+          break;
+        case 'document':
+          entity = await db.get('SELECT id, title FROM documents WHERE id = ?', [entity_id]);
+          break;
+        case 'test':
+          entity = await db.get('SELECT id, title FROM test_cases WHERE id = ?', [entity_id]);
+          break;
+        default:
+          throw new Error(`Unsupported entity type: ${entity_type}`);
+      }
+
+      if (!entity) {
+        throw new Error(`${entity_type} not found: ${entity_id}`);
+      }
+
+      // 연결 해제 처리
+      if (entity_type === 'prd' || entity_type === 'design') {
+        // PRD와 Design은 task 테이블의 필드를 NULL로 설정
+        await db.run(`UPDATE tasks SET ${updateField} = NULL WHERE id = ? AND ${updateField} = ?`, [task_id, entity_id]);
+      } else if (entity_type === 'document') {
+        // 문서는 document_links 테이블에서 삭제
+        await db.run(`
+          DELETE FROM document_links 
+          WHERE document_id = ? AND linked_entity_type = 'task' AND linked_entity_id = ?
+        `, [entity_id, task_id]);
+      } else if (entity_type === 'test') {
+        // 테스트는 test_cases 테이블의 task_id 필드를 NULL로 설정
+        await db.run('UPDATE test_cases SET task_id = NULL WHERE id = ? AND task_id = ?', [entity_id, task_id]);
+      }
+
+      await db.close();
+      return {
+        success: true,
+        task_title: task.title,
+        entity_title: entity.title,
+        entity_type,
+        message: `${entity_type} "${entity.title}"와 작업 "${task.title}" 연결 해제 완료`
+      };
+    } catch (error) {
+      await db.close();
+      throw error;
+    }
+  }
+
+  // 테스트 연결 관리 메서드들
+  async getTestConnections(test_case_id) {
+    try {
+      const db = await this.database.getDatabase();
+      
+      // 테스트 케이스 정보 가져오기
+      const testCase = await db.get('SELECT * FROM test_cases WHERE id = ?', [test_case_id]);
+      if (!testCase) {
+        return { success: false, error: 'Test case not found' };
+      }
+
+      const connections = {
+        task: null,
+        design: null,
+        prd: null
+      };
+
+      // 연결된 작업 정보
+      if (testCase.task_id) {
+        const task = await db.get('SELECT id, title, status, priority FROM tasks WHERE id = ?', [testCase.task_id]);
+        if (task) {
+          connections.task = task;
+        }
+      }
+
+      // 연결된 설계 정보
+      if (testCase.design_id) {
+        const design = await db.get('SELECT id, title, type, status FROM designs WHERE id = ?', [testCase.design_id]);
+        if (design) {
+          connections.design = design;
+        }
+      }
+
+      // 연결된 요구사항 정보
+      if (testCase.prd_id) {
+        const prd = await db.get('SELECT id, title, status, priority FROM prds WHERE id = ?', [testCase.prd_id]);
+        if (prd) {
+          connections.prd = prd;
+        }
+      }
+
+      return {
+        success: true,
+        test_case_id: test_case_id,
+        test_case_title: testCase.title,
+        connections: connections
+      };
+    } catch (error) {
+      console.error('Error getting test connections:', error);
+      return { success: false, error: error.message };
+    }
+  }
+
+  async addTestConnection(test_case_id, entity_type, entity_id) {
+    try {
+      const db = await this.database.getDatabase();
+
+      // 테스트 케이스 존재 확인
+      const testCase = await db.get('SELECT id, title FROM test_cases WHERE id = ?', [test_case_id]);
+      if (!testCase) {
+        return { success: false, error: 'Test case not found' };
+      }
+
+      // 연결할 엔티티 확인 및 필드 결정
+      let updateField, entity;
+      switch (entity_type) {
+        case 'task':
+          updateField = 'task_id';
+          entity = await db.get('SELECT id, title FROM tasks WHERE id = ?', [entity_id]);
+          break;
+        case 'design':
+          updateField = 'design_id';
+          entity = await db.get('SELECT id, title FROM designs WHERE id = ?', [entity_id]);
+          break;
+        case 'prd':
+          updateField = 'prd_id';
+          entity = await db.get('SELECT id, title FROM prds WHERE id = ?', [entity_id]);
+          break;
+        default:
+          return { success: false, error: 'Invalid entity type. Must be task, design, or prd' };
+      }
+
+      if (!entity) {
+        return { success: false, error: `${entity_type.charAt(0).toUpperCase() + entity_type.slice(1)} not found` };
+      }
+
+      // 테스트 케이스 업데이트
+      await db.run(`UPDATE test_cases SET ${updateField} = ? WHERE id = ?`, [entity_id, test_case_id]);
+
+      return {
+        success: true,
+        message: `Test case '${testCase.title}' connected to ${entity_type} '${entity.title}'`
+      };
+    } catch (error) {
+      console.error('Error adding test connection:', error);
+      return { success: false, error: error.message };
+    }
+  }
+
+  async removeTestConnection(test_case_id, entity_type, entity_id) {
+    try {
+      const db = await this.database.getDatabase();
+
+      // 테스트 케이스 존재 확인
+      const testCase = await db.get('SELECT id, title FROM test_cases WHERE id = ?', [test_case_id]);
+      if (!testCase) {
+        return { success: false, error: 'Test case not found' };
+      }
+
+      // 연결 해제할 필드 결정
+      let updateField;
+      switch (entity_type) {
+        case 'task':
+          updateField = 'task_id';
+          break;
+        case 'design':
+          updateField = 'design_id';
+          break;
+        case 'prd':
+          updateField = 'prd_id';
+          break;
+        default:
+          return { success: false, error: 'Invalid entity type. Must be task, design, or prd' };
+      }
+
+      // 현재 연결된 엔티티 확인
+      const currentConnectionId = testCase[updateField];
+      if (currentConnectionId !== entity_id) {
+        return { success: false, error: `Test case is not connected to this ${entity_type}` };
+      }
+
+      // 연결 해제
+      await db.run(`UPDATE test_cases SET ${updateField} = NULL WHERE id = ? AND ${updateField} = ?`, [test_case_id, entity_id]);
+
+      return {
+        success: true,
+        message: `Test case '${testCase.title}' disconnected from ${entity_type}`
+      };
+    } catch (error) {
+      console.error('Error removing test connection:', error);
+      return { success: false, error: error.message };
+    }
   }
 
   async start() {

@@ -141,16 +141,21 @@ export class PRDManager {
   /**
    * PRD 목록 조회
    * @param {string} status - 필터링할 상태 (옵션)
+   * @param {string} sortBy - 정렬 기준 (옵션)
+   * @param {string} projectId - 프로젝트 ID 필터 (옵션)
    * @returns {Array} PRD 요약 목록
    */
-  async listPRDs(status = null, sortBy = 'created_desc') {
+  async listPRDs(status = null, sortBy = 'created_desc', projectId = null) {
     await this.ensureInitialized();
     try {
       const allPRDs = await this.storage.listAllPRDs(sortBy);
       
       let filteredPRDs = allPRDs;
       if (status) {
-        filteredPRDs = allPRDs.filter(prd => prd.status === status);
+        filteredPRDs = filteredPRDs.filter(prd => prd.status === status);
+      }
+      if (projectId) {
+        filteredPRDs = filteredPRDs.filter(prd => prd.project_id === projectId);
       }
 
       // 요약 정보만 반환

@@ -153,7 +153,7 @@ export class TestManager {
   /**
    * Test Case 목록 조회
    */
-  async listTestCases(status = null, type = null) {
+  async listTestCases(status = null, type = null, sortBy = null) {
     await this.ensureInitialized();
     try {
       const allTestCases = await this.storage.listAllTestCases();
@@ -164,6 +164,28 @@ export class TestManager {
       }
       if (type) {
         filteredTestCases = filteredTestCases.filter(testCase => testCase.type === type);
+      }
+
+      // 정렬 처리
+      if (sortBy) {
+        filteredTestCases.sort((a, b) => {
+          switch (sortBy) {
+            case 'created_desc':
+              return new Date(b.created_at || 0) - new Date(a.created_at || 0);
+            case 'created_asc':
+              return new Date(a.created_at || 0) - new Date(b.created_at || 0);
+            case 'updated_desc':
+              return new Date(b.updated_at || 0) - new Date(a.updated_at || 0);
+            case 'updated_asc':
+              return new Date(a.updated_at || 0) - new Date(b.updated_at || 0);
+            case 'title_asc':
+              return (a.title || '').localeCompare(b.title || '', 'ko-KR');
+            case 'title_desc':
+              return (b.title || '').localeCompare(a.title || '', 'ko-KR');
+            default:
+              return 0;
+          }
+        });
       }
 
       // 요약 정보와 함께 반환
