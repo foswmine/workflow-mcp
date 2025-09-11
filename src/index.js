@@ -14,6 +14,7 @@ import { DesignManager } from '../dashboard/src/lib/server/DesignManager.js';
 import { ProjectManager } from '../dashboard/src/lib/server/ProjectManager.js';
 import { DocumentManager } from './models/DocumentManager.js';
 import TestManager from './models/TestManager.js';
+import { DevOpsManager } from '../dashboard/src/lib/server/DevOpsManager.js';
 import { MetricsCollector } from './utils/MetricsCollector.js';
 import { ErrorLogger } from './utils/ErrorLogger.js';
 import sqlite3 from 'sqlite3';
@@ -40,6 +41,7 @@ class WorkflowMCPServer {
     this.projectManager = new ProjectManager();
     this.documentManager = new DocumentManager();
     this.testManager = new TestManager();
+    this.devOpsManager = new DevOpsManager();
     this.metricsCollector = new MetricsCollector();
     this.errorLogger = new ErrorLogger();
 
@@ -460,6 +462,15 @@ class WorkflowMCPServer {
               required: ['document_id', 'entity_type', 'entity_id']
             }
           },
+          {
+            name: 'get_document_categories',
+            description: 'Get existing document categories, types and tags for selection',
+            inputSchema: {
+              type: 'object',
+              properties: {},
+              required: []
+            }
+          },
           // PRD Document Management Tools
           {
             name: 'create_prd_document',
@@ -550,6 +561,82 @@ class WorkflowMCPServer {
                 }
               },
               required: ['document_id', 'prd_id']
+            }
+          },
+          // Document Relations Tools
+          {
+            name: 'create_document_relation',
+            description: 'Create a relationship between two documents',
+            inputSchema: {
+              type: 'object',
+              properties: {
+                parent_doc_id: { type: 'integer', description: 'Parent document ID' },
+                child_doc_id: { type: 'integer', description: 'Child document ID' },
+                relation_type: { 
+                  type: 'string', 
+                  enum: ['referenced_by', 'contains', 'derived_from', 'replaces'],
+                  default: 'referenced_by',
+                  description: 'Type of relationship' 
+                },
+                notes: { type: 'string', description: 'Optional notes about the relationship' }
+              },
+              required: ['parent_doc_id', 'child_doc_id']
+            }
+          },
+          {
+            name: 'get_document_relations',
+            description: 'Get all relationships for a specific document',
+            inputSchema: {
+              type: 'object',
+              properties: {
+                document_id: { type: 'integer', description: 'Document ID' }
+              },
+              required: ['document_id']
+            }
+          },
+          {
+            name: 'remove_document_relation',
+            description: 'Remove a relationship between two documents',
+            inputSchema: {
+              type: 'object',
+              properties: {
+                parent_doc_id: { type: 'integer', description: 'Parent document ID' },
+                child_doc_id: { type: 'integer', description: 'Child document ID' },
+                relation_type: { 
+                  type: 'string', 
+                  enum: ['referenced_by', 'contains', 'derived_from', 'replaces'],
+                  description: 'Type of relationship to remove' 
+                }
+              },
+              required: ['parent_doc_id', 'child_doc_id', 'relation_type']
+            }
+          },
+          {
+            name: 'remove_document_link',
+            description: 'Remove a link between document and entity (PRD, Task, Plan)',
+            inputSchema: {
+              type: 'object',
+              properties: {
+                document_id: { type: 'integer', description: 'Document ID' },
+                entity_type: { 
+                  type: 'string', 
+                  enum: ['prd', 'task', 'plan'],
+                  description: 'Type of entity to unlink' 
+                },
+                entity_id: { type: 'string', description: 'Entity ID to unlink' }
+              },
+              required: ['document_id', 'entity_type', 'entity_id']
+            }
+          },
+          {
+            name: 'get_document_links',
+            description: 'Get all entity links for a specific document',
+            inputSchema: {
+              type: 'object',
+              properties: {
+                document_id: { type: 'integer', description: 'Document ID' }
+              },
+              required: ['document_id']
             }
           },
           // Test Management Tools
@@ -958,6 +1045,284 @@ class WorkflowMCPServer {
               },
               required: ['project_id']
             }
+          },
+          // Environment Management Tools
+          {
+            name: 'create_environment',
+            description: 'Create a new environment with configuration',
+            inputSchema: {
+              type: 'object',
+              properties: {
+                name: { type: 'string', description: 'Environment name' },
+                environment_type: { 
+                  type: 'string', 
+                  enum: ['development', 'staging', 'production', 'testing'],
+                  description: 'Type of environment'
+                },
+                description: { type: 'string', description: 'Environment description' },
+                url: { type: 'string', description: 'Environment URL' },
+                status: { 
+                  type: 'string', 
+                  enum: ['active', 'inactive', 'maintenance'],
+                  description: 'Environment status'
+                },
+                project_id: { type: 'string', description: 'Related project ID (optional)' },
+                tags: { 
+                  type: 'array', 
+                  items: { type: 'string' },
+                  description: 'Environment tags'
+                }
+              },
+              required: ['name', 'environment_type']
+            }
+          },
+          {
+            name: 'list_environments',
+            description: 'List all environments with optional filtering',
+            inputSchema: {
+              type: 'object',
+              properties: {
+                environment_type: { 
+                  type: 'string', 
+                  enum: ['development', 'staging', 'production', 'testing'],
+                  description: 'Filter by environment type (optional)'
+                },
+                status: { 
+                  type: 'string', 
+                  enum: ['active', 'inactive', 'maintenance'],
+                  description: 'Filter by status (optional)'
+                },
+                project_id: { type: 'string', description: 'Filter by project ID (optional)' }
+              }
+            }
+          },
+          {
+            name: 'get_environment_status',
+            description: 'Get detailed status and health information for an environment',
+            inputSchema: {
+              type: 'object',
+              properties: {
+                environment_id: { type: 'string', description: 'Environment unique identifier' }
+              },
+              required: ['environment_id']
+            }
+          },
+          {
+            name: 'update_environment',
+            description: 'Update environment configuration and status',
+            inputSchema: {
+              type: 'object',
+              properties: {
+                environment_id: { type: 'string', description: 'Environment unique identifier' },
+                updates: { 
+                  type: 'object',
+                  description: 'Fields to update (name, description, status, tags, etc.)'
+                }
+              },
+              required: ['environment_id', 'updates']
+            }
+          },
+          // Deployment Management Tools
+          {
+            name: 'create_deployment',
+            description: 'Create a new deployment record with structured format',
+            inputSchema: {
+              type: 'object',
+              properties: {
+                title: { type: 'string', description: 'Deployment title' },
+                description: { type: 'string', description: 'Deployment description' },
+                environment_id: { type: 'string', description: 'Target environment ID' },
+                version: { type: 'string', description: 'Application/package version' },
+                deployment_type: { 
+                  type: 'string', 
+                  enum: ['blue_green', 'rolling', 'canary', 'hotfix'],
+                  description: 'Deployment strategy type'
+                },
+                status: { 
+                  type: 'string', 
+                  enum: ['planned', 'in_progress', 'completed', 'failed', 'rolled_back'],
+                  description: 'Deployment status'
+                },
+                deployment_config: { 
+                  type: 'object',
+                  description: 'Deployment configuration (JSON object)'
+                },
+                scheduled_at: { type: 'string', description: 'Scheduled deployment time (ISO string)' },
+                rollback_version: { type: 'string', description: 'Rollback version if needed' },
+                project_id: { type: 'string', description: 'Related project ID (optional)' },
+                tags: { 
+                  type: 'array', 
+                  items: { type: 'string' },
+                  description: 'Deployment tags'
+                },
+                notes: { type: 'string', description: 'Additional deployment notes' }
+              },
+              required: ['title', 'description', 'environment_id', 'version']
+            }
+          },
+          {
+            name: 'list_deployments',
+            description: 'List all deployments with optional filtering',
+            inputSchema: {
+              type: 'object',
+              properties: {
+                environment_id: { type: 'string', description: 'Filter by environment ID (optional)' },
+                status: { 
+                  type: 'string', 
+                  enum: ['planned', 'in_progress', 'completed', 'failed', 'rolled_back'],
+                  description: 'Filter by status (optional)'
+                },
+                deployment_type: { 
+                  type: 'string', 
+                  enum: ['blue_green', 'rolling', 'canary', 'hotfix'],
+                  description: 'Filter by deployment type (optional)'
+                },
+                project_id: { type: 'string', description: 'Filter by project ID (optional)' },
+                sort_by: { 
+                  type: 'string', 
+                  enum: ['scheduled_desc', 'scheduled_asc', 'created_desc', 'created_asc', 'status'],
+                  description: 'Sort order (optional)'
+                }
+              }
+            }
+          },
+          {
+            name: 'get_deployment',
+            description: 'Retrieve detailed deployment information by ID',
+            inputSchema: {
+              type: 'object',
+              properties: {
+                deployment_id: { type: 'string', description: 'Deployment unique identifier' }
+              },
+              required: ['deployment_id']
+            }
+          },
+          {
+            name: 'update_deployment',
+            description: 'Update existing deployment with new information',
+            inputSchema: {
+              type: 'object',
+              properties: {
+                deployment_id: { type: 'string', description: 'Deployment unique identifier' },
+                updates: { 
+                  type: 'object', 
+                  description: 'Fields to update (title, description, status, deployment_type, etc.)',
+                  properties: {
+                    title: { type: 'string', description: 'Deployment title' },
+                    description: { type: 'string', description: 'Deployment description' },
+                    status: { 
+                      type: 'string', 
+                      enum: ['planned', 'in_progress', 'completed', 'failed', 'rolled_back'],
+                      description: 'Deployment status'
+                    },
+                    deployment_type: { 
+                      type: 'string', 
+                      enum: ['blue_green', 'rolling', 'canary', 'hotfix'],
+                      description: 'Deployment strategy type'
+                    },
+                    version: { type: 'string', description: 'Application/package version' },
+                    deployment_config: { 
+                      type: 'object',
+                      description: 'Deployment configuration (JSON object)'
+                    },
+                    scheduled_at: { type: 'string', description: 'Scheduled deployment time (ISO string)' },
+                    rollback_version: { type: 'string', description: 'Rollback version if needed' },
+                    notes: { type: 'string', description: 'Additional deployment notes' },
+                    tags: { 
+                      type: 'array', 
+                      items: { type: 'string' },
+                      description: 'Deployment tags'
+                    }
+                  }
+                }
+              },
+              required: ['deployment_id', 'updates']
+            }
+          },
+          // Incident Management Tools  
+          {
+            name: 'create_incident',
+            description: 'Create a new incident record for tracking operational issues',
+            inputSchema: {
+              type: 'object',
+              properties: {
+                title: { type: 'string', description: 'Incident title' },
+                description: { type: 'string', description: 'Detailed incident description' },
+                severity: { 
+                  type: 'string', 
+                  enum: ['critical', 'high', 'medium', 'low'],
+                  description: 'Incident severity level'
+                },
+                incident_type: { 
+                  type: 'string', 
+                  enum: ['outage', 'performance', 'security', 'data', 'deployment'],
+                  description: 'Type of incident'
+                },
+                status: { 
+                  type: 'string', 
+                  enum: ['open', 'investigating', 'identified', 'monitoring', 'resolved'],
+                  description: 'Incident status'
+                },
+                affected_services: { 
+                  type: 'array', 
+                  items: { type: 'string' },
+                  description: 'List of affected services'
+                },
+                environment_id: { type: 'string', description: 'Affected environment ID (optional)' },
+                project_id: { type: 'string', description: 'Related project ID (optional)' },
+                tags: { 
+                  type: 'array', 
+                  items: { type: 'string' },
+                  description: 'Incident tags'
+                }
+              },
+              required: ['title', 'description', 'severity', 'incident_type']
+            }
+          },
+          {
+            name: 'list_incidents',
+            description: 'List all incidents with optional filtering and sorting',
+            inputSchema: {
+              type: 'object',
+              properties: {
+                severity: { 
+                  type: 'string', 
+                  enum: ['critical', 'high', 'medium', 'low'],
+                  description: 'Filter by severity (optional)'
+                },
+                status: { 
+                  type: 'string', 
+                  enum: ['open', 'investigating', 'identified', 'monitoring', 'resolved'],
+                  description: 'Filter by status (optional)'
+                },
+                incident_type: { 
+                  type: 'string', 
+                  enum: ['outage', 'performance', 'security', 'data', 'deployment'],
+                  description: 'Filter by incident type (optional)'
+                },
+                environment_id: { type: 'string', description: 'Filter by environment ID (optional)' },
+                sort_by: { 
+                  type: 'string', 
+                  enum: ['created_desc', 'created_asc', 'updated_desc', 'severity', 'status'],
+                  description: 'Sort order (optional)'
+                }
+              }
+            }
+          },
+          // System Health Tools
+          {
+            name: 'get_system_health',
+            description: 'Get comprehensive system health status and metrics',
+            inputSchema: {
+              type: 'object',
+              properties: {
+                environment_id: { type: 'string', description: 'Environment ID (optional - if not provided, gets all environments)' },
+                include_details: { 
+                  type: 'boolean',
+                  description: 'Include detailed metrics (default: false)'
+                }
+              }
+            }
           }
         ]
       };
@@ -1093,6 +1458,47 @@ class WorkflowMCPServer {
             }
             break;
           
+          // DevOps Environment management cases
+          case 'create_environment':
+            result = await this.devOpsManager.createEnvironment(args);
+            break;
+          case 'list_environments':
+            result = await this.devOpsManager.listEnvironments(args.environment_type, args.status, args.project_id);
+            break;
+          case 'get_environment_status':
+            result = await this.devOpsManager.getEnvironmentStatus(args.environment_id);
+            break;
+          case 'update_environment':
+            result = await this.devOpsManager.updateEnvironment(args.environment_id, args.updates);
+            break;
+          
+          // DevOps Deployment management cases
+          case 'create_deployment':
+            result = await this.devOpsManager.createDeployment(args);
+            break;
+          case 'list_deployments':
+            result = await this.devOpsManager.listDeployments(args.environment_id, args.status, args.deployment_type, args.project_id, args.sort_by);
+            break;
+          case 'get_deployment':
+            result = await this.devOpsManager.getDeployment(args.deployment_id);
+            break;
+          case 'update_deployment':
+            result = await this.devOpsManager.updateDeployment(args.deployment_id, args.updates);
+            break;
+            
+          // DevOps Incident management cases
+          case 'create_incident':
+            result = await this.devOpsManager.createIncident(args);
+            break;
+          case 'list_incidents':
+            result = await this.devOpsManager.listIncidents(args.severity, args.status, args.incident_type, args.environment_id, args.sort_by);
+            break;
+            
+          // DevOps System health cases
+          case 'get_system_health':
+            result = await this.devOpsManager.getSystemHealth(args.environment_id, args.include_details);
+            break;
+          
           // Document management cases
           case 'create_document':
             result = await this.documentManager.createDocument(args);
@@ -1115,6 +1521,17 @@ class WorkflowMCPServer {
           case 'link_document':
             result = await this.documentManager.linkDocument(args.document_id, args.entity_type, args.entity_id, args.link_type);
             break;
+          case 'get_document_categories':
+            console.log('🚀 MCP Handler: get_document_categories case executed');
+            result = await this.documentManager.getDocumentCategories();
+            console.log('DEBUG - get_document_categories result:', JSON.stringify({
+              doc_types_count: result.doc_types.length,
+              categories_count: result.categories.length,
+              total: result.total_documents,
+              first_doc_type: result.doc_types[0],
+              first_category: result.categories[0]
+            }, null, 2));
+            break;
           // PRD Document management cases
           case 'create_prd_document':
             result = await this.createPRDDocument(args);
@@ -1131,6 +1548,24 @@ class WorkflowMCPServer {
           case 'link_document_to_prd':
             result = await this.linkDocumentToPRD(args.document_id, args.prd_id, args.link_type);
             break;
+          
+          // Document Relations Cases
+          case 'create_document_relation':
+            result = await this.documentManager.createDocumentRelation(args.parent_doc_id, args.child_doc_id, args.relation_type, args.notes);
+            break;
+          case 'get_document_relations':
+            result = await this.documentManager.getDocumentRelations(args.document_id);
+            break;
+          case 'remove_document_relation':
+            result = await this.documentManager.removeDocumentRelation(args.parent_doc_id, args.child_doc_id, args.relation_type);
+            break;
+          case 'remove_document_link':
+            result = await this.documentManager.removeDocumentLink(args.document_id, args.entity_type, args.entity_id);
+            break;
+          case 'get_document_links':
+            result = await this.documentManager.getDocumentLinks(args.document_id);
+            break;
+          
           default:
             throw new Error(`Unknown tool: ${name}`);
         }
@@ -1275,6 +1710,21 @@ ${result.map(doc => `
 **링크 유형**: ${result.link_type}
 **상태**: ${result.is_new ? '새로 생성됨' : '이미 존재함'}`;
 
+      case 'get_document_categories':
+        return `📊 문서 분류 정보 (총 ${result.total_documents}개 문서)
+
+## 📋 문서 유형 (doc_type)
+${result.doc_types.map(item => `- **${item.value}** (${item.count}개)`).join('\n')}
+
+## 📂 카테고리 (category)  
+${result.categories.map(item => `- **${item.value}** (${item.count}개)`).join('\n')}
+
+## 🏷️ 태그 (tags)
+${result.tags.slice(0, 20).map(item => `- **${item.value}** (${item.count}개)`).join('\n')}
+${result.tags.length > 20 ? `\n... 외 ${result.tags.length - 20}개 태그` : ''}
+
+**사용법**: 위 목록에서 기존 분류를 선택하거나 새로운 분류를 생성하세요.`;
+
       case 'create_prd_document':
         return `📋 PRD 상세 문서가 생성되었습니다!
 
@@ -1339,6 +1789,106 @@ ${result.documents.map(doc =>
 **링크 유형**: ${result.link_type}
 
 ✅ ${result.message}`;
+
+      // Document Relations Response Formatters
+      case 'create_document_relation':
+        if (result.success) {
+          return `📝 문서 관계 생성 완료!
+
+**부모 문서**: [${result.parent_doc.id}] ${result.parent_doc.title}
+**자식 문서**: [${result.child_doc.id}] ${result.child_doc.title}
+**관계 유형**: ${result.relation_type}
+${result.notes ? `**설명**: ${result.notes}` : ''}
+
+✅ ${result.message}`;
+        } else {
+          return `⚠️ 문서 관계 생성 실패
+
+**오류**: ${result.error}
+**부모 문서**: [${result.parent_doc.id}] ${result.parent_doc.title}
+**자식 문서**: [${result.child_doc.id}] ${result.child_doc.title}
+**관계 유형**: ${result.relation_type}`;
+        }
+
+      case 'get_document_relations':
+        let relationsText = `📖 문서 "${result.document_title}" 관계 정보 (총 ${result.total_relations}개)
+
+`;
+
+        if (result.parent_relations.length > 0) {
+          relationsText += `🔼 **부모 문서들** (${result.parent_relations.length}개):
+${result.parent_relations.map(rel => 
+  `- [${rel.parent_id}] ${rel.parent_title} (${rel.relation_type})${rel.notes ? ` - ${rel.notes}` : ''}`
+).join('\n')}
+
+`;
+        }
+
+        if (result.child_relations.length > 0) {
+          relationsText += `🔽 **자식 문서들** (${result.child_relations.length}개):
+${result.child_relations.map(rel => 
+  `- [${rel.child_id}] ${rel.child_title} (${rel.relation_type})${rel.notes ? ` - ${rel.notes}` : ''}`
+).join('\n')}
+
+`;
+        }
+
+        if (result.total_relations === 0) {
+          relationsText += `📄 관련 문서가 없습니다.
+
+💡 다음 도구로 관계를 만들 수 있습니다:
+- \`create_document_relation\`으로 문서 간 관계 생성`;
+        }
+
+        return relationsText;
+
+      case 'remove_document_relation':
+        if (result.success) {
+          return `🗑️ 문서 관계 삭제 완료!
+
+**부모**: ${result.parent_title}
+**자식**: ${result.child_title}
+**관계 유형**: ${result.relation_type}
+
+✅ ${result.message}`;
+        } else {
+          return `⚠️ 문서 관계 삭제 실패
+
+**오류**: ${result.error}
+**부모 문서 ID**: ${result.parent_doc_id}
+**자식 문서 ID**: ${result.child_doc_id}
+**관계 유형**: ${result.relation_type}`;
+        }
+
+      case 'remove_document_link':
+        if (result.success) {
+          return `🔗 문서 링크 삭제 완료!
+
+**문서**: ${result.document_title}
+**엔터티**: ${result.entity_type}:${result.entity_id}
+
+✅ ${result.message}`;
+        } else {
+          return `⚠️ 문서 링크 삭제 실패
+
+**오류**: ${result.error}
+**문서 ID**: ${result.document_id}
+**엔터티**: ${result.entity_type}:${result.entity_id}`;
+        }
+
+      case 'get_document_links':
+        return `🔗 문서 "${result.document_title}" 엔터티 링크 (총 ${result.total_links}개)
+
+${result.links.length > 0 ? 
+  result.links.map(link => 
+    `📎 **${link.linked_entity_type.toUpperCase()}**: ${link.linked_entity_id} (${link.link_type}) - ${new Date(link.created_at).toLocaleDateString('ko-KR')}`
+  ).join('\n') 
+  : 
+  `📄 연결된 엔터티가 없습니다.
+
+💡 다음 도구로 연결할 수 있습니다:
+- \`link_document\`로 PRD, Task, Plan과 연결`
+}`;
 
       case 'get_task_connections':
         const { connections } = result;
