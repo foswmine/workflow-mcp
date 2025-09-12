@@ -82,7 +82,17 @@
 	async function executeTestCase(id) {
 		try {
 			const response = await fetch(`/api/tests/${id}/execute`, {
-				method: 'POST'
+				method: 'POST',
+				headers: {
+					'Content-Type': 'application/json'
+				},
+				body: JSON.stringify({
+					status: 'pass',
+					environment: 'development',
+					executed_by: 'system',
+					actual_result: 'Test executed successfully',
+					notes: 'Quick execution from dashboard'
+				})
 			});
 			
 			if (response.ok) {

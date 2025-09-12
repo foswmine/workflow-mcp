@@ -311,4 +311,272 @@ export class DocumentManager {
       links
     };
   }
+
+  /**
+   * 문서 간 관계 생성 (document_relations 테이블 사용)
+   * @param {number} parentDocId - 부모 문서 ID
+   * @param {number} childDocId - 자식 문서 ID
+   * @param {string} relationType - 관계 유형 (referenced_by, contains, derived_from, replaces)
+   * @param {string} notes - 관계에 대한 설명
+   * @returns {Object} 관계 생성 결과
+   */
+  async createDocumentRelation(parentDocId, childDocId, relationType = 'referenced_by', notes = null) {
+    const db = await this.getDatabase();
+
+    // 두 문서가 모두 존재하는지 확인
+    const [parentDoc, childDoc] = await Promise.all([
+      db.get('SELECT id, title FROM documents WHERE id = ?', [parentDocId]),
+      db.get('SELECT id, title FROM documents WHERE id = ?', [childDocId])
+    ]);
+
+    if (!parentDoc) {
+      throw new Error(`Parent document ID ${parentDocId} not found`);
+    }
+    if (!childDoc) {
+      throw new Error(`Child document ID ${childDocId} not found`);
+    }
+
+    // 중복 관계 확인
+    const existingRelation = await db.get(`
+      SELECT id FROM document_relations 
+      WHERE parent_doc_id = ? AND child_doc_id = ? AND relation_type = ?
+    `, [parentDocId, childDocId, relationType]);
+
+    if (existingRelation) {
+      return {
+        success: false,
+        error: 'Document relation already exists',
+        parent_doc: parentDoc,
+        child_doc: childDoc,
+        relation_type: relationType
+      };
+    }
+
+    // 관계 생성
+    const result = await db.run(`
+      INSERT INTO document_relations (parent_doc_id, child_doc_id, relation_type, notes)
+      VALUES (?, ?, ?, ?)
+    `, [parentDocId, childDocId, relationType, notes]);
+
+    return {
+      success: true,
+      relation_id: result.lastInsertRowid,
+      parent_doc: parentDoc,
+      child_doc: childDoc,
+      relation_type: relationType,
+      notes: notes,
+      message: `문서 관계 생성: "${parentDoc.title}" ${relationType} "${childDoc.title}"`
+    };
+  }
+
+  /**
+   * 문서의 관계 조회 (부모-자식 관계)
+   * @param {number} documentId - 문서 ID
+   * @returns {Object} 문서 관계 정보
+   */
+  async getDocumentRelations(documentId) {
+    const db = await this.getDatabase();
+
+    const doc = await db.get('SELECT id, title FROM documents WHERE id = ?', [documentId]);
+    if (!doc) {
+      throw new Error(`Document ID ${documentId} not found`);
+    }
+
+    // 부모 관계 (이 문서가 자식인 경우)
+    const parentRelations = await db.all(`
+      SELECT dr.relation_type, dr.notes, dr.created_at,
+             d.id as parent_id, d.title as parent_title
+      FROM document_relations dr
+      JOIN documents d ON dr.parent_doc_id = d.id
+      WHERE dr.child_doc_id = ?
+      ORDER BY dr.created_at DESC
+    `, [documentId]);
+
+    // 자식 관계 (이 문서가 부모인 경우)
+    const childRelations = await db.all(`
+      SELECT dr.relation_type, dr.notes, dr.created_at,
+             d.id as child_id, d.title as child_title
+      FROM document_relations dr
+      JOIN documents d ON dr.child_doc_id = d.id
+      WHERE dr.parent_doc_id = ?
+      ORDER BY dr.created_at DESC
+    `, [documentId]);
+
+    return {
+      document_id: documentId,
+      document_title: doc.title,
+      parent_relations: parentRelations,
+      child_relations: childRelations,
+      total_relations: parentRelations.length + childRelations.length
+    };
+  }
+
+  /**
+   * 문서 간 관계 삭제
+   * @param {number} parentDocId - 부모 문서 ID
+   * @param {number} childDocId - 자식 문서 ID
+   * @param {string} relationType - 관계 유형
+   * @returns {Object} 삭제 결과
+   */
+  async removeDocumentRelation(parentDocId, childDocId, relationType) {
+    const db = await this.getDatabase();
+
+    // 관계 존재 확인
+    const relation = await db.get(`
+      SELECT dr.id, p.title as parent_title, c.title as child_title
+      FROM document_relations dr
+      JOIN documents p ON dr.parent_doc_id = p.id
+      JOIN documents c ON dr.child_doc_id = c.id
+      WHERE dr.parent_doc_id = ? AND dr.child_doc_id = ? AND dr.relation_type = ?
+    `, [parentDocId, childDocId, relationType]);
+
+    if (!relation) {
+      return {
+        success: false,
+        error: 'Document relation not found',
+        parent_doc_id: parentDocId,
+        child_doc_id: childDocId,
+        relation_type: relationType
+      };
+    }
+
+    // 관계 삭제
+    await db.run(`
+      DELETE FROM document_relations 
+      WHERE parent_doc_id = ? AND child_doc_id = ? AND relation_type = ?
+    `, [parentDocId, childDocId, relationType]);
+
+    return {
+      success: true,
+      parent_title: relation.parent_title,
+      child_title: relation.child_title,
+      relation_type: relationType,
+      message: `문서 관계 삭제: "${relation.parent_title}" ${relationType} "${relation.child_title}"`
+    };
+  }
+
+  /**
+   * 문서 링크 제거 (document_links 테이블)
+   * @param {number} documentId - 문서 ID
+   * @param {string} entityType - 엔터티 유형
+   * @param {string} entityId - 엔터티 ID
+   * @returns {Object} 삭제 결과
+   */
+  async removeDocumentLink(documentId, entityType, entityId) {
+    const db = await this.getDatabase();
+
+    // 링크 존재 확인
+    const link = await db.get(`
+      SELECT dl.id, d.title as document_title
+      FROM document_links dl
+      JOIN documents d ON dl.document_id = d.id
+      WHERE dl.document_id = ? AND dl.linked_entity_type = ? AND dl.linked_entity_id = ?
+    `, [documentId, entityType, entityId]);
+
+    if (!link) {
+      return {
+        success: false,
+        error: 'Document link not found',
+        document_id: documentId,
+        entity_type: entityType,
+        entity_id: entityId
+      };
+    }
+
+    // 링크 삭제
+    await db.run(`
+      DELETE FROM document_links 
+      WHERE document_id = ? AND linked_entity_type = ? AND linked_entity_id = ?
+    `, [documentId, entityType, entityId]);
+
+    return {
+      success: true,
+      document_title: link.document_title,
+      entity_type: entityType,
+      entity_id: entityId,
+      message: `문서 링크 삭제: "${link.document_title}" -> ${entityType}:${entityId}`
+    };
+  }
+
+  /**
+   * 문서 분류 정보 조회 (doc_type, category, tags)
+   * @returns {Object} 분류 정보
+   */
+  async getDocumentCategories() {
+    console.log('🔍 DocumentManager.getDocumentCategories() called - UPDATED VERSION');
+    const db = await this.getDatabase();
+
+    const [docTypes, categories, allTags] = await Promise.all([
+      // 사용된 doc_type 목록
+      db.all(`
+        SELECT doc_type, COUNT(*) as count
+        FROM documents 
+        WHERE doc_type IS NOT NULL 
+        GROUP BY doc_type
+        ORDER BY count DESC, doc_type
+      `),
+
+      // 사용된 category 목록  
+      db.all(`
+        SELECT category, COUNT(*) as count
+        FROM documents 
+        WHERE category IS NOT NULL 
+        GROUP BY category
+        ORDER BY count DESC, category
+      `),
+
+      // 사용된 tags 목록
+      db.all(`
+        SELECT tags
+        FROM documents 
+        WHERE tags IS NOT NULL AND tags != '[]'
+      `)
+    ]);
+
+    // tags 추출 및 집계
+    const tagsMap = new Map();
+    allTags.forEach(row => {
+      try {
+        const tags = JSON.parse(row.tags || '[]');
+        tags.forEach(tag => {
+          tagsMap.set(tag, (tagsMap.get(tag) || 0) + 1);
+        });
+      } catch (e) {
+        // JSON 파싱 에러 무시
+      }
+    });
+
+    const tags = Array.from(tagsMap.entries())
+      .map(([tag, count]) => ({ tag, count }))
+      .sort((a, b) => b.count - a.count || a.tag.localeCompare(b.tag));
+
+    const result = {
+      success: true,
+      doc_types: docTypes.map(row => ({
+        value: row.doc_type,
+        count: row.count
+      })),
+      categories: categories.map(row => ({
+        value: row.category, 
+        count: row.count
+      })),
+      tags: tags.map(item => ({
+        value: item.tag,
+        count: item.count
+      })),
+      total_documents: docTypes.reduce((sum, row) => sum + row.count, 0)
+    };
+    
+    console.log('📊 DocumentManager result:', {
+      doc_types_count: result.doc_types.length,
+      categories_count: result.categories.length, 
+      first_doc_type: result.doc_types[0],
+      first_category: result.categories[0],
+      total: result.total_documents
+    });
+    
+    return result;
+  }
 }
+
+export default DocumentManager;

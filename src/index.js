@@ -1323,6 +1323,268 @@ class WorkflowMCPServer {
                 }
               }
             }
+          },
+          
+          // =============================================
+          // Claude Collaboration Tools (Phase 3.0)
+          // =============================================
+          
+          // Agent Session Management
+          {
+            name: 'start_agent_session',
+            description: 'Start a new agent session (developer or supervisor)',
+            inputSchema: {
+              type: 'object',
+              properties: {
+                agent_type: {
+                  type: 'string',
+                  enum: ['developer', 'supervisor'],
+                  description: 'Type of agent session to start'
+                },
+                agent_name: {
+                  type: 'string',
+                  description: 'Optional display name for the agent'
+                },
+                project_id: {
+                  type: 'string',
+                  description: 'Project ID this session is working on (optional)'
+                }
+              },
+              required: ['agent_type']
+            }
+          },
+          {
+            name: 'update_agent_status',
+            description: 'Update current agent session status and activity',
+            inputSchema: {
+              type: 'object',
+              properties: {
+                session_id: { type: 'string', description: 'Agent session ID' },
+                status: {
+                  type: 'string',
+                  enum: ['active', 'idle', 'offline'],
+                  description: 'New status'
+                },
+                current_activity: { type: 'string', description: 'What the agent is currently doing' },
+                current_task_id: { type: 'string', description: 'Task ID currently being worked on' },
+                progress_notes: { type: 'string', description: 'Latest progress notes' }
+              },
+              required: ['session_id']
+            }
+          },
+          {
+            name: 'get_active_sessions',
+            description: 'Get all currently active agent sessions',
+            inputSchema: {
+              type: 'object',
+              properties: {
+                agent_type: {
+                  type: 'string',
+                  enum: ['developer', 'supervisor'],
+                  description: 'Filter by agent type (optional)'
+                }
+              }
+            }
+          },
+          
+          // Real-time Communication
+          {
+            name: 'send_message',
+            description: 'Send message to another agent or broadcast',
+            inputSchema: {
+              type: 'object',
+              properties: {
+                from_session_id: { type: 'string', description: 'Sender session ID' },
+                to_session_id: { type: 'string', description: 'Recipient session ID (null for broadcast)' },
+                message_type: {
+                  type: 'string',
+                  enum: ['progress_update', 'question', 'feedback', 'approval_request', 'direction_change', 'task_assignment', 'status_alert'],
+                  description: 'Type of message'
+                },
+                subject: { type: 'string', description: 'Brief subject line' },
+                content: { type: 'string', description: 'Main message content' },
+                priority: {
+                  type: 'string',
+                  enum: ['urgent', 'high', 'normal', 'low'],
+                  description: 'Message priority'
+                },
+                related_task_id: { type: 'string', description: 'Related task ID (optional)' },
+                response_required: { type: 'boolean', description: 'Whether response is required' }
+              },
+              required: ['from_session_id', 'message_type', 'content']
+            }
+          },
+          {
+            name: 'get_messages',
+            description: 'Get messages for current session',
+            inputSchema: {
+              type: 'object',
+              properties: {
+                session_id: { type: 'string', description: 'Session ID to get messages for' },
+                unread_only: { type: 'boolean', description: 'Only return unread messages' },
+                limit: { type: 'number', description: 'Limit number of messages returned' }
+              },
+              required: ['session_id']
+            }
+          },
+          {
+            name: 'mark_message_read',
+            description: 'Mark message as read',
+            inputSchema: {
+              type: 'object',
+              properties: {
+                message_id: { type: 'number', description: 'Message ID to mark as read' },
+                session_id: { type: 'string', description: 'Session ID marking the message as read' }
+              },
+              required: ['message_id', 'session_id']
+            }
+          },
+          
+          // Supervisor Intervention Tools
+          {
+            name: 'send_intervention',
+            description: 'Supervisor sends intervention to developer',
+            inputSchema: {
+              type: 'object',
+              properties: {
+                supervisor_session_id: { type: 'string', description: 'Supervisor session ID' },
+                developer_session_id: { type: 'string', description: 'Target developer session ID' },
+                intervention_type: {
+                  type: 'string',
+                  enum: ['feedback', 'direction_change', 'approval', 'rejection', 'task_reassignment', 'priority_change', 'blocking', 'unblocking'],
+                  description: 'Type of intervention'
+                },
+                title: { type: 'string', description: 'Brief intervention title' },
+                message: { type: 'string', description: 'Detailed intervention message' },
+                related_task_id: { type: 'string', description: 'Related task ID (optional)' },
+                priority: {
+                  type: 'string',
+                  enum: ['critical', 'urgent', 'normal', 'advisory'],
+                  description: 'Intervention priority'
+                },
+                requires_immediate_action: { type: 'boolean', description: 'Whether immediate action is required' }
+              },
+              required: ['supervisor_session_id', 'developer_session_id', 'intervention_type', 'title', 'message']
+            }
+          },
+          {
+            name: 'get_pending_interventions',
+            description: 'Get pending interventions for developer',
+            inputSchema: {
+              type: 'object',
+              properties: {
+                developer_session_id: { type: 'string', description: 'Developer session ID' },
+                acknowledged_only: { type: 'boolean', description: 'Only return unacknowledged interventions' }
+              },
+              required: ['developer_session_id']
+            }
+          },
+          {
+            name: 'acknowledge_intervention',
+            description: 'Developer acknowledges supervisor intervention',
+            inputSchema: {
+              type: 'object',
+              properties: {
+                intervention_id: { type: 'number', description: 'Intervention ID to acknowledge' },
+                developer_session_id: { type: 'string', description: 'Developer session ID' },
+                response: { type: 'string', description: 'Developer response to intervention' }
+              },
+              required: ['intervention_id', 'developer_session_id']
+            }
+          },
+          
+          // Progress Monitoring
+          {
+            name: 'update_task_progress',
+            description: 'Update detailed task progress with snapshot',
+            inputSchema: {
+              type: 'object',
+              properties: {
+                task_id: { type: 'string', description: 'Task ID being updated' },
+                agent_session_id: { type: 'string', description: 'Agent session making the update' },
+                progress_percentage: { type: 'number', minimum: 0, maximum: 100, description: 'Progress percentage (0-100)' },
+                work_description: { type: 'string', description: 'Description of work completed' },
+                files_modified: { type: 'array', items: { type: 'string' }, description: 'Array of file paths modified' },
+                confidence_level: { type: 'number', minimum: 1, maximum: 10, description: 'Confidence level (1-10 scale)' },
+                needs_review: { type: 'boolean', description: 'Whether work needs supervisor review' }
+              },
+              required: ['task_id', 'agent_session_id', 'work_description']
+            }
+          },
+          {
+            name: 'monitor_active_development',
+            description: 'Get real-time view of active development sessions',
+            inputSchema: {
+              type: 'object',
+              properties: {
+                project_id: { type: 'string', description: 'Filter by project ID (optional)' }
+              }
+            }
+          },
+          
+          // Approval Workflows
+          {
+            name: 'request_approval',
+            description: 'Request approval for work or decision',
+            inputSchema: {
+              type: 'object',
+              properties: {
+                requester_session_id: { type: 'string', description: 'Session ID requesting approval' },
+                workflow_type: {
+                  type: 'string',
+                  enum: ['task_completion', 'code_change', 'architecture_decision', 'deployment_approval', 'requirement_change'],
+                  description: 'Type of approval workflow'
+                },
+                title: { type: 'string', description: 'Approval request title' },
+                description: { type: 'string', description: 'Detailed description of what needs approval' },
+                related_task_id: { type: 'string', description: 'Related task ID (optional)' }
+              },
+              required: ['requester_session_id', 'workflow_type', 'title', 'description']
+            }
+          },
+          {
+            name: 'get_pending_approvals',
+            description: 'Get pending approval requests',
+            inputSchema: {
+              type: 'object',
+              properties: {
+                approver_session_id: { type: 'string', description: 'Approver session ID (optional)' },
+                workflow_type: {
+                  type: 'string',
+                  enum: ['task_completion', 'code_change', 'architecture_decision', 'deployment_approval', 'requirement_change'],
+                  description: 'Filter by workflow type (optional)'
+                }
+              }
+            }
+          },
+          {
+            name: 'approve_request',
+            description: 'Approve a pending request',
+            inputSchema: {
+              type: 'object',
+              properties: {
+                approval_id: { type: 'number', description: 'Approval workflow ID' },
+                approver_session_id: { type: 'string', description: 'Approver session ID' }
+              },
+              required: ['approval_id', 'approver_session_id']
+            }
+          },
+          
+          // Collaboration Analytics
+          {
+            name: 'get_collaboration_dashboard',
+            description: 'Get comprehensive collaboration dashboard data',
+            inputSchema: {
+              type: 'object',
+              properties: {
+                project_id: { type: 'string', description: 'Filter by project ID (optional)' },
+                time_range: {
+                  type: 'string',
+                  enum: ['1hour', '6hours', '1day', '1week'],
+                  description: 'Time range for analytics'
+                }
+              }
+            }
           }
         ]
       };
@@ -1564,6 +1826,67 @@ class WorkflowMCPServer {
             break;
           case 'get_document_links':
             result = await this.documentManager.getDocumentLinks(args.document_id);
+            break;
+          
+          // =============================================
+          // Collaboration Tool Cases
+          // =============================================
+          
+          // Agent Session Management
+          case 'start_agent_session':
+            result = await this.startAgentSession(args);
+            break;
+          case 'update_agent_status':
+            result = await this.updateAgentStatus(args);
+            break;
+          case 'get_active_sessions':
+            result = await this.getActiveSessions(args);
+            break;
+          
+          // Real-time Communication
+          case 'send_message':
+            result = await this.sendMessage(args);
+            break;
+          case 'get_messages':
+            result = await this.getMessages(args);
+            break;
+          case 'mark_message_read':
+            result = await this.markMessageRead(args);
+            break;
+          
+          // Supervisor Intervention
+          case 'send_intervention':
+            result = await this.sendIntervention(args);
+            break;
+          case 'get_pending_interventions':
+            result = await this.getPendingInterventions(args);
+            break;
+          case 'acknowledge_intervention':
+            result = await this.acknowledgeIntervention(args);
+            break;
+          
+          // Progress Monitoring
+          case 'update_task_progress':
+            result = await this.updateTaskProgress(args);
+            break;
+          case 'monitor_active_development':
+            result = await this.monitorActiveDevelopment(args);
+            break;
+          
+          // Approval Workflows
+          case 'request_approval':
+            result = await this.requestApproval(args);
+            break;
+          case 'get_pending_approvals':
+            result = await this.getPendingApprovals(args);
+            break;
+          case 'approve_request':
+            result = await this.approveRequest(args);
+            break;
+          
+          // Collaboration Analytics
+          case 'get_collaboration_dashboard':
+            result = await this.getCollaborationDashboard(args);
             break;
           
           default:
@@ -2629,6 +2952,582 @@ ${connections.connected_tests.map(test =>
       };
     } catch (error) {
       console.error('Error removing test connection:', error);
+      return { success: false, error: error.message };
+    }
+  }
+
+  // =============================================
+  // Collaboration Methods Implementation
+  // =============================================
+
+  async startAgentSession({ agent_type, agent_name, project_id, notification_preferences }) {
+    try {
+      const sessionId = `session_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
+      
+      const result = await this.storage.run(`
+        INSERT INTO agent_sessions (
+          id, agent_type, agent_name, project_id, 
+          notification_preferences, status
+        ) VALUES (?, ?, ?, ?, ?, 'active')
+      `, [
+        sessionId,
+        agent_type,
+        agent_name || null,
+        project_id || null,
+        notification_preferences ? JSON.stringify(notification_preferences) : null
+      ]);
+
+      return {
+        success: true,
+        session_id: sessionId,
+        message: `${agent_type} session started successfully`
+      };
+    } catch (error) {
+      console.error('Error starting agent session:', error);
+      return { success: false, error: error.message };
+    }
+  }
+
+  async updateAgentStatus({ session_id, status, current_activity, current_task_id, progress_notes }) {
+    try {
+      await this.storage.run(`
+        UPDATE agent_sessions 
+        SET status = ?, current_activity = ?, current_task_id = ?, 
+            progress_notes = ?, last_activity = datetime('now'), 
+            updated_at = datetime('now')
+        WHERE id = ?
+      `, [status, current_activity, current_task_id, progress_notes, session_id]);
+
+      return {
+        success: true,
+        message: `Session ${session_id} status updated to ${status}`
+      };
+    } catch (error) {
+      console.error('Error updating agent status:', error);
+      return { success: false, error: error.message };
+    }
+  }
+
+  async sendHeartbeat({ session_id }) {
+    try {
+      await this.storage.run(`
+        UPDATE agent_sessions 
+        SET last_heartbeat = datetime('now'), updated_at = datetime('now')
+        WHERE id = ?
+      `, [session_id]);
+
+      return {
+        success: true,
+        message: `Heartbeat sent for session ${session_id}`
+      };
+    } catch (error) {
+      console.error('Error sending heartbeat:', error);
+      return { success: false, error: error.message };
+    }
+  }
+
+  async getActiveSessions({ agent_type, project_id }) {
+    try {
+      let query = `
+        SELECT * FROM active_collaboration_sessions
+        WHERE 1=1
+      `;
+      const params = [];
+
+      if (agent_type) {
+        query += ` AND agent_type = ?`;
+        params.push(agent_type);
+      }
+
+      if (project_id) {
+        query += ` AND project_id = ?`;
+        params.push(project_id);
+      }
+
+      query += ` ORDER BY last_activity DESC`;
+
+      const sessions = await this.storage.all(query, params);
+      return {
+        success: true,
+        sessions,
+        count: sessions.length
+      };
+    } catch (error) {
+      console.error('Error getting active sessions:', error);
+      return { success: false, error: error.message };
+    }
+  }
+
+  async endAgentSession({ session_id }) {
+    try {
+      await this.storage.run(`
+        UPDATE agent_sessions 
+        SET status = 'offline', updated_at = datetime('now')
+        WHERE id = ?
+      `, [session_id]);
+
+      return {
+        success: true,
+        message: `Session ${session_id} ended`
+      };
+    } catch (error) {
+      console.error('Error ending agent session:', error);
+      return { success: false, error: error.message };
+    }
+  }
+
+  async sendMessage({ from_session_id, to_session_id, message_type, subject, content, priority = 'normal', related_task_id, related_prd_id, response_required = false, response_deadline }) {
+    try {
+      const result = await this.storage.run(`
+        INSERT INTO collaboration_messages (
+          from_session_id, to_session_id, message_type, subject, content,
+          priority, related_task_id, related_prd_id, response_required, response_deadline
+        ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+      `, [
+        from_session_id, to_session_id, message_type, subject, content,
+        priority, related_task_id, related_prd_id, response_required, response_deadline
+      ]);
+
+      return {
+        success: true,
+        message_id: result.lastID,
+        message: 'Message sent successfully'
+      };
+    } catch (error) {
+      console.error('Error sending message:', error);
+      return { success: false, error: error.message };
+    }
+  }
+
+  async getMessages({ session_id, unread_only = false, message_type, limit = 50 }) {
+    try {
+      let query = `
+        SELECT m.*, 
+               from_sess.agent_name as from_agent_name,
+               from_sess.agent_type as from_agent_type
+        FROM collaboration_messages m
+        LEFT JOIN agent_sessions from_sess ON m.from_session_id = from_sess.id
+        WHERE (m.to_session_id = ? OR m.to_session_id IS NULL)
+      `;
+      const params = [session_id];
+
+      if (unread_only) {
+        query += ` AND m.read_status = FALSE`;
+      }
+
+      if (message_type) {
+        query += ` AND m.message_type = ?`;
+        params.push(message_type);
+      }
+
+      query += ` ORDER BY m.created_at DESC LIMIT ?`;
+      params.push(limit);
+
+      const messages = await this.storage.all(query, params);
+      return {
+        success: true,
+        messages,
+        count: messages.length
+      };
+    } catch (error) {
+      console.error('Error getting messages:', error);
+      return { success: false, error: error.message };
+    }
+  }
+
+  async markMessageRead({ message_id, session_id }) {
+    try {
+      await this.storage.run(`
+        UPDATE collaboration_messages 
+        SET read_status = TRUE, read_at = datetime('now')
+        WHERE id = ? AND (to_session_id = ? OR to_session_id IS NULL)
+      `, [message_id, session_id]);
+
+      return {
+        success: true,
+        message: `Message ${message_id} marked as read`
+      };
+    } catch (error) {
+      console.error('Error marking message as read:', error);
+      return { success: false, error: error.message };
+    }
+  }
+
+  async respondToMessage({ original_message_id, from_session_id, response_content }) {
+    try {
+      // Get original message details
+      const originalMessage = await this.storage.get(`
+        SELECT * FROM collaboration_messages WHERE id = ?
+      `, [original_message_id]);
+
+      if (!originalMessage) {
+        return { success: false, error: 'Original message not found' };
+      }
+
+      // Send response message
+      const result = await this.storage.run(`
+        INSERT INTO collaboration_messages (
+          from_session_id, to_session_id, message_type, subject, content,
+          priority, related_task_id, related_prd_id
+        ) VALUES (?, ?, 'feedback', ?, ?, ?, ?, ?)
+      `, [
+        from_session_id,
+        originalMessage.from_session_id,
+        `Re: ${originalMessage.subject || 'Message'}`,
+        response_content,
+        originalMessage.priority,
+        originalMessage.related_task_id,
+        originalMessage.related_prd_id
+      ]);
+
+      // Mark original as responded
+      await this.storage.run(`
+        UPDATE collaboration_messages 
+        SET responded = TRUE
+        WHERE id = ?
+      `, [original_message_id]);
+
+      return {
+        success: true,
+        response_message_id: result.lastID,
+        message: 'Response sent successfully'
+      };
+    } catch (error) {
+      console.error('Error responding to message:', error);
+      return { success: false, error: error.message };
+    }
+  }
+
+  async sendIntervention({ supervisor_session_id, developer_session_id, intervention_type, title, message, related_task_id, priority = 'normal', requires_immediate_action = false, new_status }) {
+    try {
+      const result = await this.storage.run(`
+        INSERT INTO supervisor_interventions (
+          supervisor_session_id, developer_session_id, intervention_type,
+          title, message, related_task_id, priority, requires_immediate_action, new_status
+        ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)
+      `, [
+        supervisor_session_id, developer_session_id, intervention_type,
+        title, message, related_task_id, priority, requires_immediate_action, new_status
+      ]);
+
+      return {
+        success: true,
+        intervention_id: result.lastID,
+        message: 'Intervention sent successfully'
+      };
+    } catch (error) {
+      console.error('Error sending intervention:', error);
+      return { success: false, error: error.message };
+    }
+  }
+
+  async getPendingInterventions({ developer_session_id, acknowledged_only = false }) {
+    try {
+      let query = `
+        SELECT i.*, 
+               sup.agent_name as supervisor_name,
+               sup.agent_type as supervisor_type,
+               t.title as task_title
+        FROM supervisor_interventions i
+        LEFT JOIN agent_sessions sup ON i.supervisor_session_id = sup.id
+        LEFT JOIN tasks t ON i.related_task_id = t.id
+        WHERE i.developer_session_id = ?
+      `;
+      const params = [developer_session_id];
+
+      if (!acknowledged_only) {
+        query += ` AND i.acknowledged = FALSE`;
+      }
+
+      query += ` ORDER BY i.created_at DESC`;
+
+      const interventions = await this.storage.all(query, params);
+      return {
+        success: true,
+        interventions,
+        count: interventions.length
+      };
+    } catch (error) {
+      console.error('Error getting pending interventions:', error);
+      return { success: false, error: error.message };
+    }
+  }
+
+  async acknowledgeIntervention({ intervention_id, developer_session_id, response }) {
+    try {
+      await this.storage.run(`
+        UPDATE supervisor_interventions 
+        SET acknowledged = TRUE, acknowledged_at = datetime('now'),
+            developer_response = ?
+        WHERE id = ? AND developer_session_id = ?
+      `, [response, intervention_id, developer_session_id]);
+
+      return {
+        success: true,
+        message: `Intervention ${intervention_id} acknowledged`
+      };
+    } catch (error) {
+      console.error('Error acknowledging intervention:', error);
+      return { success: false, error: error.message };
+    }
+  }
+
+  async updateTaskProgress({ task_id, agent_session_id, progress_percentage, work_description, files_modified = [], code_changes_summary, tests_added = false, tests_passed, estimated_completion_time, confidence_level, blockers_encountered = [], needs_review = false }) {
+    try {
+      const result = await this.storage.run(`
+        INSERT INTO task_progress_snapshots (
+          task_id, agent_session_id, progress_percentage, work_description,
+          files_modified, code_changes_summary, tests_added, tests_passed,
+          estimated_completion_time, confidence_level, blockers_encountered, needs_review
+        ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+      `, [
+        task_id, agent_session_id, progress_percentage, work_description,
+        JSON.stringify(files_modified), code_changes_summary, tests_added, tests_passed,
+        estimated_completion_time, confidence_level, JSON.stringify(blockers_encountered), needs_review
+      ]);
+
+      return {
+        success: true,
+        snapshot_id: result.lastID,
+        message: 'Task progress updated'
+      };
+    } catch (error) {
+      console.error('Error updating task progress:', error);
+      return { success: false, error: error.message };
+    }
+  }
+
+  async getTaskProgressHistory({ task_id, limit = 20 }) {
+    try {
+      const progressHistory = await this.storage.all(`
+        SELECT p.*, a.agent_name, a.agent_type
+        FROM task_progress_snapshots p
+        LEFT JOIN agent_sessions a ON p.agent_session_id = a.id
+        WHERE p.task_id = ?
+        ORDER BY p.created_at DESC
+        LIMIT ?
+      `, [task_id, limit]);
+
+      return {
+        success: true,
+        progress_history: progressHistory,
+        count: progressHistory.length
+      };
+    } catch (error) {
+      console.error('Error getting task progress history:', error);
+      return { success: false, error: error.message };
+    }
+  }
+
+  async monitorActiveDevelopment({ project_id }) {
+    try {
+      let query = `
+        SELECT 
+          s.id, s.agent_name, s.agent_type, s.status, s.current_activity,
+          s.current_task_id, s.last_activity,
+          t.title as current_task_title,
+          COUNT(DISTINCT m.id) as unread_messages,
+          COUNT(DISTINCT i.id) as pending_interventions
+        FROM agent_sessions s
+        LEFT JOIN tasks t ON s.current_task_id = t.id
+        LEFT JOIN collaboration_messages m ON s.id = m.to_session_id AND m.read_status = FALSE
+        LEFT JOIN supervisor_interventions i ON s.id = i.developer_session_id AND i.acknowledged = FALSE
+        WHERE s.status = 'active' AND s.last_heartbeat > datetime('now', '-5 minutes')
+      `;
+      const params = [];
+
+      if (project_id) {
+        query += ` AND s.project_id = ?`;
+        params.push(project_id);
+      }
+
+      query += ` GROUP BY s.id ORDER BY s.last_activity DESC`;
+
+      const activeSessions = await this.storage.all(query, params);
+      return {
+        success: true,
+        active_sessions: activeSessions,
+        count: activeSessions.length
+      };
+    } catch (error) {
+      console.error('Error monitoring active development:', error);
+      return { success: false, error: error.message };
+    }
+  }
+
+  async requestApproval({ requester_session_id, approver_session_id, workflow_type, title, description, related_task_id, approval_deadline }) {
+    try {
+      const result = await this.storage.run(`
+        INSERT INTO approval_workflows (
+          requester_session_id, approver_session_id, workflow_type,
+          title, description, related_task_id, approval_deadline
+        ) VALUES (?, ?, ?, ?, ?, ?, ?)
+      `, [
+        requester_session_id, approver_session_id, workflow_type,
+        title, description, related_task_id, approval_deadline
+      ]);
+
+      return {
+        success: true,
+        approval_id: result.lastID,
+        message: 'Approval request created'
+      };
+    } catch (error) {
+      console.error('Error requesting approval:', error);
+      return { success: false, error: error.message };
+    }
+  }
+
+  async getPendingApprovals({ approver_session_id, workflow_type }) {
+    try {
+      let query = `
+        SELECT * FROM pending_approvals_summary
+        WHERE 1=1
+      `;
+      const params = [];
+
+      if (approver_session_id) {
+        query += ` AND approver_session_id = ?`;
+        params.push(approver_session_id);
+      }
+
+      if (workflow_type) {
+        query += ` AND workflow_type = ?`;
+        params.push(workflow_type);
+      }
+
+      query += ` ORDER BY created_at DESC`;
+
+      const approvals = await this.storage.all(query, params);
+      return {
+        success: true,
+        approvals,
+        count: approvals.length
+      };
+    } catch (error) {
+      console.error('Error getting pending approvals:', error);
+      return { success: false, error: error.message };
+    }
+  }
+
+  async approveRequest({ approval_id, approver_session_id, conditions }) {
+    try {
+      await this.storage.run(`
+        UPDATE approval_workflows 
+        SET status = 'approved', conditions = ?
+        WHERE id = ? AND (approver_session_id = ? OR approver_session_id IS NULL)
+      `, [conditions, approval_id, approver_session_id]);
+
+      return {
+        success: true,
+        message: `Approval ${approval_id} approved`
+      };
+    } catch (error) {
+      console.error('Error approving request:', error);
+      return { success: false, error: error.message };
+    }
+  }
+
+  async rejectRequest({ approval_id, approver_session_id, rejection_reason }) {
+    try {
+      await this.storage.run(`
+        UPDATE approval_workflows 
+        SET status = 'rejected', rejection_reason = ?
+        WHERE id = ? AND (approver_session_id = ? OR approver_session_id IS NULL)
+      `, [rejection_reason, approval_id, approver_session_id]);
+
+      return {
+        success: true,
+        message: `Approval ${approval_id} rejected`
+      };
+    } catch (error) {
+      console.error('Error rejecting request:', error);
+      return { success: false, error: error.message };
+    }
+  }
+
+  async getCollaborationDashboard({ project_id, time_range = '1day' }) {
+    try {
+      const timeMap = {
+        '1hour': '-1 hour',
+        '6hours': '-6 hours', 
+        '1day': '-1 day',
+        '1week': '-1 week'
+      };
+
+      const timeFilter = timeMap[time_range] || '-1 day';
+
+      // Get recent activity
+      let activityQuery = `
+        SELECT * FROM recent_collaboration_activity
+        WHERE created_at > datetime('now', ?)
+      `;
+      const params = [timeFilter];
+
+      if (project_id) {
+        // This would need to be adjusted based on how we track project relationships
+        activityQuery += ` AND 1=1`; // Placeholder for project filtering
+      }
+
+      activityQuery += ` ORDER BY created_at DESC LIMIT 50`;
+
+      const recentActivity = await this.storage.all(activityQuery, params);
+
+      // Get active sessions
+      const activeSessions = await this.getActiveSessions({ project_id });
+
+      return {
+        success: true,
+        dashboard: {
+          active_sessions: activeSessions.sessions || [],
+          recent_activity: recentActivity,
+          time_range,
+          generated_at: new Date().toISOString()
+        }
+      };
+    } catch (error) {
+      console.error('Error getting collaboration dashboard:', error);
+      return { success: false, error: error.message };
+    }
+  }
+
+  async getSessionAnalytics({ session_id }) {
+    try {
+      // Get session details
+      const session = await this.storage.get(`
+        SELECT * FROM agent_sessions WHERE id = ?
+      `, [session_id]);
+
+      if (!session) {
+        return { success: false, error: 'Session not found' };
+      }
+
+      // Get messages sent/received
+      const messageStats = await this.storage.get(`
+        SELECT 
+          COUNT(CASE WHEN from_session_id = ? THEN 1 END) as messages_sent,
+          COUNT(CASE WHEN to_session_id = ? THEN 1 END) as messages_received
+        FROM collaboration_messages
+        WHERE from_session_id = ? OR to_session_id = ?
+      `, [session_id, session_id, session_id, session_id]);
+
+      // Get task progress snapshots
+      const progressCount = await this.storage.get(`
+        SELECT COUNT(*) as progress_updates
+        FROM task_progress_snapshots
+        WHERE agent_session_id = ?
+      `, [session_id]);
+
+      return {
+        success: true,
+        analytics: {
+          session,
+          message_stats: messageStats,
+          progress_updates: progressCount?.progress_updates || 0
+        }
+      };
+    } catch (error) {
+      console.error('Error getting session analytics:', error);
       return { success: false, error: error.message };
     }
   }

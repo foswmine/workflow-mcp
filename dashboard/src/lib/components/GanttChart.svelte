@@ -38,8 +38,11 @@
 	function renderChart() {
 		if (!container || data.length === 0) return;
 
-		// Clear previous chart
-		d3.select(container).select('svg').remove();
+		// Update dimensions based on current data
+		updateDimensions();
+
+		// Clear previous chart completely
+		d3.select(container).selectAll('*').remove();
 
 		const svg = d3.select(container)
 			.append('svg')
@@ -186,8 +189,6 @@
 	}
 
 	function processData(items) {
-		console.log('=== processData debug ===');
-		console.log('Type:', type, 'Items:', items.length);
 		
 		return items
 			.filter(item => {
@@ -260,7 +261,6 @@
 					originalItem: item
 				};
 				
-				console.log('Processed item:', result.name, 'Start:', result.startDate, 'End:', result.endDate);
 				return result;
 			})
 			.sort((a, b) => a.startDate - b.startDate);
@@ -289,7 +289,7 @@
 	}
 
 	$: {
-		if (container) {
+		if (container && data && type) {
 			renderChart();
 		}
 	}

@@ -7,6 +7,34 @@
 	let loading = true;
 	let error = null;
 	
+	// 새 문서 생성 폼 상태
+	let showCreateForm = false;
+	let createFormData = {
+		title: '',
+		content: '',
+		doc_type: '',
+		category: '',
+		tags: '',
+		summary: ''
+	};
+	let availableCategories = [];
+	let availableTags = [];
+	let creatingDocument = false;
+
+	// 문서 편집 폼 상태
+	let showEditForm = false;
+	let editFormData = {
+		id: null,
+		title: '',
+		content: '',
+		doc_type: '',
+		category: '',
+		tags: '',
+		summary: '',
+		status: ''
+	};
+	let updatingDocument = false;
+	
 	// 필터 상태
 	let filters = {
 		search: '',
@@ -28,7 +56,10 @@
 	const statusOptions = ['draft', 'review', 'approved', 'archived'];
 
 	onMount(async () => {
-		await loadDocuments();
+		await Promise.all([
+			loadDocuments(),
+			loadDocumentCategories()
+		]);
 	});
 
 	async function loadDocuments() {
@@ -139,6 +170,160 @@
 		};
 		return statusClasses[status] || 'bg-gray-100 text-gray-800';
 	}
+
+	// 문서 분류 정보 로드
+	async function loadDocumentCategories() {
+		try {
+			const response = await fetch('/api/document-categories');
+			if (response.ok) {
+				const data = await response.json();
+				availableCategories = data.categories || [];
+				availableTags = data.tags || [];
+			}
+		} catch (err) {
+			console.error('Error loading document categories:', err);
+		}
+	}
+
+	// 새 문서 생성
+	async function createDocument() {
+		if (!createFormData.title.trim() || !createFormData.content.trim()) {
+			alert('제목과 내용을 입력해주세요.');
+			return;
+		}
+
+		try {
+			creatingDocument = true;
+			
+			// 태그를 배열로 변환
+			const tags = createFormData.tags
+				.split(',')
+				.map(tag => tag.trim())
+				.filter(tag => tag.length > 0);
+
+			const response = await fetch('/api/documents', {
+				method: 'POST',
+				headers: {
+					'Content-Type': 'application/json'
+				},
+				body: JSON.stringify({
+					title: createFormData.title,
+					content: createFormData.content,
+					doc_type: createFormData.doc_type || 'analysis',
+					category: createFormData.category,
+					tags: tags,
+					summary: createFormData.summary
+				})
+			});
+
+			if (!response.ok) {
+				const errorData = await response.json();
+				throw new Error(errorData.error || 'Failed to create document');
+			}
+
+			const result = await response.json();
+			
+			// 폼 초기화
+			createFormData = {
+				title: '',
+				content: '',
+				doc_type: '',
+				category: '',
+				tags: '',
+				summary: ''
+			};
+			showCreateForm = false;
+			
+			// 문서 목록 새로고침
+			await loadDocuments();
+			
+			alert('문서가 성공적으로 생성되었습니다!');
+		} catch (err) {
+			console.error('Error creating document:', err);
+			alert('문서 생성 중 오류가 발생했습니다: ' + err.message);
+		} finally {
+			creatingDocument = false;
+		}
+	}
+
+	// 편집 모달 열기
+	function openEditModal(doc) {
+		editFormData = {
+			id: doc.id,
+			title: doc.title,
+			content: doc.content || '',
+			doc_type: doc.doc_type || '',
+			category: doc.category || '',
+			tags: Array.isArray(doc.tags) ? doc.tags.join(', ') : (doc.tags || ''),
+			summary: doc.summary || '',
+			status: doc.status || 'draft'
+		};
+		showEditForm = true;
+	}
+
+	// 문서 업데이트
+	async function updateDocument() {
+		if (!editFormData.title.trim() || !editFormData.content.trim()) {
+			alert('제목과 내용을 입력해주세요.');
+			return;
+		}
+
+		try {
+			updatingDocument = true;
+			
+			// 태그를 배열로 변환
+			const tags = editFormData.tags
+				.split(',')
+				.map(tag => tag.trim())
+				.filter(tag => tag.length > 0);
+
+			const response = await fetch(`/api/documents/${editFormData.id}`, {
+				method: 'PUT',
+				headers: {
+					'Content-Type': 'application/json'
+				},
+				body: JSON.stringify({
+					title: editFormData.title,
+					content: editFormData.content,
+					doc_type: editFormData.doc_type || 'analysis',
+					category: editFormData.category,
+					tags: tags,
+					summary: editFormData.summary,
+					status: editFormData.status
+				})
+			});
+
+			if (!response.ok) {
+				const errorData = await response.json();
+				throw new Error(errorData.error || 'Failed to update document');
+			}
+
+			const result = await response.json();
+			
+			// 폼 초기화
+			editFormData = {
+				id: null,
+				title: '',
+				content: '',
+				doc_type: '',
+				category: '',
+				tags: '',
+				summary: '',
+				status: ''
+			};
+			showEditForm = false;
+			
+			// 문서 목록 새로고침
+			await loadDocuments();
+			
+			alert('문서가 성공적으로 수정되었습니다!');
+		} catch (err) {
+			console.error('Error updating document:', err);
+			alert('문서 수정 중 오류가 발생했습니다: ' + err.message);
+		} finally {
+			updatingDocument = false;
+		}
+	}
 </script>
 
 <svelte:head>
@@ -164,6 +349,16 @@
 					<option value="title">제목 순</option>
 				</select>
 			</div>
+			<button
+				type="button"
+				on:click={() => showCreateForm = true}
+				class="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md text-white bg-green-600 hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500 mr-2"
+			>
+				<svg class="-ml-1 mr-2 h-5 w-5" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor">
+					<path fill-rule="evenodd" d="M10 3a1 1 0 011 1v5h5a1 1 0 110 2h-5v5a1 1 0 11-2 0v-5H4a1 1 0 110-2h5V4a1 1 0 011-1z" clip-rule="evenodd" />
+				</svg>
+				새 문서
+			</button>
 			<button
 				type="button"
 				on:click={loadDocuments}
@@ -318,7 +513,13 @@
 									</div>
 								</div>
 
-								<div class="flex-shrink-0 ml-4">
+								<div class="flex-shrink-0 ml-4 space-x-2">
+									<button
+										class="text-green-600 hover:text-green-900 text-sm font-medium"
+										on:click={() => openEditModal(doc)}
+									>
+										편집
+									</button>
 									<button
 										class="text-blue-600 hover:text-blue-900 text-sm font-medium"
 										on:click={() => window.open(`/documents/${doc.id}`, '_blank')}
@@ -334,3 +535,312 @@
 		{/if}
 	</div>
 </div>
+
+<!-- 새 문서 생성 모달 -->
+{#if showCreateForm}
+	<div class="fixed inset-0 bg-gray-600 bg-opacity-50 overflow-y-auto h-full w-full z-50">
+		<div class="relative top-20 mx-auto p-5 border w-11/12 md:w-3/4 lg:w-1/2 shadow-lg rounded-md bg-white">
+			<div class="flex items-center justify-between mb-6">
+				<h3 class="text-lg font-medium text-gray-900">새 문서 생성</h3>
+				<button
+					type="button"
+					on:click={() => showCreateForm = false}
+					class="text-gray-400 hover:text-gray-600"
+				>
+					<svg class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+						<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+					</svg>
+				</button>
+			</div>
+
+			<form on:submit|preventDefault={createDocument} class="space-y-6">
+				<!-- 제목 -->
+				<div>
+					<label for="title" class="block text-sm font-medium text-gray-700">제목 *</label>
+					<input
+						id="title"
+						type="text"
+						bind:value={createFormData.title}
+						required
+						class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500"
+						placeholder="문서 제목을 입력하세요"
+					/>
+				</div>
+
+				<!-- 문서 유형 및 카테고리 -->
+				<div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+					<div>
+						<label for="doc_type" class="block text-sm font-medium text-gray-700">문서 유형</label>
+						<select
+							id="doc_type"
+							bind:value={createFormData.doc_type}
+							class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500"
+						>
+							<option value="">선택하세요</option>
+							{#each docTypes as type}
+								<option value={type}>{getDocTypeDisplayName(type)}</option>
+							{/each}
+						</select>
+					</div>
+
+					<div>
+						<label for="category" class="block text-sm font-medium text-gray-700">카테고리</label>
+						<input
+							id="category"
+							type="text"
+							bind:value={createFormData.category}
+							list="categoryList"
+							class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500"
+							placeholder="카테고리 입력 또는 선택"
+						/>
+						<datalist id="categoryList">
+							{#each availableCategories as category}
+								<option value={category.value}>{category.value} ({category.count}개)</option>
+							{/each}
+						</datalist>
+					</div>
+				</div>
+
+				<!-- 태그 -->
+				<div>
+					<label for="tags" class="block text-sm font-medium text-gray-700">태그</label>
+					<input
+						id="tags"
+						type="text"
+						bind:value={createFormData.tags}
+						class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500"
+						placeholder="태그를 쉼표로 구분하여 입력 (예: 테스트, 분석, 개발)"
+					/>
+					<p class="mt-1 text-xs text-gray-500">
+						자주 사용되는 태그: 
+						{#each availableTags.slice(0, 5) as tag}
+							<button
+								type="button"
+								on:click={() => {
+									const currentTags = createFormData.tags.split(',').map(t => t.trim()).filter(t => t);
+									if (!currentTags.includes(tag.value)) {
+										createFormData.tags = [...currentTags, tag.value].join(', ');
+									}
+								}}
+								class="text-blue-600 hover:text-blue-800 mx-1"
+							>
+								{tag.value}
+							</button>
+						{/each}
+					</p>
+				</div>
+
+				<!-- 요약 -->
+				<div>
+					<label for="summary" class="block text-sm font-medium text-gray-700">요약</label>
+					<textarea
+						id="summary"
+						bind:value={createFormData.summary}
+						rows="2"
+						class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500"
+						placeholder="문서의 간단한 요약을 입력하세요"
+					></textarea>
+				</div>
+
+				<!-- 내용 -->
+				<div>
+					<label for="content" class="block text-sm font-medium text-gray-700">내용 *</label>
+					<textarea
+						id="content"
+						bind:value={createFormData.content}
+						rows="10"
+						required
+						class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500"
+						placeholder="Markdown 형식으로 문서 내용을 작성하세요"
+					></textarea>
+				</div>
+
+				<!-- 버튼 -->
+				<div class="flex justify-end space-x-3">
+					<button
+						type="button"
+						on:click={() => showCreateForm = false}
+						class="px-4 py-2 border border-gray-300 rounded-md shadow-sm bg-white text-sm font-medium text-gray-700 hover:bg-gray-50"
+					>
+						취소
+					</button>
+					<button
+						type="submit"
+						disabled={creatingDocument || !createFormData.title.trim() || !createFormData.content.trim()}
+						class="px-4 py-2 border border-transparent rounded-md shadow-sm bg-blue-600 text-sm font-medium text-white hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 disabled:opacity-50"
+					>
+						{#if creatingDocument}
+							<div class="inline-flex items-center">
+								<div class="animate-spin rounded-full h-4 w-4 border-b-2 border-white mr-2"></div>
+								생성 중...
+							</div>
+						{:else}
+							문서 생성
+						{/if}
+					</button>
+				</div>
+			</form>
+		</div>
+	</div>
+{/if}
+
+<!-- 문서 편집 모달 -->
+{#if showEditForm}
+	<div class="fixed inset-0 bg-gray-600 bg-opacity-50 overflow-y-auto h-full w-full z-50">
+		<div class="relative top-20 mx-auto p-5 border w-11/12 md:w-3/4 lg:w-1/2 shadow-lg rounded-md bg-white">
+			<div class="flex items-center justify-between mb-6">
+				<h3 class="text-lg font-medium text-gray-900">문서 편집</h3>
+				<button
+					type="button"
+					on:click={() => showEditForm = false}
+					class="text-gray-400 hover:text-gray-600"
+				>
+					<svg class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+						<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+					</svg>
+				</button>
+			</div>
+
+			<form on:submit|preventDefault={updateDocument} class="space-y-6">
+				<!-- 제목 -->
+				<div>
+					<label for="edit-title" class="block text-sm font-medium text-gray-700">제목 *</label>
+					<input
+						id="edit-title"
+						type="text"
+						bind:value={editFormData.title}
+						required
+						class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500"
+						placeholder="문서 제목을 입력하세요"
+					/>
+				</div>
+
+				<!-- 문서 유형, 카테고리, 상태 -->
+				<div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+					<div>
+						<label for="edit-doc_type" class="block text-sm font-medium text-gray-700">문서 유형</label>
+						<select
+							id="edit-doc_type"
+							bind:value={editFormData.doc_type}
+							class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500"
+						>
+							<option value="">선택하세요</option>
+							{#each docTypes as type}
+								<option value={type}>{getDocTypeDisplayName(type)}</option>
+							{/each}
+						</select>
+					</div>
+
+					<div>
+						<label for="edit-category" class="block text-sm font-medium text-gray-700">카테고리</label>
+						<input
+							id="edit-category"
+							type="text"
+							bind:value={editFormData.category}
+							list="editCategoryList"
+							class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500"
+							placeholder="카테고리 입력 또는 선택"
+						/>
+						<datalist id="editCategoryList">
+							{#each availableCategories as category}
+								<option value={category.value}>{category.value} ({category.count}개)</option>
+							{/each}
+						</datalist>
+					</div>
+
+					<div>
+						<label for="edit-status" class="block text-sm font-medium text-gray-700">상태</label>
+						<select
+							id="edit-status"
+							bind:value={editFormData.status}
+							class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500"
+						>
+							{#each statusOptions as status}
+								<option value={status}>{getStatusDisplayName(status)}</option>
+							{/each}
+						</select>
+					</div>
+				</div>
+
+				<!-- 태그 -->
+				<div>
+					<label for="edit-tags" class="block text-sm font-medium text-gray-700">태그</label>
+					<input
+						id="edit-tags"
+						type="text"
+						bind:value={editFormData.tags}
+						class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500"
+						placeholder="태그를 쉼표로 구분하여 입력 (예: 테스트, 분석, 개발)"
+					/>
+					<p class="mt-1 text-xs text-gray-500">
+						자주 사용되는 태그: 
+						{#each availableTags.slice(0, 5) as tag}
+							<button
+								type="button"
+								on:click={() => {
+									const currentTags = editFormData.tags.split(',').map(t => t.trim()).filter(t => t);
+									if (!currentTags.includes(tag.value)) {
+										editFormData.tags = [...currentTags, tag.value].join(', ');
+									}
+								}}
+								class="text-blue-600 hover:text-blue-800 mx-1"
+							>
+								{tag.value}
+							</button>
+						{/each}
+					</p>
+				</div>
+
+				<!-- 요약 -->
+				<div>
+					<label for="edit-summary" class="block text-sm font-medium text-gray-700">요약</label>
+					<textarea
+						id="edit-summary"
+						bind:value={editFormData.summary}
+						rows="2"
+						class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500"
+						placeholder="문서의 간단한 요약을 입력하세요"
+					></textarea>
+				</div>
+
+				<!-- 내용 -->
+				<div>
+					<label for="edit-content" class="block text-sm font-medium text-gray-700">내용 *</label>
+					<textarea
+						id="edit-content"
+						bind:value={editFormData.content}
+						rows="10"
+						required
+						class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500"
+						placeholder="Markdown 형식으로 문서 내용을 작성하세요"
+					></textarea>
+				</div>
+
+				<!-- 버튼 -->
+				<div class="flex justify-end space-x-3">
+					<button
+						type="button"
+						on:click={() => showEditForm = false}
+						class="px-4 py-2 border border-gray-300 rounded-md shadow-sm bg-white text-sm font-medium text-gray-700 hover:bg-gray-50"
+					>
+						취소
+					</button>
+					<button
+						type="submit"
+						disabled={updatingDocument || !editFormData.title.trim() || !editFormData.content.trim()}
+						class="px-4 py-2 border border-transparent rounded-md shadow-sm bg-green-600 text-sm font-medium text-white hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500 disabled:opacity-50"
+					>
+						{#if updatingDocument}
+							<div class="inline-flex items-center">
+								<div class="animate-spin rounded-full h-4 w-4 border-b-2 border-white mr-2"></div>
+								수정 중...
+							</div>
+						{:else}
+							문서 수정
+						{/if}
+					</button>
+				</div>
+			</form>
+		</div>
+	</div>
+{/if}

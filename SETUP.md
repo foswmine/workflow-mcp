@@ -170,11 +170,24 @@ Claude Code에서 다음 명령으로 MCP 서버 연결을 확인하세요:
 ```
 
 정상 연결시 35개의 WorkflowMCP 도구들이 나열됩니다:
+
+**📊 프로젝트 관리 (6개)**:
+- `create_project`, `list_projects`, `get_project`, `update_project`, `delete_project`, `get_project_analytics`
+
+**📋 PRD 관리 (5개)**:  
 - `create_prd`, `list_prds`, `get_prd`, `update_prd`, `delete_prd`
-- `create_task`, `list_tasks`, `get_task`, `update_task`, `delete_task`
-- `create_design`, `list_designs`, `get_design`, `update_design`, `delete_design`  
-- `create_document`, `search_documents`, `get_document`, `update_document`, `delete_document`
-- 기타 25개 고급 도구들
+
+**🎨 설계 관리 (5개)**:
+- `create_design`, `list_designs`, `get_design`, `update_design`, `delete_design`
+
+**📋 작업 관리 (7개)**:
+- `create_task`, `list_tasks`, `get_task`, `update_task`, `delete_task`, `get_task_connections`, `add_task_connection`, `remove_task_connection`
+
+**🧪 테스트 관리 (6개)**:
+- `create_test_case`, `list_test_cases`, `get_test_case`, `update_test_case`, `execute_test_case`, `get_test_executions`
+
+**📄 문서 관리 (6개)**:
+- `create_document`, `list_documents`, `get_document`, `update_document`, `search_documents`, `link_document`
 
 ## 🔧 6. 개발 환경 설정
 
@@ -315,13 +328,40 @@ git push origin main
 3. **문서 가이드**: Document ID: 76의 "CRUD 메뉴 구현 가이드" 참조
 4. **API 테스트**: 각 관리 페이지에서 CRUD 작업 테스트
 
-## ⚠️ 기존 스크립트 사용 중단 안내
+## ⚠️ 기존 스크립트 사용 중단 안내 (v2.8 업데이트)
 
-다음 기존 스크립트들은 **사용하지 마세요** (현재 스키마와 호환되지 않음):
+**중요**: WorkflowMCP v2.8에서는 다음 기존 스크립트들이 **더 이상 호환되지 않습니다**:
 
-- ❌ `simple-migrate.js` → ✅ `node init-database.js` 사용
-- ❌ `check-db-status.js` → ✅ `node verify-database.js` 사용  
-- ❌ `create-fts.js` → ✅ `init-database.js`에 포함됨
+### ❌ 사용 중단된 스크립트들
+- ❌ `src/database/simple-migrate.js` - 구식 문서 관리 스키마만 지원
+- ❌ `simple-migrate.js` - 루트 레벨의 구식 마이그레이션 스크립트  
+- ❌ `check-db-status.js` - 기존 상태 확인 도구
+- ❌ `create-fts.js` - FTS 별도 생성 스크립트
+
+### ✅ 새로운 권장 도구들 (v2.8)
+- ✅ `node init-database.js` - **완전한 데이터베이스 초기화** (권장)
+  - 최신 스키마 3.0.0 적용
+  - 프로젝트, PRD, 설계, 작업, 테스트 관리 테이블 생성
+  - 연결 관리 시스템 포함
+  - FTS 검색 인덱스 자동 구성
+- ✅ `node verify-database.js` - **데이터베이스 상태 검증**
+- ✅ `node add-sample-data.js` - **샘플 데이터 추가**
+
+### 🚨 마이그레이션 필수 사항
+기존 환경에서 v2.8로 업그레이드하는 경우:
+```bash
+# 1. 기존 데이터베이스 백업 (중요!)
+cp data/workflow.db data/workflow.db.backup
+
+# 2. 기존 데이터베이스 제거
+rm -f data/workflow.db
+
+# 3. 새 스키마로 초기화
+node init-database.js
+
+# 4. (필요시) 샘플 데이터 추가  
+node add-sample-data.js
+```
 
 ## 📞 지원 및 문의
 

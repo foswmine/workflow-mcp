@@ -21,16 +21,22 @@
 	let editingPRDs = [];      // 편집 중인 연결 PRD 리스트
 	let editingTasks = [];     // 편집 중인 연결 작업 리스트
 	let editingDocuments = []; // 편집 중인 연결 문서 리스트
+	let editingDesigns = [];   // 편집 중인 연결 설계 리스트
+	let editingTests = [];     // 편집 중인 연결 테스트 리스트
 	
 	// 전체 항목들 (드롭다운용)
 	let allPRDs = [];
 	let allTasks = [];
 	let allDocuments = [];
+	let allDesigns = [];
+	let allTests = [];
 	
 	// 드롭다운에서 선택된 항목들
 	let selectedPRDToAdd = '';
 	let selectedTaskToAdd = '';
 	let selectedDocumentToAdd = '';
+	let selectedDesignToAdd = '';
+	let selectedTestToAdd = '';
 	
 	// 추가 가능한 항목들 (이미 편집 리스트에 있는 것 제외)
 	$: availablePRDs = allPRDs.filter(prd => 
@@ -43,6 +49,14 @@
 	
 	$: availableDocuments = allDocuments.filter(doc => 
 		!editingDocuments.some(editing => editing.id === doc.id)
+	);
+	
+	$: availableDesigns = allDesigns.filter(design => 
+		!editingDesigns.some(editing => editing.id === design.id)
+	);
+	
+	$: availableTests = allTests.filter(test => 
+		!editingTests.some(editing => editing.id === test.id)
 	);
 	
 	let loading = false;
@@ -103,6 +117,9 @@
 				if (linksData.success) {
 					const connectedPRDs = linksData.links.prds || [];
 					const connectedTasks = linksData.links.tasks || [];
+					const connectedDocuments = linksData.links.documents || [];
+					const connectedDesigns = linksData.links.designs || [];
+					const connectedTests = linksData.links.tests || [];
 					
 					// 편집용 리스트에 연결된 항목들을 복사
 					editingPRDs = connectedPRDs.map(linked => {
@@ -125,7 +142,6 @@
 						};
 					});
 					
-					const connectedDocuments = linksData.links.documents || [];
 					editingDocuments = connectedDocuments.map(linked => {
 						const fullDoc = allDocuments.find(doc => doc.id === (linked.entity_id || linked.id));
 						return fullDoc || { 
@@ -133,6 +149,28 @@
 							title: linked.title, 
 							doc_type: '연결된 문서',
 							status: linked.status || 'draft'
+						};
+					});
+
+					editingDesigns = connectedDesigns.map(linked => {
+						const fullDesign = allDesigns.find(design => design.id === (linked.entity_id || linked.id));
+						return fullDesign || { 
+							id: linked.entity_id || linked.id, 
+							title: linked.title, 
+							description: '연결된 설계',
+							status: linked.status || 'draft',
+							design_type: linked.design_type || 'system'
+						};
+					});
+
+					editingTests = connectedTests.map(linked => {
+						const fullTest = allTests.find(test => test.id === (linked.entity_id || linked.id));
+						return fullTest || { 
+							id: linked.entity_id || linked.id, 
+							title: linked.title, 
+							description: '연결된 테스트',
+							status: linked.status || 'draft',
+							type: linked.type || 'system'
 						};
 					});
 				}
@@ -162,6 +200,18 @@
 			if (documentsResponse.ok) {
 				const documentsData = await documentsResponse.json();
 				allDocuments = documentsData.documents || [];
+			}
+
+			// 모든 설계 로드
+			const designsResponse = await fetch('/api/designs');
+			if (designsResponse.ok) {
+				allDesigns = await designsResponse.json();
+			}
+
+			// 모든 테스트 로드
+			const testsResponse = await fetch('/api/tests');
+			if (testsResponse.ok) {
+				allTests = await testsResponse.json();
 			}
 
 		} catch (e) {
@@ -365,12 +415,98 @@
 		}
 	}
 
+	// 설계 연결/해제 함수들
+	async function connectDesign(designId) {
+		try {
+			const response = await fetch(`/api/projects/${projectId}/links`, {
+				method: 'POST',
+				headers: { 'Content-Type': 'application/json' },
+				body: JSON.stringify({ 
+					entity_type: 'design', 
+					entity_id: designId,
+					link_type: 'direct' 
+				})
+			});
+			if (!response.ok) {
+				const errorData = await response.json();
+				throw new Error(errorData.error || `HTTP ${response.status}: ${response.statusText}`);
+			}
+		} catch (e) {
+			console.error('설계 연결 오류:', e);
+			throw new Error('설계 연결 중 오류가 발생했습니다: ' + e.message);
+		}
+	}
+
+	async function disconnectDesign(designId) {
+		try {
+			const response = await fetch(`/api/projects/${projectId}/links`, {
+				method: 'DELETE',
+				headers: { 'Content-Type': 'application/json' },
+				body: JSON.stringify({ 
+					entity_type: 'design', 
+					entity_id: designId 
+				})
+			});
+			if (!response.ok) {
+				const errorData = await response.json();
+				throw new Error(errorData.error || `HTTP ${response.status}: ${response.statusText}`);
+			}
+		} catch (e) {
+			console.error('설계 연결 해제 오류:', e);
+			throw new Error('설계 연결 해제 중 오류가 발생했습니다: ' + e.message);
+		}
+	}
+
+	// 테스트 연결/해제 함수들
+	async function connectTest(testId) {
+		try {
+			const response = await fetch(`/api/projects/${projectId}/links`, {
+				method: 'POST',
+				headers: { 'Content-Type': 'application/json' },
+				body: JSON.stringify({ 
+					entity_type: 'test', 
+					entity_id: testId,
+					link_type: 'direct' 
+				})
+			});
+			if (!response.ok) {
+				const errorData = await response.json();
+				throw new Error(errorData.error || `HTTP ${response.status}: ${response.statusText}`);
+			}
+		} catch (e) {
+			console.error('테스트 연결 오류:', e);
+			throw new Error('테스트 연결 중 오류가 발생했습니다: ' + e.message);
+		}
+	}
+
+	async function disconnectTest(testId) {
+		try {
+			const response = await fetch(`/api/projects/${projectId}/links`, {
+				method: 'DELETE',
+				headers: { 'Content-Type': 'application/json' },
+				body: JSON.stringify({ 
+					entity_type: 'test', 
+					entity_id: testId 
+				})
+			});
+			if (!response.ok) {
+				const errorData = await response.json();
+				throw new Error(errorData.error || `HTTP ${response.status}: ${response.statusText}`);
+			}
+		} catch (e) {
+			console.error('테스트 연결 해제 오류:', e);
+			throw new Error('테스트 연결 해제 중 오류가 발생했습니다: ' + e.message);
+		}
+	}
+
 	// 전체 교체 방식 연결 저장 함수
 	async function saveAllConnections() {
 		console.log('🔄 전체 연결 관계 저장 시작');
 		console.log('저장할 PRDs:', editingPRDs);
 		console.log('저장할 Tasks:', editingTasks);
 		console.log('저장할 Documents:', editingDocuments);
+		console.log('저장할 Designs:', editingDesigns);
+		console.log('저장할 Tests:', editingTests);
 		
 		try {
 			// 1단계: 기존 모든 연결 삭제
@@ -404,8 +540,22 @@
 				console.log(`✅ Document ${doc.id} 연결 완료`);
 			}
 
+			// 5단계: 새로운 설계 연결들 생성
+			for (const design of editingDesigns) {
+				console.log(`Design ${design.id} (${design.title}) 연결 중...`);
+				await connectDesign(design.id);
+				console.log(`✅ Design ${design.id} 연결 완료`);
+			}
+
+			// 6단계: 새로운 테스트 연결들 생성
+			for (const test of editingTests) {
+				console.log(`Test ${test.id} (${test.title}) 연결 중...`);
+				await connectTest(test.id);
+				console.log(`✅ Test ${test.id} 연결 완료`);
+			}
+
 			console.log('🎉 전체 연결 관계 저장 완료');
-			console.log(`📊 총 연결: PRD ${editingPRDs.length}개, 작업 ${editingTasks.length}개, 문서 ${editingDocuments.length}개`);
+			console.log(`📊 총 연결: PRD ${editingPRDs.length}개, 작업 ${editingTasks.length}개, 문서 ${editingDocuments.length}개, 설계 ${editingDesigns.length}개, 테스트 ${editingTests.length}개`);
 
 		} catch (e) {
 			console.error('❌ 연결 관계 저장 중 오류:', e);
@@ -458,6 +608,36 @@
 
 	function removeDocument(docId) {
 		editingDocuments = editingDocuments.filter(doc => doc.id !== docId);
+	}
+
+	function handleAddDesign() {
+		if (!selectedDesignToAdd) return;
+		
+		const selectedDesign = availableDesigns.find(design => design.id === selectedDesignToAdd);
+		if (selectedDesign) {
+			// 편집 리스트에 바로 추가
+			editingDesigns = [...editingDesigns, selectedDesign];
+		}
+		selectedDesignToAdd = ''; // 선택 초기화
+	}
+
+	function removeDesign(designId) {
+		editingDesigns = editingDesigns.filter(design => design.id !== designId);
+	}
+
+	function handleAddTest() {
+		if (!selectedTestToAdd) return;
+		
+		const selectedTest = availableTests.find(test => test.id === selectedTestToAdd);
+		if (selectedTest) {
+			// 편집 리스트에 바로 추가
+			editingTests = [...editingTests, selectedTest];
+		}
+		selectedTestToAdd = ''; // 선택 초기화
+	}
+
+	function removeTest(testId) {
+		editingTests = editingTests.filter(test => test.id !== testId);
 	}
 
 </script><svelte:head>
@@ -857,6 +1037,157 @@
 						</div>
 					{:else}
 						<p class="text-sm text-gray-500 p-2 bg-gray-50 rounded">추가 가능한 문서가 없습니다.</p>
+					{/if}
+				</div>
+
+				<!-- 연결된 설계 -->
+				<div class="mb-6">
+					<h3 class="text-lg font-medium text-gray-900 mb-3">연결 설계 리스트</h3>
+					
+					<!-- 편집 중인 설계 리스트 -->
+					{#if editingDesigns.length > 0}
+						<div class="space-y-3 mb-4">
+							{#each editingDesigns as design}
+								<div class="flex items-center justify-between p-4 bg-green-50 border border-green-200 rounded-lg">
+									<div class="flex-1">
+										<h4 class="font-medium text-gray-900">{design.title}</h4>
+										<p class="text-sm text-gray-600">{design.description || '설명 없음'}</p>
+										<div class="flex items-center space-x-2 mt-2">
+											<span class="text-xs px-2 py-1 rounded-full bg-green-100 text-green-800">
+												{design.status === 'draft' ? '초안' : design.status === 'review' ? '검토중' : design.status === 'approved' ? '승인됨' : design.status === 'implemented' ? '구현됨' : design.status}
+											</span>
+											<span class="text-xs px-2 py-1 rounded-full bg-blue-100 text-blue-800">
+												{design.design_type === 'system' ? '시스템' : design.design_type === 'architecture' ? '아키텍처' : design.design_type === 'ui_ux' ? 'UI/UX' : design.design_type === 'database' ? '데이터베이스' : design.design_type === 'api' ? 'API' : design.design_type}
+											</span>
+											{#if design.priority}
+												<span class="text-xs px-2 py-1 rounded-full {design.priority === 'high' ? 'bg-red-100 text-red-800' : design.priority === 'medium' ? 'bg-yellow-100 text-yellow-800' : 'bg-green-100 text-green-800'}">
+													{design.priority === 'high' ? '높음' : design.priority === 'medium' ? '보통' : '낮음'}
+												</span>
+											{/if}
+											<span class="text-xs text-gray-500">ID: {design.id}</span>
+										</div>
+									</div>
+									<button
+										type="button"
+										on:click={() => removeDesign(design.id)}
+										class="ml-4 px-3 py-1 text-sm bg-red-100 text-red-700 hover:bg-red-200 rounded"
+									>
+										제거
+									</button>
+								</div>
+							{/each}
+						</div>
+					{:else}
+						<p class="text-gray-500 mb-4 p-3 bg-gray-50 rounded-lg">연결된 설계가 없습니다.</p>
+					{/if}
+
+					<!-- 새 설계 추가 -->
+					{#if availableDesigns.length > 0}
+						<div class="border-t pt-4">
+							<h4 class="text-sm font-medium text-gray-700 mb-3">설계 추가</h4>
+							<div class="flex items-center space-x-3">
+								<select 
+									bind:value={selectedDesignToAdd} 
+									class="flex-1 form-select"
+								>
+									<option value="">추가할 설계 선택...</option>
+									{#each availableDesigns as design}
+										<option value={design.id}>
+											{design.title} 
+											({design.design_type === 'system' ? '시스템' : design.design_type === 'architecture' ? '아키텍처' : design.design_type === 'ui_ux' ? 'UI/UX' : design.design_type === 'database' ? '데이터베이스' : design.design_type === 'api' ? 'API' : design.design_type} - {design.status === 'draft' ? '초안' : design.status === 'review' ? '검토중' : design.status === 'approved' ? '승인됨' : design.status === 'implemented' ? '구현됨' : design.status})
+										</option>
+									{/each}
+								</select>
+								<button
+									type="button"
+									on:click={handleAddDesign}
+									disabled={!selectedDesignToAdd}
+									class="px-4 py-2 bg-blue-600 text-white text-sm rounded hover:bg-blue-700 disabled:bg-gray-300 disabled:cursor-not-allowed"
+								>
+									추가
+								</button>
+							</div>
+						</div>
+					{:else}
+						<p class="text-sm text-gray-500 p-2 bg-gray-50 rounded">추가 가능한 설계가 없습니다.</p>
+					{/if}
+				</div>
+
+				<!-- 연결된 테스트 -->
+				<div class="mb-6">
+					<h3 class="text-lg font-medium text-gray-900 mb-3">연결 테스트 리스트</h3>
+					
+					<!-- 편집 중인 테스트 리스트 -->
+					{#if editingTests.length > 0}
+						<div class="space-y-3 mb-4">
+							{#each editingTests as test}
+								<div class="flex items-center justify-between p-4 bg-blue-50 border border-blue-200 rounded-lg">
+									<div class="flex-1">
+										<h4 class="font-medium text-gray-900">{test.title}</h4>
+										<p class="text-sm text-gray-600">{test.description || '설명 없음'}</p>
+										<div class="flex items-center space-x-2 mt-2">
+											<span class="text-xs px-2 py-1 rounded-full bg-blue-100 text-blue-800">
+												{test.status === 'draft' ? '초안' : test.status === 'ready' ? '준비' : test.status === 'active' ? '활성' : test.status === 'deprecated' ? '비활성' : test.status}
+											</span>
+											{#if test.type}
+												<span class="text-xs px-2 py-1 rounded-full bg-purple-100 text-purple-800">
+													{test.type === 'unit' ? '단위' : test.type === 'integration' ? '통합' : test.type === 'system' ? '시스템' : test.type === 'acceptance' ? '인수' : test.type === 'regression' ? '회귀' : test.type}
+												</span>
+											{/if}
+											{#if test.priority}
+												<span class="text-xs px-2 py-1 rounded-full {test.priority === 'high' ? 'bg-red-100 text-red-800' : test.priority === 'medium' ? 'bg-yellow-100 text-yellow-800' : 'bg-green-100 text-green-800'}">
+													{test.priority === 'high' ? '높음' : test.priority === 'medium' ? '보통' : '낮음'}
+												</span>
+											{/if}
+											{#if test.estimated_duration}
+												<span class="text-xs text-gray-500">⏱️ {test.estimated_duration}분</span>
+											{/if}
+											<span class="text-xs text-gray-500">ID: {test.id}</span>
+										</div>
+									</div>
+									<button
+										type="button"
+										on:click={() => removeTest(test.id)}
+										class="ml-4 px-3 py-1 text-sm bg-red-100 text-red-700 hover:bg-red-200 rounded"
+									>
+										제거
+									</button>
+								</div>
+							{/each}
+						</div>
+					{:else}
+						<p class="text-gray-500 mb-4 p-3 bg-gray-50 rounded-lg">연결된 테스트가 없습니다.</p>
+					{/if}
+
+					<!-- 새 테스트 추가 -->
+					{#if availableTests.length > 0}
+						<div class="border-t pt-4">
+							<h4 class="text-sm font-medium text-gray-700 mb-3">테스트 추가</h4>
+							<div class="flex items-center space-x-3">
+								<select 
+									bind:value={selectedTestToAdd} 
+									class="flex-1 form-select"
+								>
+									<option value="">추가할 테스트 선택...</option>
+									{#each availableTests as test}
+										<option value={test.id}>
+											{test.title} 
+											({test.type === 'unit' ? '단위' : test.type === 'integration' ? '통합' : test.type === 'system' ? '시스템' : test.type === 'acceptance' ? '인수' : test.type === 'regression' ? '회귀' : test.type} - {test.status === 'draft' ? '초안' : test.status === 'ready' ? '준비' : test.status === 'active' ? '활성' : test.status === 'deprecated' ? '비활성' : test.status})
+										</option>
+									{/each}
+								</select>
+								<button
+									type="button"
+									on:click={handleAddTest}
+									disabled={!selectedTestToAdd}
+									class="px-4 py-2 bg-blue-600 text-white text-sm rounded hover:bg-blue-700 disabled:bg-gray-300 disabled:cursor-not-allowed"
+								>
+									추가
+								</button>
+							</div>
+						</div>
+					{:else}
+						<p class="text-sm text-gray-500 p-2 bg-gray-50 rounded">추가 가능한 테스트가 없습니다.</p>
 					{/if}
 				</div>
 			</div>

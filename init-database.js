@@ -2,7 +2,7 @@
 /**
  * WorkflowMCP Database Initialization Script
  * Creates and initializes SQLite database with current schema
- * Version: 3.0.0 (Latest with Test Management + Documents + Designs)
+ * Version: 3.1.0 (Latest with Collaboration Features + Test Management + Documents + Designs)
  */
 
 import sqlite3 from 'sqlite3';
@@ -16,7 +16,8 @@ const __dirname = dirname(__filename);
 
 const DATA_DIR = join(__dirname, 'data');
 const DB_PATH = join(DATA_DIR, 'workflow.db');
-const SCHEMA_PATH = join(__dirname, 'src', 'database', 'schema.sql');
+const MAIN_SCHEMA_PATH = join(__dirname, 'src', 'database', 'schema.sql');
+const COLLABORATION_SCHEMA_PATH = join(__dirname, 'src', 'database', 'collaboration-schema.sql');
 
 /**
  * Initialize the WorkflowMCP database
@@ -44,20 +45,27 @@ async function initializeDatabase() {
       console.log('🆕 Creating new database: ' + DB_PATH + '\n');
     }
 
-    // 3. Read schema file
-    if (!existsSync(SCHEMA_PATH)) {
-      throw new Error(`Schema file not found: ${SCHEMA_PATH}`);
+    // 3. Read schema files
+    if (!existsSync(MAIN_SCHEMA_PATH)) {
+      throw new Error(`Main schema file not found: ${MAIN_SCHEMA_PATH}`);
+    }
+    if (!existsSync(COLLABORATION_SCHEMA_PATH)) {
+      throw new Error(`Collaboration schema file not found: ${COLLABORATION_SCHEMA_PATH}`);
     }
 
-    console.log('📄 Reading schema file...');
-    const schemaSQL = readFileSync(SCHEMA_PATH, 'utf8');
-    console.log('   ✅ Schema loaded (' + schemaSQL.length + ' characters)');
+    console.log('📄 Reading schema files...');
+    const mainSchemaSQL = readFileSync(MAIN_SCHEMA_PATH, 'utf8');
+    const collaborationSchemaSQL = readFileSync(COLLABORATION_SCHEMA_PATH, 'utf8');
+    const schemaSQL = mainSchemaSQL + '\n\n-- Collaboration Schema\n' + collaborationSchemaSQL;
+    console.log('   ✅ Main schema loaded (' + mainSchemaSQL.length + ' characters)');
+    console.log('   ✅ Collaboration schema loaded (' + collaborationSchemaSQL.length + ' characters)');
+    console.log('   📋 Combined schema (' + schemaSQL.length + ' characters)');
 
     // 4. Connect to database
     console.log('\n🔌 Connecting to database...');
     const db = await open({
       filename: DB_PATH,
-      driver: sqlite3.Database
+      driver: sqlite3.default.Database
     });
     console.log('   ✅ Database connection established');
 
@@ -121,10 +129,19 @@ async function initializeDatabase() {
       db.get('SELECT COUNT(*) as count FROM plans'),
       db.get('SELECT COUNT(*) as count FROM documents'),
       db.get('SELECT COUNT(*) as count FROM test_cases'),
-      db.get('SELECT COUNT(*) as count FROM test_executions')
+      db.get('SELECT COUNT(*) as count FROM test_executions'),
+      db.get('SELECT COUNT(*) as count FROM agent_sessions'),
+      db.get('SELECT COUNT(*) as count FROM collaboration_messages'),
+      db.get('SELECT COUNT(*) as count FROM supervisor_interventions'),
+      db.get('SELECT COUNT(*) as count FROM task_progress_snapshots'),
+      db.get('SELECT COUNT(*) as count FROM approval_workflows')
     ]);
 
-    const countLabels = ['PRDs', 'Tasks', 'Plans', 'Documents', 'Test Cases', 'Test Executions'];
+    const countLabels = [
+      'PRDs', 'Tasks', 'Plans', 'Documents', 'Test Cases', 'Test Executions',
+      'Agent Sessions', 'Collaboration Messages', 'Supervisor Interventions', 
+      'Task Progress', 'Approval Workflows'
+    ];
     counts.forEach((result, index) => {
       console.log(`   📈 ${countLabels[index]}: ${result.count} records`);
     });
@@ -164,7 +181,7 @@ async function initializeDatabase() {
     console.log('\n📋 Next steps:');
     console.log('   1. Start MCP server: npm start');
     console.log('   2. Start dashboard: cd dashboard && npm run dev');
-    console.log('   3. Access dashboard: http://localhost:3302');
+    console.log('   3. Access dashboard: http://localhost:3301');
     console.log('   4. (Optional) Add sample data: node add-sample-data.js');
 
   } catch (error) {

@@ -12,8 +12,8 @@ export async function POST({ params, request }) {
       return json({ error: 'entity_type과 entity_id는 필수입니다' }, { status: 400 });
     }
 
-    if (!['prd', 'task', 'design', 'document'].includes(entity_type)) {
-      return json({ error: 'entity_type은 prd, task, design, document 중 하나여야 합니다' }, { status: 400 });
+    if (!['prd', 'task', 'design', 'document', 'test'].includes(entity_type)) {
+      return json({ error: 'entity_type은 prd, task, design, document, test 중 하나여야 합니다' }, { status: 400 });
     }
 
     const database = await getDatabase();
@@ -64,32 +64,49 @@ export async function GET({ params }) {
           WHEN pl.entity_type = 'task' THEN t.title  
           WHEN pl.entity_type = 'design' THEN d.title
           WHEN pl.entity_type = 'document' THEN doc.title
+          WHEN pl.entity_type = 'test' THEN tc.title
         END as title,
+        CASE 
+          WHEN pl.entity_type = 'prd' THEN p.description
+          WHEN pl.entity_type = 'task' THEN t.description
+          WHEN pl.entity_type = 'design' THEN d.description
+          WHEN pl.entity_type = 'document' THEN doc.summary
+          WHEN pl.entity_type = 'test' THEN tc.description
+        END as description,
         CASE 
           WHEN pl.entity_type = 'prd' THEN p.status
           WHEN pl.entity_type = 'task' THEN t.status
           WHEN pl.entity_type = 'design' THEN d.status
           WHEN pl.entity_type = 'document' THEN doc.status
+          WHEN pl.entity_type = 'test' THEN tc.status
         END as status,
         CASE 
           WHEN pl.entity_type = 'prd' THEN p.priority
           WHEN pl.entity_type = 'task' THEN t.priority
           WHEN pl.entity_type = 'design' THEN d.priority
           WHEN pl.entity_type = 'document' THEN NULL
+          WHEN pl.entity_type = 'test' THEN tc.priority
         END as priority,
         CASE 
           WHEN pl.entity_type = 'document' THEN doc.doc_type
+          WHEN pl.entity_type = 'test' THEN tc.type
           ELSE NULL
         END as doc_type,
         CASE 
           WHEN pl.entity_type = 'document' THEN doc.summary
+          WHEN pl.entity_type = 'test' THEN tc.expected_result
           ELSE NULL
-        END as summary
+        END as summary,
+        CASE 
+          WHEN pl.entity_type = 'test' THEN tc.estimated_duration
+          ELSE NULL
+        END as estimated_duration
       FROM project_links pl
       LEFT JOIN prds p ON pl.entity_type = 'prd' AND pl.entity_id = p.id
       LEFT JOIN tasks t ON pl.entity_type = 'task' AND pl.entity_id = t.id  
       LEFT JOIN designs d ON pl.entity_type = 'design' AND pl.entity_id = d.id
       LEFT JOIN documents doc ON pl.entity_type = 'document' AND pl.entity_id = doc.id
+      LEFT JOIN test_cases tc ON pl.entity_type = 'test' AND pl.entity_id = tc.id
       WHERE pl.project_id = ?
       ORDER BY pl.entity_type, pl.created_at DESC
     `, [params.id]);
@@ -99,7 +116,8 @@ export async function GET({ params }) {
       prds: links.filter(link => link.entity_type === 'prd'),
       tasks: links.filter(link => link.entity_type === 'task'),
       designs: links.filter(link => link.entity_type === 'design'),
-      documents: links.filter(link => link.entity_type === 'document')
+      documents: links.filter(link => link.entity_type === 'document'),
+      tests: links.filter(link => link.entity_type === 'test')
     };
 
     return json({

@@ -12,7 +12,7 @@ type EnsureDefined<T> = T extends null | undefined ? {} : T;
 type OptionalUnion<U extends Record<string, any>, A extends keyof U = U extends U ? keyof U : never> = U extends unknown ? { [P in Exclude<A, keyof U>]?: never } & U : never;
 export type Snapshot<T = any> = Kit.Snapshot<T>;
 type PageParentData = EnsureDefined<LayoutData>;
-type LayoutRouteId = RouteId | "/" | "/database" | "/designs" | "/designs/new" | "/designs/[id]" | "/designs/[id]/edit" | "/documents" | "/documents/[id]" | "/gantt" | "/kanban" | "/network" | "/prds" | "/prds/new" | "/prds/[id]" | "/prds/[id]/edit" | "/projects" | "/projects/new" | "/projects/[id]" | "/projects/[id]/edit" | "/tasks" | "/tasks/new" | "/tasks/[id]" | "/tasks/[id]/edit" | "/tests" | "/tests/new" | "/tests/[id]" | "/tests/[id]/edit" | null
+type LayoutRouteId = RouteId | "/" | "/database" | "/deployments" | "/deployments/create" | "/deployments/[id]" | "/designs" | "/designs/new" | "/designs/[id]" | "/designs/[id]/edit" | "/documents" | "/documents/[id]" | "/environments" | "/environments/new" | "/environments/[id]" | "/gantt" | "/incidents/[id]" | "/kanban" | "/network" | "/operations" | "/prds" | "/prds/new" | "/prds/[id]" | "/prds/[id]/edit" | "/projects" | "/projects/new" | "/projects/[id]" | "/projects/[id]/edit" | "/tasks" | "/tasks/new" | "/tasks/[id]" | "/tasks/[id]/edit" | "/tests" | "/tests/new" | "/tests/[id]" | "/tests/[id]/edit" | null
 type LayoutParams = RouteParams & { id?: string }
 type LayoutParentData = EnsureDefined<{}>;
 

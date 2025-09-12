@@ -7,6 +7,8 @@
 	let relatedPRDs = [];
 	let relatedTasks = [];
 	let relatedDocuments = [];
+	let relatedDesigns = [];
+	let relatedTests = [];
 	let loading = true;
 	let error = null;
 
@@ -41,6 +43,8 @@
 					relatedPRDs = linksData.links.prds || [];
 					relatedTasks = linksData.links.tasks || [];
 					relatedDocuments = linksData.links.documents || [];
+					relatedDesigns = linksData.links.designs || [];
+					relatedTests = linksData.links.tests || [];
 				}
 			}
 
@@ -129,6 +133,57 @@
 			'archived': 'bg-blue-100 text-blue-800'
 		};
 		return classMap[status] || 'bg-gray-100 text-gray-800';
+	}
+
+	function getTestStatusText(status) {
+		const statusMap = {
+			'draft': '초안',
+			'ready': '준비',
+			'active': '활성',
+			'deprecated': '비활성'
+		};
+		return statusMap[status] || status;
+	}
+
+	function getTestStatusClass(status) {
+		const classMap = {
+			'draft': 'bg-gray-100 text-gray-800',
+			'ready': 'bg-blue-100 text-blue-800',
+			'active': 'bg-green-100 text-green-800',
+			'deprecated': 'bg-red-100 text-red-800'
+		};
+		return classMap[status] || 'bg-gray-100 text-gray-800';
+	}
+
+	function getDesignStatusText(status) {
+		const statusMap = {
+			'draft': '초안',
+			'review': '검토중',
+			'approved': '승인',
+			'implemented': '구현됨'
+		};
+		return statusMap[status] || status;
+	}
+
+	function getDesignStatusClass(status) {
+		const classMap = {
+			'draft': 'bg-gray-100 text-gray-800',
+			'review': 'bg-yellow-100 text-yellow-800',
+			'approved': 'bg-green-100 text-green-800',
+			'implemented': 'bg-blue-100 text-blue-800'
+		};
+		return classMap[status] || 'bg-gray-100 text-gray-800';
+	}
+
+	function getDesignTypeText(designType) {
+		const typeMap = {
+			'system': '시스템',
+			'architecture': '아키텍처',
+			'ui_ux': 'UI/UX',
+			'database': '데이터베이스',
+			'api': 'API'
+		};
+		return typeMap[designType] || designType;
 	}
 
 	function getDocumentTypeText(docType) {
@@ -426,6 +481,128 @@
 						</div>
 					{/each}
 				</div>
+			</div>
+		{/if}
+
+		<!-- 연결된 설계 -->
+		{#if relatedDesigns.length > 0}
+			<div class="card">
+				<div class="flex items-center justify-between mb-4">
+					<h2 class="text-xl font-semibold text-gray-900">연결된 설계 ({relatedDesigns.length}개)</h2>
+					<a href="/designs/new" class="btn btn-primary btn-sm">
+						새 설계 추가
+					</a>
+				</div>
+				<div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+					{#each relatedDesigns as design}
+						<div class="bg-green-50 rounded-lg p-4 hover:bg-green-100 transition-colors border border-green-200">
+							<div class="flex items-start justify-between mb-2">
+								<h3 class="font-medium text-gray-900 truncate">{design.title}</h3>
+								<span class="badge {getDesignStatusClass(design.status)} ml-2">
+									{getDesignStatusText(design.status)}
+								</span>
+							</div>
+							{#if design.description}
+								<p class="text-sm text-gray-600 mb-3 line-clamp-2">{design.description}</p>
+							{/if}
+							<div class="flex items-center justify-between">
+								<div class="flex items-center space-x-2">
+									<span class="badge {getPriorityClass(design.priority)}">
+										{getPriorityText(design.priority)}
+									</span>
+									{#if design.design_type}
+										<span class="text-xs bg-green-100 text-green-800 px-2 py-1 rounded">
+											{design.design_type === 'system' ? '시스템' : design.design_type === 'architecture' ? '아키텍처' : design.design_type === 'ui_ux' ? 'UI/UX' : design.design_type === 'database' ? '데이터베이스' : design.design_type === 'api' ? 'API' : design.design_type}
+										</span>
+									{/if}
+								</div>
+							</div>
+							<div class="mt-3 flex items-center justify-between">
+								<a href="/designs/{design.entity_id || design.id}" class="text-green-600 hover:text-green-800 text-sm">
+									상세보기 →
+								</a>
+							</div>
+							{#if design.linked_at}
+								<div class="text-xs text-gray-500 mt-2">
+									🔗 {new Date(design.linked_at).toLocaleDateString('ko-KR')}
+								</div>
+							{/if}
+						</div>
+					{/each}
+				</div>
+			</div>
+		{:else}
+			<div class="card text-center py-8">
+				<div class="text-gray-400 mb-4">
+					<svg class="w-12 h-12 mx-auto" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+						<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z"></path>
+					</svg>
+				</div>
+				<p class="text-gray-600 mb-4">아직 연결된 설계가 없습니다.</p>
+				<a href="/designs/new" class="btn btn-primary">
+					첫 번째 설계 추가하기
+				</a>
+			</div>
+		{/if}
+
+		<!-- 연결된 테스트 -->
+		{#if relatedTests.length > 0}
+			<div class="card">
+				<div class="flex items-center justify-between mb-4">
+					<h2 class="text-xl font-semibold text-gray-900">연결된 테스트 ({relatedTests.length}개)</h2>
+					<a href="/tests/new" class="btn btn-primary btn-sm">
+						새 테스트 추가
+					</a>
+				</div>
+				<div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+					{#each relatedTests as test}
+						<div class="bg-blue-50 rounded-lg p-4 hover:bg-blue-100 transition-colors border border-blue-200">
+							<div class="flex items-start justify-between mb-2">
+								<h3 class="font-medium text-gray-900 truncate">{test.title}</h3>
+								<span class="badge {getTestStatusClass(test.status)} ml-2">
+									{getTestStatusText(test.status)}
+								</span>
+							</div>
+							{#if test.description}
+								<p class="text-sm text-gray-600 mb-3 line-clamp-2">{test.description}</p>
+							{/if}
+							<div class="flex items-center justify-between">
+								<div class="flex items-center space-x-2">
+									<span class="badge {getPriorityClass(test.priority)}">
+										{getPriorityText(test.priority)}
+									</span>
+									{#if test.type}
+										<span class="text-xs bg-blue-100 text-blue-800 px-2 py-1 rounded">
+											{test.type}
+										</span>
+									{/if}
+								</div>
+								<div class="flex items-center text-xs text-gray-500 space-x-2">
+									{#if test.estimated_duration}
+										<span>⏱️ {test.estimated_duration}분</span>
+									{/if}
+								</div>
+							</div>
+							<div class="mt-3 flex items-center justify-between">
+								<a href="/tests/{test.id}" class="text-blue-600 hover:text-blue-800 text-sm">
+									상세보기 →
+								</a>
+							</div>
+						</div>
+					{/each}
+				</div>
+			</div>
+		{:else}
+			<div class="card text-center py-8">
+				<div class="text-gray-400 mb-4">
+					<svg class="w-12 h-12 mx-auto" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+						<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+					</svg>
+				</div>
+				<p class="text-gray-600 mb-4">아직 연결된 테스트가 없습니다.</p>
+				<a href="/tests/new" class="btn btn-primary">
+					첫 번째 테스트 추가하기
+				</a>
 			</div>
 		{/if}
 	{/if}

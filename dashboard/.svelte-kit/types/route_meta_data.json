@@ -1,7 +1,22 @@
 {
 	"/": [],
+	"/api/alert-rules": [
+		"src/routes/api/alert-rules/+server.js"
+	],
 	"/api/dashboard": [
 		"src/routes/api/dashboard/+server.js"
+	],
+	"/api/deployments": [
+		"src/routes/api/deployments/+server.js"
+	],
+	"/api/deployments/[id]": [
+		"src/routes/api/deployments/[id]/+server.js"
+	],
+	"/api/deployments/[id]/execute": [
+		"src/routes/api/deployments/[id]/execute/+server.js"
+	],
+	"/api/deployments/[id]/rollback": [
+		"src/routes/api/deployments/[id]/rollback/+server.js"
 	],
 	"/api/designs": [
 		"src/routes/api/designs/+server.js"
@@ -9,11 +24,32 @@
 	"/api/designs/[id]": [
 		"src/routes/api/designs/[id]/+server.js"
 	],
+	"/api/document-categories": [
+		"src/routes/api/document-categories/+server.js"
+	],
 	"/api/documents": [
 		"src/routes/api/documents/+server.js"
 	],
 	"/api/documents/[id]": [
 		"src/routes/api/documents/[id]/+server.js"
+	],
+	"/api/environments": [
+		"src/routes/api/environments/+server.js"
+	],
+	"/api/environments/[id]": [
+		"src/routes/api/environments/[id]/+server.js"
+	],
+	"/api/incidents": [
+		"src/routes/api/incidents/+server.js"
+	],
+	"/api/incidents/[id]": [
+		"src/routes/api/incidents/[id]/+server.js"
+	],
+	"/api/maintenance": [
+		"src/routes/api/maintenance/+server.js"
+	],
+	"/api/performance-metrics": [
+		"src/routes/api/performance-metrics/+server.js"
 	],
 	"/api/prds": [
 		"src/routes/api/prds/+server.js"
@@ -38,6 +74,9 @@
 	],
 	"/api/relationships": [
 		"src/routes/api/relationships/+server.js"
+	],
+	"/api/system-health": [
+		"src/routes/api/system-health/+server.js"
 	],
 	"/api/tasks": [
 		"src/routes/api/tasks/+server.js"
@@ -67,15 +106,23 @@
 		"src/routes/api/tests/[id]/executions/+server.js"
 	],
 	"/database": [],
+	"/deployments": [],
+	"/deployments/create": [],
+	"/deployments/[id]": [],
 	"/designs": [],
 	"/designs/new": [],
 	"/designs/[id]": [],
 	"/designs/[id]/edit": [],
 	"/documents": [],
 	"/documents/[id]": [],
+	"/environments": [],
+	"/environments/new": [],
+	"/environments/[id]": [],
 	"/gantt": [],
+	"/incidents/[id]": [],
 	"/kanban": [],
 	"/network": [],
+	"/operations": [],
 	"/prds": [],
 	"/prds/new": [],
 	"/prds/[id]": [],

@@ -291,8 +291,8 @@
 
 				<!-- 문서 내용 -->
 				<div class="px-6 py-6">
-					<div class="prose max-w-none">
-						{@html document.content.replace(/\n/g, '<br>').replace(/^# (.+)$/gm, '<h1 class="text-3xl font-bold text-gray-900 mb-4">$1</h1>').replace(/^## (.+)$/gm, '<h2 class="text-2xl font-bold text-gray-800 mb-3 mt-6">$1</h2>').replace(/^### (.+)$/gm, '<h3 class="text-xl font-bold text-gray-700 mb-2 mt-4">$1</h3>').replace(/^\- (.+)$/gm, '<li class="ml-4">• $1</li>').replace(/^\*\*(.+?)\*\*/gm, '<strong>$1</strong>').replace(/✅/g, '<span class="text-green-600">✅</span>')}
+					<div class="max-w-none text-sm">
+						{@html document.content.replace(/\n/g, '<br>').replace(/^# (.+)$/gm, '<h1 class="text-xl font-bold text-gray-900 mb-3">$1</h1>').replace(/^## (.+)$/gm, '<h2 class="text-lg font-bold text-gray-800 mb-2 mt-4">$1</h2>').replace(/^### (.+)$/gm, '<h3 class="text-base font-bold text-gray-700 mb-2 mt-3">$1</h3>').replace(/^\- (.+)$/gm, '<li class="ml-4">• $1</li>').replace(/^\*\*(.+?)\*\*/gm, '<strong>$1</strong>').replace(/✅/g, '<span class="text-green-600">✅</span>')}
 					</div>
 				</div>
 			</div>

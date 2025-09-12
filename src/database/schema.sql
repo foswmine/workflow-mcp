@@ -778,5 +778,545 @@ BEGIN
       AND status IN ('open', 'in_progress');
 END;
 
--- Update schema version for test management
+-- =============================================
+-- Phase 2.9: Deployment & Operations Management
+-- =============================================
+
+-- Deployments (배포 관리)
+CREATE TABLE IF NOT EXISTS deployments (
+    id TEXT PRIMARY KEY,
+    name TEXT NOT NULL,
+    description TEXT,
+    status TEXT CHECK(status IN ('planned', 'in_progress', 'completed', 'failed', 'rolled_back')) DEFAULT 'planned',
+    environment TEXT NOT NULL, -- dev, staging, prod
+    version TEXT,
+    
+    -- 관련 엔티티 연결
+    project_id TEXT REFERENCES projects(id),
+    task_id TEXT REFERENCES tasks(id),
+    
+    -- 배포 정보
+    deploy_strategy TEXT, -- blue_green, canary, rolling
+    rollback_plan TEXT,
+    approval_status TEXT CHECK(approval_status IN ('pending', 'approved', 'rejected')) DEFAULT 'pending',
+    approved_by TEXT,
+    approved_at TEXT,
+    
+    -- 실행 정보
+    started_at TEXT,
+    completed_at TEXT,
+    deployed_by TEXT,
+    
+    -- 메타데이터
+    created_at TEXT NOT NULL,
+    updated_at TEXT,
+    created_by TEXT DEFAULT 'system',
+    notes TEXT,
+    tags TEXT -- JSON array as text
+);
+
+-- Incidents (장애 관리)
+CREATE TABLE IF NOT EXISTS incidents (
+    id TEXT PRIMARY KEY,
+    title TEXT NOT NULL,
+    description TEXT,
+    severity TEXT CHECK(severity IN ('critical', 'high', 'medium', 'low')) DEFAULT 'medium',
+    status TEXT CHECK(status IN ('open', 'investigating', 'resolved', 'closed')) DEFAULT 'open',
+    
+    -- 영향 범위
+    affected_systems TEXT, -- JSON array
+    environment TEXT NOT NULL,
+    
+    -- 담당자 정보
+    assigned_to TEXT,
+    reporter TEXT,
+    
+    -- 시간 추적
+    detected_at TEXT,
+    resolved_at TEXT,
+    closed_at TEXT,
+    
+    -- 해결 정보
+    resolution TEXT,
+    root_cause TEXT,
+    prevention_actions TEXT, -- JSON array
+    
+    -- 메타데이터
+    created_at TEXT NOT NULL,
+    updated_at TEXT,
+    tags TEXT -- JSON array as text
+);
+
+-- Performance Metrics (성능 메트릭)
+CREATE TABLE IF NOT EXISTS performance_metrics (
+    id TEXT PRIMARY KEY,
+    metric_name TEXT NOT NULL,
+    metric_value REAL NOT NULL,
+    metric_unit TEXT,
+    environment TEXT NOT NULL,
+    system_component TEXT,
+    
+    -- 시간 정보
+    timestamp TEXT NOT NULL,
+    collected_at TEXT,
+    
+    -- 메타데이터
+    created_at TEXT NOT NULL,
+    metadata TEXT -- JSON object as text
+);
+
+-- Alert Rules (알림 규칙)
+CREATE TABLE IF NOT EXISTS alert_rules (
+    id TEXT PRIMARY KEY,
+    name TEXT NOT NULL,
+    description TEXT,
+    condition_expression TEXT NOT NULL, -- 예: "cpu_usage > 80"
+    severity TEXT CHECK(severity IN ('critical', 'warning', 'info')) DEFAULT 'warning',
+    
+    -- 대상 정보
+    environment TEXT NOT NULL,
+    system_component TEXT,
+    
+    -- 알림 설정
+    notification_channels TEXT, -- JSON array (email, slack, etc.)
+    is_active BOOLEAN DEFAULT 1,
+    
+    -- 메타데이터
+    created_at TEXT NOT NULL,
+    updated_at TEXT,
+    created_by TEXT DEFAULT 'system'
+);
+
+-- Maintenance Schedules (유지보수 계획)
+CREATE TABLE IF NOT EXISTS maintenance_schedules (
+    id TEXT PRIMARY KEY,
+    title TEXT NOT NULL,
+    description TEXT,
+    maintenance_type TEXT CHECK(maintenance_type IN ('planned', 'emergency', 'routine')) DEFAULT 'planned',
+    status TEXT CHECK(status IN ('scheduled', 'in_progress', 'completed', 'cancelled')) DEFAULT 'scheduled',
+    
+    -- 시간 정보
+    scheduled_start TEXT,
+    scheduled_end TEXT,
+    actual_start TEXT,
+    actual_end TEXT,
+    
+    -- 영향 범위
+    affected_systems TEXT, -- JSON array
+    environment TEXT NOT NULL,
+    
+    -- 담당자 정보
+    responsible_team TEXT,
+    contact_person TEXT,
+    
+    -- 메타데이터
+    created_at TEXT NOT NULL,
+    updated_at TEXT,
+    created_by TEXT DEFAULT 'system',
+    notes TEXT
+);
+
+-- Environments (환경 관리)
+CREATE TABLE IF NOT EXISTS environments (
+    id TEXT PRIMARY KEY,
+    name TEXT NOT NULL UNIQUE, -- dev, staging, prod
+    display_name TEXT NOT NULL,
+    description TEXT,
+    status TEXT CHECK(status IN ('active', 'maintenance', 'inactive')) DEFAULT 'active',
+    
+    -- 환경 정보
+    environment_type TEXT CHECK(environment_type IN ('development', 'staging', 'production')) NOT NULL,
+    url TEXT, -- 환경 접속 URL
+    
+    -- 리소스 정보
+    resource_config TEXT, -- JSON object (CPU, Memory, Storage, etc.)
+    
+    -- 설정 정보
+    config_variables TEXT, -- JSON object (환경변수 등)
+    secrets_count INTEGER DEFAULT 0, -- 보안상 실제 값은 외부 저장
+    
+    -- 메타데이터
+    created_at TEXT NOT NULL,
+    updated_at TEXT,
+    created_by TEXT DEFAULT 'system',
+    manager TEXT, -- 환경 관리자
+    tags TEXT -- JSON array as text
+);
+
+-- Environment Configs (환경별 설정 변수)
+CREATE TABLE IF NOT EXISTS environment_configs (
+    id TEXT PRIMARY KEY,
+    environment_id TEXT NOT NULL REFERENCES environments(id) ON DELETE CASCADE,
+    config_key TEXT NOT NULL,
+    config_value TEXT,
+    config_type TEXT CHECK(config_type IN ('string', 'number', 'boolean', 'json')) DEFAULT 'string',
+    is_secret BOOLEAN DEFAULT 0, -- secret인 경우 value는 null
+    
+    -- 메타데이터
+    created_at TEXT NOT NULL,
+    updated_at TEXT,
+    created_by TEXT DEFAULT 'system',
+    description TEXT,
+    
+    UNIQUE(environment_id, config_key)
+);
+
+-- System Health (시스템 상태 추적)
+CREATE TABLE IF NOT EXISTS system_health (
+    id TEXT PRIMARY KEY,
+    environment TEXT NOT NULL,
+    component TEXT NOT NULL, -- api, database, cache, etc.
+    status TEXT CHECK(status IN ('healthy', 'warning', 'critical', 'unknown')) DEFAULT 'unknown',
+    
+    -- 상태 정보
+    response_time REAL, -- milliseconds
+    uptime_percentage REAL, -- 0-100
+    error_rate REAL, -- 0-100
+    
+    -- 메타데이터
+    checked_at TEXT NOT NULL,
+    created_at TEXT NOT NULL,
+    metadata TEXT -- JSON object as text
+);
+
+-- =============================================
+-- Phase 2.9: Indexes for Performance
+-- =============================================
+
+-- Deployment indexes
+CREATE INDEX IF NOT EXISTS idx_deployments_environment ON deployments(environment);
+CREATE INDEX IF NOT EXISTS idx_deployments_status ON deployments(status);
+CREATE INDEX IF NOT EXISTS idx_deployments_project_id ON deployments(project_id);
+CREATE INDEX IF NOT EXISTS idx_deployments_created_at ON deployments(created_at);
+
+-- Incident indexes
+CREATE INDEX IF NOT EXISTS idx_incidents_severity ON incidents(severity);
+CREATE INDEX IF NOT EXISTS idx_incidents_status ON incidents(status);
+CREATE INDEX IF NOT EXISTS idx_incidents_environment ON incidents(environment);
+CREATE INDEX IF NOT EXISTS idx_incidents_detected_at ON incidents(detected_at);
+
+-- Performance metrics indexes
+CREATE INDEX IF NOT EXISTS idx_performance_metrics_name ON performance_metrics(metric_name);
+CREATE INDEX IF NOT EXISTS idx_performance_metrics_environment ON performance_metrics(environment);
+CREATE INDEX IF NOT EXISTS idx_performance_metrics_timestamp ON performance_metrics(timestamp);
+
+-- Environment indexes  
+CREATE INDEX IF NOT EXISTS idx_environments_type ON environments(environment_type);
+CREATE INDEX IF NOT EXISTS idx_environments_status ON environments(status);
+
+-- System health indexes
+CREATE INDEX IF NOT EXISTS idx_system_health_environment ON system_health(environment);
+CREATE INDEX IF NOT EXISTS idx_system_health_component ON system_health(component);
+CREATE INDEX IF NOT EXISTS idx_system_health_checked_at ON system_health(checked_at);
+
+-- =============================================
+-- Phase 2.9: Views for Dashboard
+-- =============================================
+
+-- Deployment status summary
+CREATE VIEW IF NOT EXISTS deployment_status_summary AS
+SELECT 
+    environment,
+    COUNT(*) as total_deployments,
+    COUNT(CASE WHEN status = 'completed' THEN 1 END) as completed,
+    COUNT(CASE WHEN status = 'failed' THEN 1 END) as failed,
+    COUNT(CASE WHEN status = 'in_progress' THEN 1 END) as in_progress,
+    COUNT(CASE WHEN status = 'rolled_back' THEN 1 END) as rolled_back,
+    MAX(completed_at) as last_deployment
+FROM deployments
+GROUP BY environment;
+
+-- Active incidents by environment
+CREATE VIEW IF NOT EXISTS active_incidents_summary AS
+SELECT 
+    environment,
+    COUNT(*) as total_incidents,
+    COUNT(CASE WHEN severity = 'critical' THEN 1 END) as critical,
+    COUNT(CASE WHEN severity = 'high' THEN 1 END) as high,
+    COUNT(CASE WHEN severity = 'medium' THEN 1 END) as medium,
+    COUNT(CASE WHEN severity = 'low' THEN 1 END) as low,
+    MIN(detected_at) as oldest_incident
+FROM incidents 
+WHERE status IN ('open', 'investigating')
+GROUP BY environment;
+
+-- System health overview
+CREATE VIEW IF NOT EXISTS system_health_overview AS
+SELECT 
+    environment,
+    component,
+    status,
+    response_time,
+    uptime_percentage,
+    error_rate,
+    checked_at,
+    CASE 
+        WHEN checked_at < datetime('now', '-5 minutes') THEN 'stale'
+        ELSE 'current'
+    END as data_freshness
+FROM system_health sh1
+WHERE checked_at = (
+    SELECT MAX(checked_at) 
+    FROM system_health sh2 
+    WHERE sh2.environment = sh1.environment 
+    AND sh2.component = sh1.component
+)
+ORDER BY environment, component;
+
+-- Environment resource summary
+CREATE VIEW IF NOT EXISTS environment_summary AS
+SELECT 
+    e.*,
+    COUNT(ec.id) as config_count,
+    COUNT(d.id) as deployment_count,
+    COUNT(CASE WHEN d.status = 'completed' THEN 1 END) as successful_deployments,
+    COUNT(i.id) as incident_count,
+    COUNT(CASE WHEN i.status IN ('open', 'investigating') THEN 1 END) as active_incidents
+FROM environments e
+LEFT JOIN environment_configs ec ON e.id = ec.environment_id
+LEFT JOIN deployments d ON e.name = d.environment
+LEFT JOIN incidents i ON e.name = i.environment
+GROUP BY e.id;
+
+-- =============================================
+-- Phase 2.9: Triggers
+-- =============================================
+
+-- Update deployment timestamp
+CREATE TRIGGER IF NOT EXISTS update_deployment_timestamp
+    AFTER UPDATE ON deployments
+    FOR EACH ROW
+BEGIN
+    UPDATE deployments SET updated_at = datetime('now') WHERE id = NEW.id;
+END;
+
+-- Update incident timestamp
+CREATE TRIGGER IF NOT EXISTS update_incident_timestamp
+    AFTER UPDATE ON incidents
+    FOR EACH ROW
+BEGIN
+    UPDATE incidents SET updated_at = datetime('now') WHERE id = NEW.id;
+END;
+
+-- Auto-close resolved incidents after 24 hours
+CREATE TRIGGER IF NOT EXISTS auto_close_resolved_incidents
+    AFTER UPDATE ON incidents
+    WHEN OLD.status != 'resolved' AND NEW.status = 'resolved'
+BEGIN
+    -- This would typically be handled by a background job
+    -- For now, we just update the resolved_at timestamp
+    UPDATE incidents 
+    SET resolved_at = datetime('now') 
+    WHERE id = NEW.id AND resolved_at IS NULL;
+END;
+
+-- Update environment timestamp
+CREATE TRIGGER IF NOT EXISTS update_environment_timestamp
+    AFTER UPDATE ON environments
+    FOR EACH ROW
+BEGIN
+    UPDATE environments SET updated_at = datetime('now') WHERE id = NEW.id;
+END;
+
+-- Update environment config timestamp
+CREATE TRIGGER IF NOT EXISTS update_environment_config_timestamp
+    AFTER UPDATE ON environment_configs
+    FOR EACH ROW
+BEGIN
+    UPDATE environment_configs SET updated_at = datetime('now') WHERE id = NEW.id;
+    UPDATE environments SET updated_at = datetime('now') WHERE id = NEW.environment_id;
+END;
+
+-- =============================================
+-- Claude Collaboration Extension (Phase 3.0)
+-- Real-time Claude-to-Claude cooperation tables
+-- =============================================
+
+-- Agent Sessions (Claude Code instances)
+CREATE TABLE IF NOT EXISTS agent_sessions (
+    id TEXT PRIMARY KEY, -- UUID format
+    agent_type TEXT NOT NULL CHECK(agent_type IN ('developer', 'supervisor')),
+    agent_name TEXT, -- Optional display name
+    status TEXT NOT NULL CHECK(status IN ('active', 'idle', 'offline')) DEFAULT 'active',
+    
+    -- Current activity tracking
+    current_task_id TEXT, -- Currently working on task
+    current_activity TEXT, -- Human-readable activity description
+    progress_notes TEXT, -- Latest progress update
+    
+    -- Session metadata
+    session_start DATETIME NOT NULL DEFAULT (datetime('now')),
+    last_heartbeat DATETIME NOT NULL DEFAULT (datetime('now')),
+    last_activity DATETIME NOT NULL DEFAULT (datetime('now')),
+    
+    -- Configuration
+    auto_approve BOOLEAN DEFAULT FALSE, -- Auto-approve minor changes
+    notification_preferences TEXT, -- JSON: notification settings
+    
+    -- Relationships
+    project_id TEXT REFERENCES projects(id),
+    
+    -- Metadata
+    created_at DATETIME NOT NULL DEFAULT (datetime('now')),
+    updated_at DATETIME DEFAULT (datetime('now')),
+    
+    FOREIGN KEY (current_task_id) REFERENCES tasks(id) ON DELETE SET NULL
+);
+
+-- Real-time Messages (Inter-agent communication)
+CREATE TABLE IF NOT EXISTS collaboration_messages (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    
+    -- Message routing
+    from_session_id TEXT NOT NULL,
+    to_session_id TEXT, -- NULL means broadcast to all active sessions
+    
+    -- Message content
+    message_type TEXT NOT NULL CHECK(message_type IN (
+        'progress_update', 'question', 'feedback', 'approval_request',
+        'direction_change', 'task_assignment', 'status_alert', 'heartbeat'
+    )),
+    subject TEXT, -- Brief subject line
+    content TEXT NOT NULL, -- Main message content
+    
+    -- Context
+    related_task_id TEXT, -- Task this message relates to
+    related_prd_id TEXT, -- PRD this message relates to
+    priority TEXT CHECK(priority IN ('urgent', 'high', 'normal', 'low')) DEFAULT 'normal',
+    
+    -- Status tracking
+    read_status BOOLEAN DEFAULT FALSE,
+    read_at DATETIME,
+    response_required BOOLEAN DEFAULT FALSE,
+    responded BOOLEAN DEFAULT FALSE,
+    response_deadline DATETIME,
+    
+    -- Metadata
+    created_at DATETIME NOT NULL DEFAULT (datetime('now')),
+    expires_at DATETIME, -- Message expiration (for cleanup)
+    
+    FOREIGN KEY (from_session_id) REFERENCES agent_sessions(id) ON DELETE CASCADE,
+    FOREIGN KEY (to_session_id) REFERENCES agent_sessions(id) ON DELETE CASCADE,
+    FOREIGN KEY (related_task_id) REFERENCES tasks(id) ON DELETE CASCADE,
+    FOREIGN KEY (related_prd_id) REFERENCES prds(id) ON DELETE CASCADE
+);
+
+-- Supervisor Interventions (Supervisor actions/decisions)
+CREATE TABLE IF NOT EXISTS supervisor_interventions (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    
+    -- Participants
+    supervisor_session_id TEXT NOT NULL,
+    developer_session_id TEXT NOT NULL,
+    
+    -- Intervention details
+    intervention_type TEXT NOT NULL CHECK(intervention_type IN (
+        'feedback', 'direction_change', 'approval', 'rejection',
+        'task_reassignment', 'priority_change', 'blocking', 'unblocking'
+    )),
+    title TEXT NOT NULL, -- Brief intervention title
+    message TEXT NOT NULL, -- Detailed intervention message
+    
+    -- Context
+    related_task_id TEXT,
+    related_prd_id TEXT,
+    previous_status TEXT, -- What status was before intervention
+    new_status TEXT, -- What status should be after intervention
+    
+    -- Priority and urgency
+    priority TEXT CHECK(priority IN ('critical', 'urgent', 'normal', 'advisory')) DEFAULT 'normal',
+    requires_immediate_action BOOLEAN DEFAULT FALSE,
+    
+    -- Response tracking
+    acknowledged BOOLEAN DEFAULT FALSE,
+    acknowledged_at DATETIME,
+    developer_response TEXT, -- Developer's response to intervention
+    resolution_status TEXT CHECK(resolution_status IN ('pending', 'accepted', 'discussed', 'resolved')) DEFAULT 'pending',
+    
+    -- Metadata
+    created_at DATETIME NOT NULL DEFAULT (datetime('now')),
+    resolved_at DATETIME,
+    
+    FOREIGN KEY (supervisor_session_id) REFERENCES agent_sessions(id) ON DELETE CASCADE,
+    FOREIGN KEY (developer_session_id) REFERENCES agent_sessions(id) ON DELETE CASCADE,
+    FOREIGN KEY (related_task_id) REFERENCES tasks(id) ON DELETE CASCADE,
+    FOREIGN KEY (related_prd_id) REFERENCES prds(id) ON DELETE CASCADE
+);
+
+-- Approval Workflows (Structured approval processes)
+CREATE TABLE IF NOT EXISTS approval_workflows (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    
+    -- Workflow details
+    workflow_type TEXT NOT NULL CHECK(workflow_type IN (
+        'task_completion', 'code_change', 'architecture_decision',
+        'deployment_approval', 'requirement_change'
+    )),
+    title TEXT NOT NULL,
+    description TEXT NOT NULL,
+    
+    -- Participants
+    requester_session_id TEXT NOT NULL,
+    approver_session_id TEXT, -- NULL means any supervisor can approve
+    
+    -- Context
+    related_task_id TEXT,
+    related_prd_id TEXT,
+    
+    -- Approval status
+    status TEXT CHECK(status IN ('pending', 'approved', 'rejected', 'cancelled')) DEFAULT 'pending',
+    approval_deadline DATETIME,
+    
+    -- Decision details
+    approved_at DATETIME,
+    rejected_at DATETIME,
+    rejection_reason TEXT,
+    conditions TEXT, -- Conditions for approval (if any)
+    
+    -- Metadata
+    created_at DATETIME NOT NULL DEFAULT (datetime('now')),
+    updated_at DATETIME DEFAULT (datetime('now')),
+    
+    FOREIGN KEY (requester_session_id) REFERENCES agent_sessions(id) ON DELETE CASCADE,
+    FOREIGN KEY (approver_session_id) REFERENCES agent_sessions(id) ON DELETE CASCADE,
+    FOREIGN KEY (related_task_id) REFERENCES tasks(id) ON DELETE CASCADE,
+    FOREIGN KEY (related_prd_id) REFERENCES prds(id) ON DELETE CASCADE
+);
+
+-- Collaboration indexes
+CREATE INDEX IF NOT EXISTS idx_agent_sessions_type ON agent_sessions(agent_type);
+CREATE INDEX IF NOT EXISTS idx_agent_sessions_status ON agent_sessions(status);
+CREATE INDEX IF NOT EXISTS idx_agent_sessions_active ON agent_sessions(status, last_heartbeat);
+CREATE INDEX IF NOT EXISTS idx_collab_messages_to ON collaboration_messages(to_session_id, read_status);
+CREATE INDEX IF NOT EXISTS idx_collab_messages_unread ON collaboration_messages(to_session_id, read_status, created_at);
+CREATE INDEX IF NOT EXISTS idx_interventions_developer ON supervisor_interventions(developer_session_id, acknowledged);
+CREATE INDEX IF NOT EXISTS idx_interventions_pending ON supervisor_interventions(resolution_status, created_at);
+CREATE INDEX IF NOT EXISTS idx_approvals_pending ON approval_workflows(status, approval_deadline);
+
+-- Active collaboration sessions view
+CREATE VIEW IF NOT EXISTS active_collaboration_sessions AS
+SELECT 
+    a.*,
+    t.title AS current_task_title,
+    t.status AS current_task_status,
+    COUNT(DISTINCT m1.id) AS unread_messages,
+    COUNT(DISTINCT i.id) AS pending_interventions
+FROM agent_sessions a
+LEFT JOIN tasks t ON a.current_task_id = t.id
+LEFT JOIN collaboration_messages m1 ON a.id = m1.to_session_id AND m1.read_status = FALSE
+LEFT JOIN supervisor_interventions i ON a.id = i.developer_session_id AND i.acknowledged = FALSE
+WHERE a.status = 'active'
+    AND a.last_heartbeat > datetime('now', '-5 minutes')
+GROUP BY a.id;
+
+-- Collaboration triggers
+CREATE TRIGGER IF NOT EXISTS update_agent_activity_on_message
+    AFTER INSERT ON collaboration_messages
+BEGIN
+    UPDATE agent_sessions 
+    SET last_activity = datetime('now'), updated_at = datetime('now')
+    WHERE id = NEW.from_session_id;
+END;
+
+-- Update schema version for Phase 3.0 (Collaboration)
 UPDATE system_config SET value = '3.0.0', updated_at = datetime('now') WHERE key = 'schema_version';

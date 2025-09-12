@@ -1,9 +1,9 @@
-import { json } from '@sveltejs/kit';
 import sqlite3 from 'sqlite3';
 import { open } from 'sqlite';
 import { join } from 'path';
+import { jsonResponse } from '$lib/server/utils.js';
 
-const dbPath = join(process.cwd(), '../data/workflow.db');
+const dbPath = 'C:/dev/workflow-mcp/data/workflow.db';
 
 /** @type {import('./$types').RequestHandler} */
 export async function GET({ url }) {
@@ -56,11 +56,11 @@ export async function GET({ url }) {
 		
 		await db.close();
 
-		return json({ documents });
+		return jsonResponse({ documents });
 		
 	} catch (error) {
 		console.error('Error fetching documents:', error);
-		return json({ error: 'Failed to fetch documents' }, { status: 500 });
+		return jsonResponse({ error: 'Failed to fetch documents' }, { status: 500 });
 	}
 }
 
@@ -71,7 +71,12 @@ export async function POST({ request }) {
 			filename: dbPath,
 			driver: sqlite3.Database
 		});
-		const data = await request.json();
+		
+		// UTF-8 인코딩을 명시적으로 처리
+		const arrayBuffer = await request.arrayBuffer();
+		const decoder = new TextDecoder('utf-8');
+		const textData = decoder.decode(arrayBuffer);
+		const data = JSON.parse(textData);
 
 		const { title, content, doc_type, category, tags, summary } = data;
 
@@ -89,7 +94,7 @@ export async function POST({ request }) {
 
 		await db.close();
 
-		return json({
+		return jsonResponse({
 			success: true,
 			id: result.lastInsertRowid,
 			message: 'Document created successfully'
@@ -97,6 +102,6 @@ export async function POST({ request }) {
 
 	} catch (error) {
 		console.error('Error creating document:', error);
-		return json({ error: 'Failed to create document' }, { status: 500 });
+		return jsonResponse({ error: 'Failed to create document' }, { status: 500 });
 	}
 }

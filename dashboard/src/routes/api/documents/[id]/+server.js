@@ -3,7 +3,7 @@ import sqlite3 from 'sqlite3';
 import { open } from 'sqlite';
 import { join } from 'path';
 
-const dbPath = join(process.cwd(), '../data/workflow.db');
+const dbPath = 'C:/dev/workflow-mcp/data/workflow.db';
 
 /** @type {import('./$types').RequestHandler} */
 export async function GET({ params }) {
@@ -78,6 +78,8 @@ export async function PUT({ params, request }) {
 		if (updates.content !== undefined) { updateFields.push('content = ?'); params_array.push(updates.content); }
 		if (updates.summary !== undefined) { updateFields.push('summary = ?'); params_array.push(updates.summary); }
 		if (updates.status !== undefined) { updateFields.push('status = ?'); params_array.push(updates.status); }
+		if (updates.doc_type !== undefined) { updateFields.push('doc_type = ?'); params_array.push(updates.doc_type); }
+		if (updates.category !== undefined) { updateFields.push('category = ?'); params_array.push(updates.category); }
 		if (updates.tags !== undefined) { updateFields.push('tags = ?'); params_array.push(JSON.stringify(updates.tags)); }
 		
 		updateFields.push('updated_at = CURRENT_TIMESTAMP');

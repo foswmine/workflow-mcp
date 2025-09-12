@@ -273,7 +273,7 @@ export class ProjectManager {
           END as priority,
           CASE 
             WHEN pl.entity_type = 'prd' THEN p.created_at
-            WHEN pl.entity_type = 'task' THEN t.createdAt
+            WHEN pl.entity_type = 'task' THEN t.created_at
             WHEN pl.entity_type = 'design' THEN d.created_at
           END as created_at
         FROM project_links pl
@@ -293,7 +293,7 @@ export class ProjectManager {
       const documents = await this.storage.db.all(`
         SELECT d.* FROM documents d
         JOIN document_links dl ON d.id = dl.document_id
-        WHERE dl.entity_type = 'project' AND dl.entity_id = ?
+        WHERE dl.linked_entity_type = 'project' AND dl.linked_entity_id = ?
       `, [projectId]);
 
       return {
