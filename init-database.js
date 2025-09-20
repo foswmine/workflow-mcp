@@ -2,7 +2,7 @@
 /**
  * WorkflowMCP Database Initialization Script
  * Creates and initializes SQLite database with current schema
- * Version: 3.1.0 (Latest with Collaboration Features + Test Management + Documents + Designs)
+ * Version: 3.0.0 (Core Project Management Features + Test Management + Documents + Designs)
  */
 
 import sqlite3 from 'sqlite3';
@@ -17,7 +17,6 @@ const __dirname = dirname(__filename);
 const DATA_DIR = join(__dirname, 'data');
 const DB_PATH = join(DATA_DIR, 'workflow.db');
 const MAIN_SCHEMA_PATH = join(__dirname, 'src', 'database', 'schema.sql');
-const COLLABORATION_SCHEMA_PATH = join(__dirname, 'src', 'database', 'collaboration-schema.sql');
 
 /**
  * Initialize the WorkflowMCP database
@@ -49,17 +48,10 @@ async function initializeDatabase() {
     if (!existsSync(MAIN_SCHEMA_PATH)) {
       throw new Error(`Main schema file not found: ${MAIN_SCHEMA_PATH}`);
     }
-    if (!existsSync(COLLABORATION_SCHEMA_PATH)) {
-      throw new Error(`Collaboration schema file not found: ${COLLABORATION_SCHEMA_PATH}`);
-    }
 
-    console.log('📄 Reading schema files...');
-    const mainSchemaSQL = readFileSync(MAIN_SCHEMA_PATH, 'utf8');
-    const collaborationSchemaSQL = readFileSync(COLLABORATION_SCHEMA_PATH, 'utf8');
-    const schemaSQL = mainSchemaSQL + '\n\n-- Collaboration Schema\n' + collaborationSchemaSQL;
-    console.log('   ✅ Main schema loaded (' + mainSchemaSQL.length + ' characters)');
-    console.log('   ✅ Collaboration schema loaded (' + collaborationSchemaSQL.length + ' characters)');
-    console.log('   📋 Combined schema (' + schemaSQL.length + ' characters)');
+    console.log('📄 Reading schema file...');
+    const schemaSQL = readFileSync(MAIN_SCHEMA_PATH, 'utf8');
+    console.log('   ✅ Main schema loaded (' + schemaSQL.length + ' characters)');
 
     // 4. Connect to database
     console.log('\n🔌 Connecting to database...');
@@ -130,17 +122,16 @@ async function initializeDatabase() {
       db.get('SELECT COUNT(*) as count FROM documents'),
       db.get('SELECT COUNT(*) as count FROM test_cases'),
       db.get('SELECT COUNT(*) as count FROM test_executions'),
-      db.get('SELECT COUNT(*) as count FROM agent_sessions'),
-      db.get('SELECT COUNT(*) as count FROM collaboration_messages'),
-      db.get('SELECT COUNT(*) as count FROM supervisor_interventions'),
-      db.get('SELECT COUNT(*) as count FROM task_progress_snapshots'),
-      db.get('SELECT COUNT(*) as count FROM approval_workflows')
+      db.get('SELECT COUNT(*) as count FROM designs'),
+      db.get('SELECT COUNT(*) as count FROM projects'),
+      db.get('SELECT COUNT(*) as count FROM environments'),
+      db.get('SELECT COUNT(*) as count FROM deployments'),
+      db.get('SELECT COUNT(*) as count FROM incidents')
     ]);
 
     const countLabels = [
       'PRDs', 'Tasks', 'Plans', 'Documents', 'Test Cases', 'Test Executions',
-      'Agent Sessions', 'Collaboration Messages', 'Supervisor Interventions', 
-      'Task Progress', 'Approval Workflows'
+      'Designs', 'Projects', 'Environments', 'Deployments', 'Incidents'
     ];
     counts.forEach((result, index) => {
       console.log(`   📈 ${countLabels[index]}: ${result.count} records`);

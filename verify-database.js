@@ -46,6 +46,7 @@ async function verifyDatabase() {
     console.log('\n📊 Table Verification:');
     const expectedTables = [
       'prds', 'tasks', 'plans', 'documents', 'test_cases', 'test_executions',
+      'designs', 'projects', 'environments', 'deployments', 'incidents',
       'milestones', 'task_dependencies', 'document_relations', 'document_links',
       'system_config'
     ];
@@ -193,10 +194,15 @@ async function verifyDatabase() {
       db.get('SELECT COUNT(*) as count FROM plans'),
       db.get('SELECT COUNT(*) as count FROM documents'),
       db.get('SELECT COUNT(*) as count FROM test_cases'),
-      db.get('SELECT COUNT(*) as count FROM test_executions')
+      db.get('SELECT COUNT(*) as count FROM test_executions'),
+      db.get('SELECT COUNT(*) as count FROM designs'),
+      db.get('SELECT COUNT(*) as count FROM projects'),
+      db.get('SELECT COUNT(*) as count FROM environments'),
+      db.get('SELECT COUNT(*) as count FROM deployments'),
+      db.get('SELECT COUNT(*) as count FROM incidents')
     ]);
 
-    const labels = ['PRDs', 'Tasks', 'Plans', 'Documents', 'Test Cases', 'Test Executions'];
+    const labels = ['PRDs', 'Tasks', 'Plans', 'Documents', 'Test Cases', 'Test Executions', 'Designs', 'Projects', 'Environments', 'Deployments', 'Incidents'];
     summaryData.forEach((data, index) => {
       console.log(`   📈 ${labels[index]}: ${data.count} records`);
     });

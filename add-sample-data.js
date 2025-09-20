@@ -359,7 +359,7 @@ WorkflowMCP 프로젝트의 핵심 요구사항을 분석한 결과를 정리합
     console.log('💡 You can now:');
     console.log('   1. Start the MCP server: npm start');
     console.log('   2. Start the dashboard: cd dashboard && npm run dev');
-    console.log('   3. View sample data at: http://localhost:3302');
+    console.log('   3. View sample data at: http://localhost:3301');
     console.log('   4. Test MCP tools with Claude Code');
 
   } catch (error) {
