@@ -1,6 +1,7 @@
 <script>
 	import { onMount } from 'svelte';
 	import { goto } from '$app/navigation';
+	import { _ } from 'svelte-i18n';
 
 	let prds = [];
 	let loading = true;
@@ -18,10 +19,10 @@
 			if (response.ok) {
 				prds = await response.json();
 			} else {
-				error = 'PRD 목록을 불러올 수 없습니다';
+				error = $_('prds.error_load_failed');
 			}
 		} catch (e) {
-			error = 'PRD 로딩 중 오류: ' + e.message;
+			error = $_('prds.error_loading') + e.message;
 		} finally {
 			loading = false;
 		}
@@ -33,21 +34,21 @@
 	}
 
 	async function deletePRD(id) {
-		if (!confirm('이 PRD를 삭제하시겠습니까?')) return;
-		
+		if (!confirm($_('prds.confirm_delete'))) return;
+
 		try {
 			const response = await fetch(`/api/prds/${id}`, {
 				method: 'DELETE'
 			});
-			
+
 			if (response.ok) {
 				await loadPRDs();
 			} else {
 				const errorData = await response.json();
-				alert('PRD 삭제 중 오류가 발생했습니다: ' + (errorData.error || 'Unknown error'));
+				alert($_('prds.error_delete') + (errorData.error || 'Unknown error'));
 			}
 		} catch (e) {
-			alert('삭제 중 오류: ' + e.message);
+			alert($_('prds.error_deleting') + e.message);
 		}
 	}
 
@@ -64,15 +65,7 @@
 	}
 
 	function getStatusLabel(status) {
-		switch (status) {
-			case 'active': return '활성';
-			case 'inactive': return '비활성';
-			case 'draft': return '초안';
-			case 'review': return '검토중';
-			case 'approved': return '승인됨';
-			case 'completed': return '완료';
-			default: return status;
-		}
+		return $_(`prds.status_${status}`) || status;
 	}
 
 	function getPriorityColor(priority) {
@@ -85,12 +78,7 @@
 	}
 
 	function getPriorityLabel(priority) {
-		switch (priority) {
-			case 'high': return '높음';
-			case 'medium': return '보통';
-			case 'low': return '낮음';
-			default: return priority;
-		}
+		return $_(`prds.priority_${priority}`) || priority;
 	}
 
 	function formatDate(dateValue) {
@@ -144,28 +132,28 @@
 <div class="space-y-6">
 	<div class="flex items-center justify-between">
 		<div>
-			<h1 class="text-3xl font-bold text-gray-900">PRD 관리</h1>
-			<p class="text-gray-600 mt-1">프로젝트 요구사항 문서를 관리합니다</p>
+			<h1 class="text-3xl font-bold text-gray-900">{$_('prds.title')}</h1>
+			<p class="text-gray-600 mt-1">{$_('prds.description')}</p>
 		</div>
 		<div class="flex items-center space-x-4">
 			<div class="flex items-center space-x-2">
-				<label for="sortBy" class="text-sm font-medium text-gray-700">정렬:</label>
-				<select 
-					id="sortBy" 
-					bind:value={sortBy} 
+				<label for="sortBy" class="text-sm font-medium text-gray-700">{$_('prds.sort_label')}</label>
+				<select
+					id="sortBy"
+					bind:value={sortBy}
 					on:change={handleSortChange}
 					class="form-select text-sm"
 				>
-					<option value="created_desc">최근 등록순</option>
-					<option value="created_asc">오래된 등록순</option>
-					<option value="updated_desc">최근 수정순</option>
-					<option value="updated_asc">오래된 수정순</option>
-					<option value="title_asc">제목 오름차순</option>
-					<option value="title_desc">제목 내림차순</option>
+					<option value="created_desc">{$_('prds.sort_created_desc')}</option>
+					<option value="created_asc">{$_('prds.sort_created_asc')}</option>
+					<option value="updated_desc">{$_('prds.sort_updated_desc')}</option>
+					<option value="updated_asc">{$_('prds.sort_updated_asc')}</option>
+					<option value="title_asc">{$_('prds.sort_title_asc')}</option>
+					<option value="title_desc">{$_('prds.sort_title_desc')}</option>
 				</select>
 			</div>
 			<a href="/prds/new" class="btn btn-primary">
-				새 PRD 작성
+				{$_('prds.new_prd')}
 			</a>
 		</div>
 	</div>
@@ -177,19 +165,19 @@
 	{:else if error}
 		<div class="bg-red-50 border border-red-200 rounded-md p-4">
 			<div class="text-red-800">{error}</div>
-			<button 
+			<button
 				class="mt-2 text-sm text-red-600 hover:text-red-800"
 				on:click={loadPRDs}
 			>
-				다시 시도
+				{$_('prds.retry')}
 			</button>
 		</div>
 	{:else if prds.length === 0}
 		<div class="text-center py-12">
-			<h3 class="text-lg font-medium text-gray-900 mb-2">PRD가 없습니다</h3>
-			<p class="text-gray-600 mb-6">첫 번째 PRD를 작성해보세요</p>
+			<h3 class="text-lg font-medium text-gray-900 mb-2">{$_('prds.no_prds')}</h3>
+			<p class="text-gray-600 mb-6">{$_('prds.create_first')}</p>
 			<a href="/prds/new" class="btn btn-primary">
-				새 PRD 작성
+				{$_('prds.new_prd')}
 			</a>
 		</div>
 	{:else}
@@ -212,7 +200,7 @@
 					</div>
 
 					<p class="text-gray-600 text-sm mb-4 line-clamp-3">
-						{prd.description || '설명이 없습니다'}
+						{prd.description || $_('prds.no_description')}
 					</p>
 
 					<!-- 통계 -->
@@ -220,40 +208,40 @@
 						<div class="flex items-center space-x-4">
 							<span class="flex items-center">
 								<span class="w-2 h-2 bg-blue-500 rounded-full mr-1"></span>
-								작업 {prd.task_count || 0}개
+								{$_('prds.tasks')} {prd.task_count || 0}{$_('prds.tasks_suffix')}
 							</span>
 							<span class="flex items-center">
 								<span class="w-2 h-2 bg-green-500 rounded-full mr-1"></span>
-								완료 {prd.completed_tasks || 0}개
+								{$_('prds.completed')} {prd.completed_tasks || 0}{$_('prds.tasks_suffix')}
 							</span>
 						</div>
 					</div>
 
 					<!-- 날짜 정보 -->
 					<div class="text-xs text-gray-400 mb-4">
-						<div>생성: {formatDate(prd.created_at)}</div>
-						<div>수정: {formatDate(prd.updated_at)}</div>
+						<div>{$_('prds.created')}: {formatDate(prd.created_at)}</div>
+						<div>{$_('prds.updated')}: {formatDate(prd.updated_at)}</div>
 					</div>
 
 					<!-- 액션 버튼 -->
 					<div class="flex space-x-2">
-						<a 
-							href="/prds/{prd.id}" 
+						<a
+							href="/prds/{prd.id}"
 							class="flex-1 text-center px-3 py-2 text-sm bg-blue-50 text-blue-700 rounded hover:bg-blue-100 transition-colors"
 						>
-							상세보기
+							{$_('prds.view_details')}
 						</a>
-						<a 
-							href="/prds/{prd.id}/edit" 
+						<a
+							href="/prds/{prd.id}/edit"
 							class="flex-1 text-center px-3 py-2 text-sm bg-gray-50 text-gray-700 rounded hover:bg-gray-100 transition-colors"
 						>
-							편집
+							{$_('prds.edit')}
 						</a>
-						<button 
+						<button
 							class="px-3 py-2 text-sm bg-red-50 text-red-700 rounded hover:bg-red-100 transition-colors"
 							on:click={() => deletePRD(prd.id)}
 						>
-							삭제
+							{$_('prds.delete')}
 						</button>
 					</div>
 				</div>
@@ -262,26 +250,26 @@
 
 		<!-- 페이지 하단 통계 -->
 		<div class="bg-gray-50 rounded-lg p-4">
-			<h3 class="text-sm font-medium text-gray-700 mb-2">전체 통계</h3>
+			<h3 class="text-sm font-medium text-gray-700 mb-2">{$_('prds.overall_stats')}</h3>
 			<div class="grid grid-cols-2 md:grid-cols-4 gap-4 text-sm">
 				<div>
-					<div class="text-gray-500">전체 PRD</div>
+					<div class="text-gray-500">{$_('prds.total_prds')}</div>
 					<div class="text-lg font-semibold text-gray-900">{prds.length}</div>
 				</div>
 				<div>
-					<div class="text-gray-500">활성 PRD</div>
+					<div class="text-gray-500">{$_('prds.active_prds')}</div>
 					<div class="text-lg font-semibold text-green-600">
 						{prds.filter(p => p.status === 'active').length}
 					</div>
 				</div>
 				<div>
-					<div class="text-gray-500">전체 작업</div>
+					<div class="text-gray-500">{$_('prds.total_tasks')}</div>
 					<div class="text-lg font-semibold text-blue-600">
 						{prds.reduce((sum, p) => sum + (p.task_count || 0), 0)}
 					</div>
 				</div>
 				<div>
-					<div class="text-gray-500">완료 작업</div>
+					<div class="text-gray-500">{$_('prds.completed_tasks')}</div>
 					<div class="text-lg font-semibold text-purple-600">
 						{prds.reduce((sum, p) => sum + (p.completed_tasks || 0), 0)}
 					</div>
