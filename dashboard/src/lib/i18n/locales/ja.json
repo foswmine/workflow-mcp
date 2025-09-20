@@ -1,0 +1,1523 @@
+{
+  "nav": {
+    "dashboard": "ダッシュボード",
+    "projects": "プロジェクト",
+    "requirements": "要件",
+    "designs": "設計",
+    "tasks": "タスク",
+    "tests": "テスト",
+    "documents": "ドキュメント",
+    "deployments": "デプロイ",
+    "operations": "運用",
+    "environments": "環境",
+    "kanban": "カンバンボード",
+    "gantt": "ガントチャート",
+    "network": "関係図",
+    "database": "DB管理"
+  },
+  "common": {
+    "save": "保存",
+    "cancel": "キャンセル",
+    "delete": "削除",
+    "edit": "編集",
+    "create": "作成",
+    "update": "更新",
+    "search": "検索",
+    "filter": "フィルター",
+    "status": "ステータス",
+    "priority": "優先度",
+    "title": "タイトル",
+    "description": "説明",
+    "created_at": "作成日時",
+    "updated_at": "更新日時",
+    "actions": "アクション",
+    "loading": "読み込み中...",
+    "no_data": "データがありません",
+    "confirm": "確認",
+    "back": "戻る",
+    "next": "次へ",
+    "previous": "前へ"
+  },
+  "status": {
+    "pending": "保留中",
+    "in_progress": "進行中",
+    "done": "完了",
+    "cancelled": "キャンセル",
+    "blocked": "ブロック"
+  },
+  "chart": {
+    "count_suffix": "件",
+    "completed": "完了"
+  },
+  "priority": {
+    "low": "低",
+    "medium": "中",
+    "high": "高",
+    "critical": "緊急"
+  },
+  "project": {
+    "title": "プロジェクト",
+    "name": "プロジェクト名",
+    "manager": "プロジェクトマネージャー",
+    "start_date": "開始日",
+    "end_date": "終了日",
+    "new_project": "新規プロジェクト",
+    "edit_project": "プロジェクト編集"
+  },
+  "task": {
+    "title": "タスク",
+    "new_task": "新規タスク",
+    "edit_task": "タスク編集",
+    "assigned_to": "担当者",
+    "due_date": "期限",
+    "estimated_hours": "見積時間",
+    "actual_hours": "実績時間"
+  },
+  "prd": {
+    "title": "製品要件定義書",
+    "new_prd": "新規PRD",
+    "edit_prd": "PRD編集",
+    "business_objective": "ビジネス目標",
+    "target_users": "対象ユーザー",
+    "success_criteria": "成功基準"
+  },
+  "prds": {
+    "page_title": "PRD管理",
+    "title": "PRD管理",
+    "description": "製品要件定義書を管理",
+    "new_prd": "新規PRD作成",
+    "error_load_failed": "PRDリストの読み込みに失敗",
+    "error_loading": "PRD読み込みエラー: ",
+    "confirm_delete": "このPRDを削除しますか？",
+    "error_delete": "PRD削除中にエラーが発生: ",
+    "error_deleting": "削除中のエラー: ",
+    "status_active": "アクティブ",
+    "status_inactive": "非アクティブ",
+    "status_draft": "下書き",
+    "status_review": "レビュー中",
+    "status_approved": "承認済み",
+    "status_completed": "完了",
+    "priority_high": "高",
+    "priority_medium": "中",
+    "priority_low": "低",
+    "sort_label": "並び替え:",
+    "sort_created_desc": "最新作成順",
+    "sort_created_asc": "古い作成順",
+    "sort_updated_desc": "最新更新順",
+    "sort_updated_asc": "古い更新順",
+    "sort_title_asc": "タイトル昇順",
+    "sort_title_desc": "タイトル降順",
+    "retry": "再試行",
+    "no_prds": "PRDがありません",
+    "create_first": "最初のPRDを作成",
+    "no_description": "説明がありません",
+    "tasks": "タスク",
+    "completed": "完了",
+    "tasks_suffix": "件",
+    "created": "作成",
+    "updated": "更新",
+    "view_details": "詳細表示",
+    "edit": "編集",
+    "delete": "削除",
+    "overall_stats": "全体統計",
+    "total_prds": "総PRD数",
+    "active_prds": "アクティブPRD",
+    "total_tasks": "総タスク数",
+    "completed_tasks": "完了タスク"
+  },
+  "designs": {
+    "title": "設計管理",
+    "description": "システム設計を管理",
+    "sort": {
+      "label": "並び替え:",
+      "updated": "最近更新",
+      "created": "最近作成",
+      "title": "タイトル順"
+    },
+    "button": {
+      "addNew": "新規設計追加",
+      "retry": "再試行",
+      "view": "詳細表示",
+      "edit": "編集",
+      "delete": "削除",
+      "requestReview": "レビュー依頼",
+      "approve": "承認",
+      "toDraft": "下書きに戻す",
+      "markImplemented": "実装済みにする",
+      "reReview": "再レビュー",
+      "reApprove": "再承認"
+    },
+    "status": {
+      "draft": "下書き",
+      "review": "レビュー中",
+      "approved": "承認済み",
+      "implemented": "実装済み"
+    },
+    "type": {
+      "system": "システム",
+      "architecture": "アーキテクチャ",
+      "ui_ux": "UI/UX",
+      "database": "データベース",
+      "api": "API"
+    },
+    "priority": {
+      "high": "高",
+      "medium": "中",
+      "low": "低"
+    },
+    "error": {
+      "loadFailed": "設計リストの読み込みに失敗",
+      "loadError": "設計読み込みエラー: ",
+      "statusChangeFailed": "設計ステータス変更中にエラーが発生",
+      "statusChangeError": "ステータス変更中のエラー: ",
+      "deleteFailed": "設計削除中にエラーが発生",
+      "deleteError": "削除中のエラー: "
+    },
+    "confirm": {
+      "delete": "この設計を削除しますか？"
+    },
+    "empty": {
+      "title": "設計がありません",
+      "description": "最初の設計を追加してください"
+    },
+    "statistics": {
+      "title": "全体統計",
+      "total": "設計総数"
+    },
+    "relatedRequirement": "関連要件"
+  },
+  "language": {
+    "select_language": "言語選択",
+    "korean": "한국어",
+    "english": "English",
+    "chinese": "中文",
+    "japanese": "日本語",
+    "portuguese": "Português",
+    "german": "Deutsch",
+    "hindi": "हिंदी",
+    "spanish": "Español",
+    "russian": "Русский",
+    "indonesian": "Bahasa Indonesia"
+  },
+  "dashboard": {
+    "title": "ダッシュボード",
+    "last_updated": "最終更新:",
+    "total_prds": "総PRD数",
+    "active_suffix": "件アクティブ",
+    "total_tasks": "総タスク数",
+    "completion_suffix": "% 完了",
+    "in_progress_tasks": "進行中タスク",
+    "pending_suffix": "件保留中",
+    "total_plans": "総計画数",
+    "task_activity_trend": "タスク活動推移 (30日)",
+    "priority_distribution": "優先度分布",
+    "quick_actions": "クイックアクション",
+    "new_prd": "📋 新規PRD作成",
+    "new_task": "✅ 新規タスク追加",
+    "new_plan": "📅 新規計画作成",
+    "recent_activity": "最近の活動",
+    "tasks_count": "タスク",
+    "completed_count": "完了",
+    "chart_total_tasks": "総タスク数",
+    "chart_completed_tasks": "完了タスク",
+    "no_data": "データがありません"
+  },
+  "tasks": {
+    "page_title": "タスク管理",
+    "title": "タスク管理",
+    "description": "プロジェクトタスクを管理",
+    "sort_label": "並び替え",
+    "sort_updated": "最近更新",
+    "sort_created": "最近作成",
+    "sort_title": "タイトル順",
+    "new_task": "新規タスク追加",
+    "retry": "再試行",
+    "no_tasks": "タスクがありません",
+    "create_first": "最初のタスクを作成",
+    "status_pending": "保留中",
+    "status_in_progress": "進行中",
+    "status_completed": "完了",
+    "priority_high": "高",
+    "priority_medium": "中",
+    "priority_low": "低",
+    "due_date": "期限",
+    "action_start": "開始",
+    "action_complete": "完了",
+    "action_pending": "保留にする",
+    "action_restart": "再開",
+    "action_details": "詳細",
+    "action_edit": "編集",
+    "action_delete": "削除",
+    "view_details": "詳細表示",
+    "edit_task": "編集",
+    "overall_stats": "全体統計",
+    "total_tasks": "総タスク数",
+    "in_progress_tasks": "進行中",
+    "completed_tasks": "完了",
+    "completion_rate": "完了率",
+    "error_load_failed": "タスクリストの読み込みに失敗",
+    "error_updating": "タスクステータス更新中にエラーが発生",
+    "error_deleting": "タスク削除中にエラーが発生",
+    "confirm_delete": "このタスクを削除しますか？",
+    "confirm_status_change": "タスクステータスを変更しますか？"
+  },
+  "documents": {
+    "title": "ドキュメント管理",
+    "description": "プロジェクトドキュメントを管理・検索します。",
+    "sort": {
+      "label": "並び替え",
+      "updated": "最近更新",
+      "created": "最近作成",
+      "title": "タイトル順"
+    },
+    "button": {
+      "new": "新しいドキュメント",
+      "refresh": "更新",
+      "edit": "編集",
+      "view": "詳細表示",
+      "cancel": "キャンセル",
+      "create": "ドキュメント作成",
+      "update": "ドキュメント更新",
+      "retry": "再試行",
+      "creating": "作成中...",
+      "updating": "更新中..."
+    },
+    "filter": {
+      "title": "フィルター",
+      "search": "検索",
+      "doc_type": "ドキュメント種別",
+      "category": "カテゴリ",
+      "status": "ステータス",
+      "search_placeholder": "タイトルまたは要約で検索...",
+      "all_types": "すべての種別",
+      "all_categories": "すべてのカテゴリ",
+      "all_statuses": "すべてのステータス"
+    },
+    "form": {
+      "create_title": "新規ドキュメント作成",
+      "edit_title": "ドキュメント編集",
+      "title": "タイトル",
+      "doc_type": "ドキュメント種別",
+      "category": "カテゴリ",
+      "tags": "タグ",
+      "summary": "要約",
+      "content": "内容",
+      "status": "ステータス",
+      "title_placeholder": "ドキュメントタイトルを入力",
+      "category_placeholder": "カテゴリを入力または選択",
+      "tags_placeholder": "タグをカンマ区切りで入力（例：テスト, 分析, 開発）",
+      "summary_placeholder": "ドキュメントの簡単な要約を入力",
+      "content_placeholder": "Markdown形式でドキュメント内容を記述",
+      "select_type": "種別を選択",
+      "frequent_tags": "よく使われるタグ"
+    },
+    "list": {
+      "title": "ドキュメント一覧",
+      "count_suffix": "件",
+      "created": "作成",
+      "updated": "更新",
+      "linked_suffix": "件関連"
+    },
+    "loading": "ドキュメントを読み込み中...",
+    "error": {
+      "title": "エラーが発生しました"
+    },
+    "empty": {
+      "title": "ドキュメントがありません",
+      "no_documents": "まだドキュメントが作成されていません。",
+      "no_filtered": "フィルター条件に一致するドキュメントがありません。"
+    },
+    "alert": {
+      "title_content_required": "タイトルと内容を入力してください。",
+      "created_success": "ドキュメントの作成が完了しました！",
+      "create_error": "ドキュメント作成中にエラーが発生しました：",
+      "updated_success": "ドキュメントの更新が完了しました！",
+      "update_error": "ドキュメント更新中にエラーが発生しました："
+    },
+    "type": {
+      "test_guide": "テストガイド",
+      "test_results": "テスト結果",
+      "analysis": "分析レポート",
+      "report": "レポート",
+      "checklist": "チェックリスト",
+      "specification": "仕様書",
+      "meeting_notes": "議事録",
+      "decision_log": "決定記録"
+    },
+    "status": {
+      "draft": "下書き",
+      "review": "レビュー中",
+      "approved": "承認済み",
+      "archived": "アーカイブ済み"
+    }
+  },
+  "projects": {
+    "page_title": "プロジェクト管理",
+    "title": "プロジェクト管理",
+    "description": "すべてのプロジェクトを管理",
+    "new_project": "新しいプロジェクト作成",
+    "error_load_failed": "プロジェクトリストの読み込みに失敗",
+    "error_loading": "プロジェクト読み込みエラー: ",
+    "confirm_delete": "このプロジェクトを削除しますか？関連データがある場合、削除できない可能性があります。",
+    "error_delete": "プロジェクト削除中にエラーが発生: ",
+    "error_deleting": "削除中のエラー: ",
+    "status_planning": "計画中",
+    "status_active": "進行中",
+    "status_on_hold": "保留",
+    "status_completed": "完了",
+    "priority_high": "高",
+    "priority_medium": "中",
+    "priority_low": "低",
+    "sort_label": "並び替え",
+    "sort_updated": "最近更新",
+    "sort_created": "最近作成",
+    "sort_name": "名前順",
+    "sort_status": "ステータス順",
+    "sort_priority": "優先度順",
+    "retry": "再試行",
+    "no_projects": "プロジェクトがありません",
+    "create_first": "最初のプロジェクトを作成",
+    "no_description": "説明なし",
+    "progress": "進捗",
+    "tasks": "タスク",
+    "documents": "ドキュメント",
+    "start_date": "開始",
+    "end_date": "終了",
+    "updated": "更新",
+    "view_details": "詳細表示",
+    "edit": "編集",
+    "delete": "削除",
+    "overall_stats": "全体統計",
+    "total_projects": "総プロジェクト数",
+    "average_progress": "平均進捗"
+  },
+  "deployments": {
+    "title": "デプロイ管理",
+    "description": "システムデプロイの管理と追跡",
+    "sort": {
+      "label": "並び替え",
+      "scheduled": "時間順",
+      "created": "作成時間",
+      "status": "ステータス順",
+      "environment": "環境順"
+    },
+    "button": {
+      "new": "新規デプロイ",
+      "refresh": "更新",
+      "execute": "デプロイ実行",
+      "rollback": "ロールバック",
+      "back_to_list": "リストに戻る",
+      "back_to_list_error": "リストに戻る",
+      "cancel": "キャンセル",
+      "retry": "再試行"
+    },
+    "status": {
+      "planned": "計画済み",
+      "in_progress": "実行中",
+      "completed": "完了",
+      "failed": "失敗",
+      "rolled_back": "ロールバック済み"
+    },
+    "type": {
+      "rolling": "ローリングデプロイ",
+      "blue_green": "ブルーグリーンデプロイ",
+      "canary": "カナリアデプロイ",
+      "hotfix": "ホットフィックスデプロイ"
+    },
+    "environment": {
+      "development": "開発環境",
+      "staging": "ステージング環境",
+      "production": "本番環境",
+      "testing": "テスト環境"
+    },
+    "list": {
+      "title": "デプロイリスト",
+      "empty_title": "デプロイがありません",
+      "empty_description": "まだデプロイが作成されていません。",
+      "count_suffix": "件",
+      "scheduled_time": "予定時刻",
+      "version": "バージョン",
+      "environment": "環境",
+      "deployment_type": "デプロイタイプ"
+    },
+    "details": {
+      "title": "デプロイ詳細",
+      "title_prefix": "デプロイ",
+      "basic_info": "基本情報",
+      "version": "バージョン",
+      "environment": "環境",
+      "deployment_type": "デプロイタイプ",
+      "schedule": "スケジュール",
+      "created_at": "作成時刻",
+      "scheduled_time": "予定時刻",
+      "execution_time": "実行時刻",
+      "status_info": "ステータス情報",
+      "current_status": "現在のステータス",
+      "rollback_version": "ロールバックバージョン",
+      "last_updated": "最終更新",
+      "configuration": "デプロイ設定",
+      "tags": "タグ",
+      "notes": "備考"
+    },
+    "create": {
+      "title": "新規デプロイ作成",
+      "description": "新しいデプロイを計画・設定します"
+    },
+    "form": {
+      "basic_info": "基本情報",
+      "title": "デプロイタイトル",
+      "title_placeholder": "例：本番環境 v2.1.0 デプロイ",
+      "description": "説明",
+      "description_placeholder": "デプロイ内容と目的を説明してください",
+      "target_environment": "対象環境",
+      "select_environment": "環境を選択してください",
+      "project_optional": "プロジェクト（任意）",
+      "select_project": "プロジェクトを選択してください",
+      "deployment_settings": "デプロイ設定",
+      "version": "バージョン",
+      "version_placeholder": "v1.0.0",
+      "auto_generate": "自動生成",
+      "deployment_method": "デプロイ方式",
+      "scheduled_time_optional": "予定時刻（任意）",
+      "one_hour_later": "1時間後",
+      "rollback_version_optional": "ロールバックバージョン（任意）",
+      "rollback_version_placeholder": "問題発生時にロールバックするバージョン",
+      "additional_settings": "追加設定",
+      "tags_comma_separated": "タグ（カンマ区切り）",
+      "tags_placeholder": "production, urgent, feature-release",
+      "additional_notes": "追加メモ",
+      "notes_placeholder": "デプロイに関する追加情報や注意事項",
+      "deployment_config": "デプロイ構成",
+      "timeout_seconds": "タイムアウト（秒）",
+      "max_parallel": "最大並列数",
+      "enable_health_check": "ヘルスチェックを有効にする",
+      "required_fields": "必須フィールドをすべて入力してください",
+      "create_deployment": "デプロイ作成",
+      "creating": "作成中...",
+      "create_failed": "デプロイ作成に失敗しました",
+      "create_error": "デプロイ作成中のエラー：",
+      "environment_load_error": "環境読み込み失敗：",
+      "project_load_error": "プロジェクト読み込み失敗："
+    },
+    "message": {
+      "loading_error": "デプロイ読み込みエラー：",
+      "deployment_not_found": "デプロイ情報が見つかりません",
+      "environment_loading_error": "環境読み込みエラー：",
+      "confirm_execute": "このデプロイを実行しますか？",
+      "execute_success": "デプロイが実行されました",
+      "execute_error": "デプロイ実行エラー",
+      "rollback_reason_prompt": "ロールバック理由を入力してください：",
+      "rollback_success": "デプロイがロールバックされました",
+      "rollback_error": "デプロイロールバックエラー",
+      "load_failed": "デプロイリストの読み込みに失敗",
+      "error_updating": "デプロイステータス更新中にエラーが発生",
+      "error_deleting": "デプロイ削除中にエラーが発生",
+      "confirm_delete": "このデプロイを削除しますか？"
+    },
+    "loading": "デプロイを読み込み中...",
+    "error": {
+      "title": "エラーが発生しました"
+    }
+  },
+  "operations": {
+    "title": {
+      "page": "運用ダッシュボード",
+      "dashboard": "運用ダッシュボード"
+    },
+    "button": {
+      "create_incident": "インシデント作成",
+      "refresh": "更新",
+      "view_details": "詳細表示",
+      "cancel": "キャンセル"
+    },
+    "status": {
+      "open": "対応中",
+      "investigating": "調査中",
+      "identified": "特定済み",
+      "monitoring": "監視中",
+      "resolved": "解決済み"
+    },
+    "severity": {
+      "critical": "深刻",
+      "high": "高",
+      "medium": "中",
+      "low": "低"
+    },
+    "type": {
+      "outage": "障害",
+      "performance": "パフォーマンス",
+      "security": "セキュリティ",
+      "data": "データ",
+      "deployment": "デプロイ"
+    },
+    "health": {
+      "healthy": "正常",
+      "warning": "警告",
+      "critical": "深刻",
+      "unknown": "不明"
+    },
+    "incident": {
+      "active_incidents": "アクティブなインシデント",
+      "no_active_incidents": "現在アクティブなインシデントはありません"
+    },
+    "monitoring": {
+      "system_health": "システムヘルス",
+      "performance_metrics": "パフォーマンス指標",
+      "uptime": "稼働時間",
+      "response_time": "応答時間",
+      "no_system_health_data": "システムヘルスデータがありません",
+      "no_performance_data": "パフォーマンス指標データがありません"
+    },
+    "dashboard": {
+      "active_incidents": "アクティブなインシデント",
+      "system_status": "システム状態",
+      "healthy_environments": "正常な環境",
+      "average_uptime": "平均稼働時間",
+      "critical_alert_rules": "重要なアラートルール",
+      "enabled": "有効",
+      "recent_activity": "最近のアクティビティ",
+      "no_recent_activity": "最近のアクティビティなし",
+      "quick_access": "クイックアクセス",
+      "incident_management": "インシデント管理",
+      "view_all_incidents": "すべてのインシデントを表示",
+      "deployment_center": "デプロイセンター",
+      "check_deployment_status": "デプロイ状態確認",
+      "environment_management": "環境管理",
+      "view_environment_status": "環境状態表示",
+      "alert_rules": "アラートルール",
+      "manage_alert_settings": "アラート設定管理"
+    },
+    "filter": {
+      "time_1h": "1時間",
+      "time_6h": "6時間",
+      "time_24h": "24時間",
+      "time_7d": "7日",
+      "time_30d": "30日"
+    },
+    "form": {
+      "create_new_incident": "新しいインシデントを作成",
+      "title": "タイトル",
+      "description": "説明",
+      "severity": "重要度",
+      "incident_type": "インシデントタイプ",
+      "title_placeholder": "インシデントタイトルを入力",
+      "description_placeholder": "詳細なインシデント説明を入力"
+    },
+    "message": {
+      "loading": "読み込み中...",
+      "loading_error": "運用データの読み込みエラー",
+      "incident_loading_error": "インシデント読み込みエラー",
+      "system_health_loading_error": "システムヘルス読み込みエラー",
+      "performance_metrics_loading_error": "パフォーマンス指標読み込みエラー",
+      "alert_rules_loading_error": "アラートルール読み込みエラー",
+      "title_description_required": "タイトルと説明を入力してください。",
+      "incident_created": "インシデントが作成されました",
+      "incident_creation_error": "インシデント作成中にエラーが発生しました"
+    }
+  },
+  "kanban": {
+    "title": {
+      "page": "カンバンボード",
+      "board": "カンバンボード"
+    },
+    "column": {
+      "pending": "待機中",
+      "in_progress": "進行中",
+      "completed": "完了"
+    },
+    "button": {
+      "add_new_task": "新しいタスクを追加"
+    },
+    "message": {
+      "loading": "読み込み中...",
+      "data_load_failed": "データを読み込めません",
+      "loading_error": "データ読み込みエラー",
+      "status_update_failed": "タスクステータス更新失敗",
+      "status_update_error": "タスクステータス更新中にエラーが発生しました"
+    }
+  },
+  "gantt": {
+    "page_title": "ガントチャート - WorkflowMCP ダッシュボード",
+    "title": "ガントチャート",
+    "view": {
+      "task_based": "タスクベース",
+      "project_based": "プロジェクトベース"
+    },
+    "button": {
+      "refresh": "🔄 更新"
+    },
+    "timeline": {
+      "task_based": "タスクタイムライン",
+      "project_based": "プロジェクトタイムライン"
+    },
+    "count": {
+      "total": "合計 ",
+      "suffix": " 項目"
+    },
+    "legend": {
+      "title": "凡例",
+      "pending": "待機中",
+      "in_progress": "進行中",
+      "completed": "完了",
+      "overdue": "遅延"
+    },
+    "status": "ステータス",
+    "status_completed": "完了",
+    "status_in_progress": "進行中",
+    "status_pending": "待機中",
+    "status_active": "アクティブ",
+    "status_inactive": "非アクティブ",
+    "today": "今日",
+    "no_data": "表示するデータがありません",
+    "message": {
+      "load_failed": "データを読み込めません",
+      "loading_error": "データ読み込みエラー"
+    }
+  },
+  "network": {
+    "page_title": "ネットワーク関係図",
+    "title": "プロジェクト関係図",
+    "description": "PRD、設計、タスク、テスト間の関係を可視化します",
+    "button": {
+      "hide_filters": "フィルター非表示",
+      "show_filters": "フィルター表示",
+      "refresh": "🔄 更新",
+      "retry": "再試行"
+    },
+    "stats": {
+      "total_nodes": "総ノード数",
+      "total_edges": "総関係数",
+      "connected_prds": "接続されたPRD",
+      "connected_tasks": "接続されたタスク"
+    },
+    "filters": {
+      "title": "フィルターとコントロール",
+      "search": "検索",
+      "search_placeholder": "ノードを検索...",
+      "display_types": "表示タイプ",
+      "project": "プロジェクト",
+      "all_projects": "すべてのプロジェクト"
+    },
+    "layout": {
+      "title": "レイアウト",
+      "physics": "物理シミュレーション",
+      "hierarchical": "階層構造"
+    },
+    "controls": {
+      "title": "ビューコントロール",
+      "fit_network": "🎯 全体表示"
+    },
+    "types": {
+      "prd": "PRD",
+      "design": "設計",
+      "task": "タスク",
+      "test": "テスト"
+    },
+    "modal": {
+      "title": "詳細情報",
+      "status": "ステータス",
+      "id": "ID",
+      "close": "閉じる",
+      "view_details": "詳細表示"
+    },
+    "error": {
+      "load_failed": "関係データを読み込めません",
+      "network_error": "ネットワークエラー："
+    }
+  },
+  "database": {
+    "page_title": "データベース管理 - WorkflowMCP ダッシュボード",
+    "title": "データベース管理",
+    "button": {
+      "refresh": "🔄 更新"
+    },
+    "tables": {
+      "projects": "プロジェクト",
+      "prds": "PRDs",
+      "designs": "設計",
+      "tasks": "タスク",
+      "tests": "テスト"
+    },
+    "column": {
+      "id": "ID",
+      "title": "タイトル",
+      "name": "名前",
+      "description": "説明",
+      "requirements": "要件",
+      "priority": "優先度",
+      "status": "ステータス",
+      "created_at": "作成日時",
+      "updated_at": "更新日時",
+      "assignee": "担当者",
+      "estimated_hours": "予想時間",
+      "due_date": "締切日",
+      "start_date": "開始日",
+      "end_date": "終了日",
+      "timeline": "タイムライン",
+      "design_type": "設計タイプ",
+      "details": "詳細",
+      "requirement_id": "要件ID",
+      "test_type": "テストタイプ",
+      "complexity": "複雑度",
+      "automation_status": "自動化ステータス",
+      "preconditions": "前提条件",
+      "test_steps": "テスト手順",
+      "expected_result": "期待結果",
+      "task_id": "タスクID",
+      "design_id": "設計ID",
+      "prd_id": "PRD ID"
+    },
+    "priority": {
+      "low": "低",
+      "medium": "中",
+      "high": "高",
+      "critical": "緊急"
+    },
+    "status": {
+      "draft": "下書き",
+      "active": "アクティブ",
+      "completed": "完了",
+      "cancelled": "キャンセル",
+      "pending": "待機中",
+      "in_progress": "進行中",
+      "inactive": "非アクティブ",
+      "review": "レビュー中",
+      "approved": "承認済み",
+      "implemented": "実装完了",
+      "ready": "準備完了",
+      "deprecated": "廃止予定"
+    },
+    "design_type": {
+      "system": "システム",
+      "architecture": "アーキテクチャ",
+      "ui_ux": "UI/UX",
+      "database": "データベース",
+      "api": "API"
+    },
+    "test_type": {
+      "unit": "単体テスト",
+      "integration": "結合テスト",
+      "system": "システムテスト",
+      "acceptance": "受け入れテスト",
+      "regression": "回帰テスト"
+    },
+    "complexity": {
+      "low": "低",
+      "medium": "中",
+      "high": "高"
+    },
+    "automation_status": {
+      "manual": "手動",
+      "automated": "自動化",
+      "semi_automated": "半自動化"
+    },
+    "confirm": {
+      "delete": "本当に削除しますか？"
+    },
+    "error": {
+      "loading": "データ読み込みエラー：",
+      "create": "作成",
+      "update": "更新",
+      "failed_to": "失敗",
+      "failed_to_delete": "削除失敗",
+      "saving": "保存エラー",
+      "deleting": "削除エラー"
+    }
+  },
+  "tests": {
+    "page_title": "テスト管理 - WorkflowMCP ダッシュボード",
+    "title": "テスト管理",
+    "description": "システムテストの管理と追跡",
+    "sort_label": "並び替え",
+    "sort_updated": "更新日時順",
+    "sort_created": "作成日時順",
+    "sort_title": "タイトル順",
+    "new_test": "新規テスト",
+    "retry": "再試行",
+    "no_tests": "テストがありません",
+    "button": {
+      "create_new": "新規テスト作成",
+      "run_test": "テスト実行",
+      "edit_test": "テスト編集",
+      "delete_test": "テスト削除",
+      "view_details": "詳細表示",
+      "run_all": "全て実行",
+      "export": "エクスポート",
+      "import": "インポート",
+      "duplicate": "複製",
+      "archive": "アーカイブ"
+    },
+    "filter": {
+      "all": "全て",
+      "type": "種類で絞り込み",
+      "status": "ステータスで絞り込み",
+      "priority": "優先度で絞り込み",
+      "automation": "自動化状態で絞り込み",
+      "assignee": "担当者で絞り込み"
+    },
+    "form": {
+      "title": "テストタイトル",
+      "description": "テスト説明",
+      "type": "テスト種類",
+      "priority": "優先度",
+      "status": "ステータス",
+      "complexity": "複雑度",
+      "automation_status": "自動化状態",
+      "preconditions": "前提条件",
+      "test_steps": "テスト手順",
+      "expected_result": "期待結果",
+      "assignee": "担当者",
+      "estimated_duration": "予想実行時間（分）",
+      "tags": "タグ",
+      "cancel": "キャンセル",
+      "save": "保存",
+      "create": "作成",
+      "update": "更新"
+    },
+    "execution": {
+      "title": "テスト実行",
+      "status": "実行ステータス",
+      "started_at": "開始時刻",
+      "completed_at": "完了時刻",
+      "duration": "実行時間",
+      "executed_by": "実行者",
+      "environment": "環境",
+      "actual_result": "実際の結果",
+      "notes": "備考",
+      "attachments": "添付ファイル",
+      "defects_found": "発見された不具合"
+    },
+    "status": {
+      "draft": "下書き",
+      "ready": "準備完了",
+      "active": "アクティブ",
+      "deprecated": "廃止予定",
+      "pass": "合格",
+      "fail": "不合格",
+      "blocked": "ブロック",
+      "skipped": "スキップ",
+      "pending": "実行待ち"
+    },
+    "type": {
+      "unit": "単体テスト",
+      "integration": "結合テスト",
+      "system": "システムテスト",
+      "acceptance": "受け入れテスト",
+      "regression": "回帰テスト"
+    },
+    "automation_status": {
+      "manual": "手動",
+      "automated": "自動化",
+      "semi_automated": "半自動化"
+    },
+    "environment": {
+      "development": "開発環境",
+      "staging": "ステージング環境",
+      "production": "本番環境"
+    },
+    "summary": {
+      "total": "総テスト数",
+      "passed": "合格",
+      "failed": "不合格",
+      "blocked": "ブロック",
+      "skipped": "スキップ",
+      "pass_rate": "合格率",
+      "coverage": "カバレッジ"
+    },
+    "create_first": "最初のテストを作成",
+    "overall_stats": "全体統計",
+    "total_tests": "総テスト数",
+    "passed_tests": "合格テスト",
+    "failed_tests": "不合格テスト",
+    "pending_tests": "実行待ちテスト",
+    "success_rate": "成功率",
+    "filter": {
+      "all": "全て",
+      "type": "種類で絞り込み",
+      "status": "ステータスで絞り込み",
+      "priority": "優先度で絞り込み",
+      "automation": "自動化状態で絞り込み",
+      "assignee": "担当者で絞り込み",
+      "all_types": "全ての種類",
+      "all_statuses": "全てのステータス",
+      "all_priorities": "全ての優先度",
+      "all_automation": "全ての自動化状態",
+      "all_assignees": "全ての担当者"
+    },
+    "details": {
+      "test_id": "テストID",
+      "created_by": "作成者",
+      "updated_by": "更新者",
+      "execution_history": "実行履歴",
+      "last_execution": "最近の実行",
+      "success_rate": "成功率",
+      "average_duration": "平均実行時間",
+      "total_executions": "総実行回数",
+      "failed_executions": "失敗回数",
+      "connections": "関連",
+      "related_tasks": "関連タスク",
+      "related_requirements": "関連要件",
+      "test_data": "テストデータ"
+    },
+    "coverage": {
+      "title": "テストカバレッジ",
+      "by_requirements": "要件別カバー",
+      "by_tasks": "タスク別カバー",
+      "by_components": "コンポーネント別カバー",
+      "uncovered": "未カバー",
+      "partially_covered": "部分カバー",
+      "fully_covered": "完全カバー"
+    },
+    "report": {
+      "title": "テストレポート",
+      "execution_summary": "実行サマリー",
+      "pass_fail_ratio": "合格不合格比率",
+      "duration_analysis": "実行時間分析",
+      "trend_analysis": "トレンド分析",
+      "defect_analysis": "欠陥分析",
+      "recommendation": "推奨事項"
+    },
+    "automation": {
+      "title": "自動化設定",
+      "schedule": "実行スケジュール",
+      "triggers": "トリガー条件",
+      "notifications": "通知設定",
+      "retry_policy": "再試行ポリシー",
+      "timeout": "タイムアウト設定"
+    },
+    "message": {
+      "delete_confirm": "このテストを削除してもよろしいですか？",
+      "delete_success": "テストを削除しました",
+      "delete_error": "テストの削除に失敗しました",
+      "save_success": "テストを保存しました",
+      "save_error": "テストの保存に失敗しました",
+      "run_success": "テストを実行しました",
+      "run_error": "テストの実行に失敗しました",
+      "loading": "テストデータを読み込み中...",
+      "no_results": "該当するテストが見つかりません",
+      "validation_error": "フォーム検証に失敗しました",
+      "unknown_error": "不明なエラーが発生しました",
+      "bulk_delete_confirm": "選択されたテストを削除してもよろしいですか？",
+      "bulk_run_confirm": "選択されたテストを実行してもよろしいですか？",
+      "archive_confirm": "このテストをアーカイブしてもよろしいですか？",
+      "connection_success": "関連付けが成功しました",
+      "connection_error": "関連付けに失敗しました",
+      "export_success": "エクスポートが成功しました",
+      "export_error": "エクスポートに失敗しました",
+      "import_success": "インポートが成功しました",
+      "import_error": "インポートに失敗しました"
+    }
+  },
+  "deployments": {
+    "page_title": "デプロイ管理 - WorkflowMCP ダッシュボード",
+    "title": "デプロイ管理",
+    "description": "システムデプロイの管理と追跡",
+    "loading": "デプロイを読み込み中...",
+    "button": {
+      "create_new": "新規デプロイ作成",
+      "view_details": "詳細表示",
+      "delete": "削除",
+      "delete_tooltip": "デプロイを削除",
+      "create_first": "最初のデプロイを作成",
+      "new": "新規",
+      "refresh": "更新",
+      "execute": "実行",
+      "rollback": "ロールバック",
+      "back_to_list": "一覧に戻る",
+      "back_to_list_error": "一覧に戻る処理が失敗しました",
+      "cancel": "キャンセル",
+      "retry": "再試行"
+    },
+    "filter": {
+      "sort": "並び替え",
+      "sort_by_scheduled": "予定時刻順",
+      "sort_by_created": "作成時刻順",
+      "sort_by_status": "ステータス順",
+      "status_filter": "ステータス絞り込み",
+      "environment_filter": "環境絞り込み",
+      "all": "全て",
+      "all_environments": "全ての環境"
+    },
+    "details": {
+      "duration": "実行時間",
+      "minutes": "分"
+    },
+    "form": {
+      "cancel": "キャンセル"
+    },
+    "sort": {
+      "label": "並び替え",
+      "scheduled": "予定順",
+      "created": "作成順",
+      "status": "ステータス順",
+      "environment": "環境順"
+    },
+    "list": {
+      "empty": "デプロイがありません",
+      "loading": "読み込み中..."
+    },
+    "status": {
+      "planned": "計画中",
+      "in_progress": "実行中",
+      "completed": "完了",
+      "failed": "失敗",
+      "rolled_back": "ロールバック済み"
+    },
+    "type": {
+      "blue_green": "ブルーグリーンデプロイ",
+      "rolling": "ローリングデプロイ",
+      "canary": "カナリアデプロイ",
+      "hotfix": "ホットフィックス"
+    },
+    "form": {
+      "title": "デプロイタイトル",
+      "description": "デプロイ説明",
+      "version": "バージョン",
+      "environment": "環境",
+      "deployment_type": "デプロイタイプ",
+      "scheduled_at": "予定時刻",
+      "rollback_version": "ロールバックバージョン",
+      "notes": "備考",
+      "deployment_config": "デプロイ設定",
+      "tags": "タグ",
+      "save": "保存",
+      "create": "作成",
+      "update": "更新",
+      "execute_now": "今すぐ実行",
+      "schedule": "スケジュール実行"
+    },
+    "details": {
+      "deployment_id": "デプロイID",
+      "version": "バージョン",
+      "environment": "環境",
+      "type": "デプロイタイプ",
+      "status": "ステータス",
+      "scheduled_at": "予定時刻",
+      "started_at": "開始時刻",
+      "completed_at": "完了時刻",
+      "rollback_version": "ロールバックバージョン",
+      "deployment_config": "デプロイ設定",
+      "notes": "備考",
+      "tags": "タグ",
+      "created_by": "作成者",
+      "executed_by": "実行者"
+    },
+    "overview": {
+      "total_deployments": "総デプロイ数",
+      "successful_deployments": "成功デプロイ",
+      "failed_deployments": "失敗デプロイ",
+      "pending_deployments": "待機デプロイ",
+      "success_rate": "成功率",
+      "recent_deployments": "最近のデプロイ"
+    },
+    "execution": {
+      "title": "デプロイ実行",
+      "progress": "実行進捗",
+      "logs": "実行ログ",
+      "steps": "実行ステップ",
+      "current_step": "現在のステップ",
+      "completed_steps": "完了ステップ",
+      "remaining_steps": "残りステップ",
+      "error_logs": "エラーログ",
+      "warnings": "警告情報"
+    },
+    "message": {
+      "delete_success": "デプロイを削除しました",
+      "delete_error": "デプロイの削除に失敗しました",
+      "unknown_error": "不明なエラーが発生しました",
+      "no_deployments": "デプロイ記録がありません",
+      "delete_confirm": "このデプロイを削除してもよろしいですか？",
+      "execute_confirm": "このデプロイを実行してもよろしいですか？",
+      "rollback_confirm": "指定されたバージョンにロールバックしてもよろしいですか？",
+      "save_success": "デプロイを保存しました",
+      "save_error": "デプロイの保存に失敗しました",
+      "execute_success": "デプロイを実行しました",
+      "execute_error": "デプロイの実行に失敗しました",
+      "rollback_success": "ロールバックが成功しました",
+      "rollback_error": "ロールバックに失敗しました",
+      "loading": "デプロイデータを読み込み中...",
+      "execution_loading": "デプロイ実行中...",
+      "no_results": "該当するデプロイが見つかりません",
+      "validation_error": "フォーム検証に失敗しました",
+      "config_error": "設定エラー",
+      "permission_error": "権限不足",
+      "network_error": "ネットワークエラー",
+      "timeout_error": "操作がタイムアウトしました"
+    }
+  },
+  "environments": {
+    "title": {
+      "page": "環境管理 - WorkflowMCP ダッシュボード",
+      "management": "環境管理"
+    },
+    "description": "システム環境の管理と監視",
+    "loading": "環境を読み込み中...",
+    "button": {
+      "create_new": "新規環境作成",
+      "refresh": "更新",
+      "maintenance_mode": "メンテナンスモード",
+      "activate": "有効化",
+      "view_details": "詳細表示",
+      "delete": "削除",
+      "create_first": "最初の環境を作成"
+    },
+    "filter": {
+      "environment_type": "環境種類",
+      "status": "ステータス絞り込み",
+      "all": "全て",
+      "all_types": "全ての種類",
+      "all_statuses": "全てのステータス"
+    },
+    "overview": {
+      "total_environments": "総環境数",
+      "active_environments": "アクティブ環境",
+      "production_environments": "本番環境",
+      "maintenance_environments": "メンテナンス環境"
+    },
+    "details": {
+      "tags": "タグ",
+      "recent_deployments": "最近のデプロイ",
+      "created": "作成日時",
+      "updated": "更新日時",
+      "uptime": "稼働時間",
+      "response_time": "応答時間"
+    },
+    "type": {
+      "development": "開発環境",
+      "staging": "ステージング環境",
+      "production": "本番環境",
+      "testing": "テスト環境"
+    },
+    "status": {
+      "active": "アクティブ",
+      "inactive": "非アクティブ",
+      "maintenance": "メンテナンス中"
+    },
+    "health": {
+      "title": "ヘルス状態",
+      "healthy": "正常",
+      "warning": "警告",
+      "critical": "危険",
+      "unknown": "不明"
+    },
+    "metrics": {
+      "cpu": "CPU使用率",
+      "memory": "メモリ使用率",
+      "disk": "ディスク使用率",
+      "uptime": "稼働時間"
+    },
+    "form": {
+      "name": "環境名",
+      "description": "環境説明",
+      "type": "環境種類",
+      "url": "環境URL",
+      "status": "ステータス",
+      "tags": "タグ",
+      "cancel": "キャンセル",
+      "save": "保存",
+      "create": "作成",
+      "update": "更新"
+    },
+    "message": {
+      "delete_confirm": "この環境を削除してもよろしいですか？",
+      "delete_success": "環境を削除しました",
+      "delete_error": "環境の削除に失敗しました",
+      "save_success": "環境を保存しました",
+      "save_error": "環境の保存に失敗しました",
+      "loading": "環境データを読み込み中...",
+      "no_results": "該当する環境が見つかりません",
+      "validation_error": "フォーム検証に失敗しました",
+      "unknown_error": "不明なエラーが発生しました",
+      "no_environments": "環境がありません",
+      "loading_error": "読み込みに失敗しました",
+      "environment_loading_error": "環境データの読み込みに失敗しました",
+      "deployment_loading_error": "デプロイデータの読み込みに失敗しました",
+      "system_health_loading_error": "システムヘルス状態の読み込みに失敗しました",
+      "status_change_error": "ステータス変更に失敗しました"
+    }
+  },
+  "deployments": {
+    "title": "デプロイセンター",
+    "description": "システムデプロイを管理・追跡します",
+    "loading": "デプロイを読み込み中...",
+    "button": {
+      "create_new": "新しいデプロイを作成",
+      "refresh": "更新",
+      "execute": "デプロイ実行",
+      "rollback": "ロールバック",
+      "view_details": "詳細を表示",
+      "delete": "削除",
+      "delete_tooltip": "デプロイを削除",
+      "create_first": "最初のデプロイを作成",
+      "back_to_list": "リストに戻る",
+      "back_to_list_error": "リストに戻る",
+      "new": "新しいデプロイ",
+      "cancel": "キャンセル",
+      "retry": "再試行"
+    },
+    "status": {
+      "planned": "計画済み",
+      "in_progress": "進行中",
+      "completed": "完了",
+      "failed": "失敗",
+      "rolled_back": "ロールバック済み"
+    },
+    "type": {
+      "blue_green": "ブルーグリーン",
+      "rolling": "ローリング",
+      "canary": "カナリア",
+      "hotfix": "ホットフィックス"
+    },
+    "filter": {
+      "sort": "並び替え",
+      "sort_by_scheduled": "予定時刻順",
+      "sort_by_created": "作成時刻順",
+      "sort_by_status": "ステータス順",
+      "status_filter": "ステータスフィルター",
+      "environment_filter": "環境フィルター",
+      "all": "すべて",
+      "all_environments": "すべての環境"
+    },
+    "sort": {
+      "label": "並び替え",
+      "scheduled": "予定時刻",
+      "created": "作成時刻",
+      "status": "ステータス",
+      "environment": "環境"
+    },
+    "environment": {
+      "development": "開発環境",
+      "staging": "ステージング環境",
+      "production": "本番環境",
+      "testing": "テスト環境"
+    },
+    "list": {
+      "title": "デプロイリスト",
+      "count_suffix": "件",
+      "version": "バージョン",
+      "environment": "環境",
+      "scheduled_time": "予定時刻",
+      "deployment_type": "デプロイタイプ",
+      "empty_title": "デプロイがありません",
+      "empty_description": "まだデプロイが作成されていません。"
+    },
+    "error": {
+      "title": "エラーが発生しました"
+    },
+    "details": {
+      "title": "デプロイ詳細",
+      "title_prefix": "デプロイ",
+      "version": "バージョン",
+      "environment": "環境",
+      "scheduled_time": "予定時刻",
+      "execution_time": "実行時刻",
+      "duration": "所要時間",
+      "minutes": "分",
+      "tags": "タグ",
+      "basic_info": "基本情報",
+      "deployment_type": "デプロイタイプ",
+      "schedule": "スケジュール",
+      "created_at": "作成日時",
+      "status_info": "ステータス情報",
+      "current_status": "現在のステータス",
+      "rollback_version": "ロールバックバージョン",
+      "last_updated": "最終更新",
+      "configuration": "デプロイ設定",
+      "notes": "ノート"
+    },
+    "create": {
+      "title": "新しいデプロイを作成",
+      "description": "新しいデプロイを計画・設定します"
+    },
+    "form": {
+      "basic_info": "基本情報",
+      "title": "デプロイタイトル",
+      "title_placeholder": "例：本番環境 v2.1.0 デプロイ",
+      "description": "説明",
+      "description_placeholder": "デプロイ内容と目的を説明してください",
+      "target_environment": "対象環境",
+      "select_environment": "環境を選択してください",
+      "project_optional": "プロジェクト（任意）",
+      "select_project": "プロジェクトを選択してください",
+      "deployment_settings": "デプロイ設定",
+      "version": "バージョン",
+      "version_placeholder": "v1.0.0",
+      "auto_generate": "自動生成",
+      "deployment_method": "デプロイ方式",
+      "scheduled_time_optional": "予定時刻（任意）",
+      "one_hour_later": "1時間後",
+      "rollback_version_optional": "ロールバックバージョン（任意）",
+      "rollback_version_placeholder": "問題発生時にロールバックするバージョン",
+      "additional_settings": "追加設定",
+      "tags_comma_separated": "タグ（カンマ区切り）",
+      "tags_placeholder": "production, urgent, feature-release",
+      "additional_notes": "追加メモ",
+      "notes_placeholder": "デプロイに関する追加情報や注意事項",
+      "deployment_config": "デプロイ構成",
+      "timeout_seconds": "タイムアウト（秒）",
+      "max_parallel": "最大並列数",
+      "enable_health_check": "ヘルスチェックを有効化",
+      "cancel": "キャンセル",
+      "creating": "作成中...",
+      "create_deployment": "デプロイを作成",
+      "required_fields": "すべての必須フィールドを入力してください",
+      "create_failed": "デプロイの作成に失敗しました",
+      "create_error": "デプロイ作成中のエラー：",
+      "environment_load_error": "環境の読み込みに失敗：",
+      "project_load_error": "プロジェクトの読み込みに失敗："
+    },
+    "message": {
+      "load_failed": "デプロイリストを読み込めません",
+      "loading_error": "デプロイ読み込み中のエラー：",
+      "environment_loading_error": "環境読み込み中のエラー：",
+      "deployment_not_found": "デプロイ情報が見つかりません",
+      "confirm_execute": "このデプロイを実行しますか？",
+      "execute_success": "デプロイが実行されました",
+      "execute_error": "デプロイ実行中にエラーが発生しました",
+      "rollback_reason_prompt": "ロールバック理由を入力してください：",
+      "rollback_success": "デプロイがロールバックされました",
+      "rollback_error": "デプロイロールバック中にエラーが発生しました",
+      "confirm_delete": "「{title}」デプロイを削除しますか？\n\nこの操作は元に戻せません。",
+      "delete_success": "デプロイが削除されました",
+      "delete_error": "デプロイ削除中のエラー：",
+      "unknown_error": "不明なエラー",
+      "no_deployments": "デプロイがありません。",
+      "error_deleting": "デプロイ削除時にエラーが発生しました",
+      "error_updating": "デプロイステータス更新時にエラーが発生しました"
+    }
+  },
+  "tests": {
+    "page_title": "テスト管理",
+    "title": "テスト管理",
+    "description": "テストケースを管理します",
+    "sort_label": "並び替え",
+    "sort_updated": "最近更新",
+    "sort_created": "最近作成",
+    "sort_title": "タイトル順",
+    "new_test": "新しいテストケース",
+    "retry": "再試行",
+    "no_tests": "テストケースがありません",
+    "create_first": "最初のテストケースを追加",
+    "overall_stats": "全体統計",
+    "total_tests": "総テスト数",
+    "passed_tests": "合格",
+    "failed_tests": "失敗",
+    "pending_tests": "待機中",
+    "success_rate": "成功率",
+    "filter": {
+      "all_types": "すべてのタイプ",
+      "all_statuses": "すべてのステータス",
+      "all_priorities": "すべての優先度",
+      "search_placeholder": "テストタイトルで検索..."
+    },
+    "type": {
+      "unit": "単体テスト",
+      "integration": "統合テスト",
+      "system": "システムテスト",
+      "acceptance": "受け入れテスト",
+      "regression": "回帰テスト"
+    },
+    "status": {
+      "draft": "下書き",
+      "ready": "準備完了",
+      "active": "アクティブ",
+      "inactive": "非アクティブ"
+    },
+    "priority": {
+      "high": "高",
+      "medium": "中",
+      "low": "低"
+    },
+    "button": {
+      "view_details": "詳細を表示",
+      "edit": "編集",
+      "delete": "削除",
+      "execute": "実行",
+      "back_to_list": "テストリストに戻る",
+      "back_to_details": "詳細に戻る",
+      "to_list": "リストに戻る",
+      "cancel": "キャンセル",
+      "create_test": "テストケースを作成",
+      "creating": "作成中...",
+      "save_test": "テストケースを保存",
+      "saving": "保存中...",
+      "add_tag": "追加"
+    },
+    "details": {
+      "basic_info": "基本情報",
+      "execution_stats": "実行統計",
+      "preconditions": "前提条件",
+      "test_steps": "テスト手順",
+      "expected_result": "期待結果",
+      "tags": "タグ",
+      "execution_history": "実行履歴",
+      "total_executions": "総実行回数",
+      "last_execution": "最後の実行",
+      "pass_rate": "合格率",
+      "no_executions": "実行履歴がありません",
+      "no_preconditions": "前提条件がありません",
+      "no_test_steps": "テスト手順がありません",
+      "no_expected_result": "期待結果がありません",
+      "no_tags": "タグがありません"
+    },
+    "new": {
+      "page_title": "新しいテストケースを追加",
+      "title": "新しいテストケースを追加",
+      "description": "新しいテストケースを追加します",
+      "form_title": "テストケース情報"
+    },
+    "edit": {
+      "page_title": "テストケースを編集",
+      "title": "テストケースを編集",
+      "description": "テストケース情報を変更します",
+      "basic_info": "基本情報",
+      "tags_section": "タグ"
+    },
+    "form": {
+      "title": "タイトル",
+      "title_placeholder": "例：ユーザーログイン機能テスト",
+      "type": "テストタイプ",
+      "priority": "優先度",
+      "status": "ステータス",
+      "description": "説明",
+      "description_placeholder": "テストケースの目的と範囲を詳細に説明してください",
+      "preconditions": "前提条件",
+      "preconditions_placeholder": "テスト実行前に必要な条件を入力してください",
+      "test_steps": "テスト手順",
+      "test_steps_placeholder": "具体的なテスト実行手順を順序通りに入力してください",
+      "expected_result": "期待結果",
+      "expected_result_placeholder": "テスト成功時の期待される結果を入力してください",
+      "tags": "タグ",
+      "tags_placeholder": "例：authentication, login, unit-test",
+      "comma_separated": "カンマ区切り",
+      "related_task": "関連タスク",
+      "related_design": "関連設計",
+      "related_prd": "関連要件",
+      "optional": "任意",
+      "select_related_task": "-- 関連タスクを選択 --",
+      "select_related_design": "-- 関連設計を選択 --",
+      "select_related_prd": "-- 関連要件を選択 --",
+      "new_tag_placeholder": "新しいタグを入力"
+    },
+    "message": {
+      "loading": "テストケースリストを読み込み中...",
+      "error_loading": "テストケースリストを読み込めません",
+      "data_load_failed": "データ読み込みに失敗：",
+      "unknown_error": "不明なエラー",
+      "create_success": "テストケースが正常に作成されました！",
+      "create_failed": "テストケースの作成に失敗しました",
+      "create_error": "テストケース作成エラー：",
+      "create_error_occurred": "テストケース作成中にエラーが発生しました。",
+      "title_description_required": "タイトルと説明を入力してください。",
+      "loading_test": "テストケースを読み込み中...",
+      "test_not_found": "テストケースが見つかりません",
+      "data_load_error": "データ読み込み中にエラーが発生しました",
+      "title_required": "タイトルを入力してください",
+      "update_failed": "テストケースの変更に失敗しました",
+      "update_error": "変更中にエラーが発生しました",
+      "loading_data": "データを読み込み中...",
+      "confirm_delete": "このテストケースを削除しますか？",
+      "delete_failed": "テストケースの削除に失敗しました"
+    }
+  }
+}

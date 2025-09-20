@@ -1,0 +1,1094 @@
+{
+  "nav": {
+    "dashboard": "대시보드",
+    "projects": "프로젝트",
+    "requirements": "요구사항",
+    "designs": "설계",
+    "tasks": "작업",
+    "tests": "테스트",
+    "documents": "문서",
+    "deployments": "배포",
+    "operations": "운영",
+    "environments": "환경",
+    "kanban": "칸반 보드",
+    "gantt": "간트 차트",
+    "network": "관계도",
+    "database": "DB 관리"
+  },
+  "common": {
+    "save": "저장",
+    "cancel": "취소",
+    "delete": "삭제",
+    "edit": "편집",
+    "create": "생성",
+    "update": "업데이트",
+    "search": "검색",
+    "filter": "필터",
+    "status": "상태",
+    "priority": "우선순위",
+    "title": "제목",
+    "description": "설명",
+    "created_at": "생성일",
+    "updated_at": "수정일",
+    "actions": "작업",
+    "loading": "로딩 중...",
+    "no_data": "데이터가 없습니다",
+    "confirm": "확인",
+    "back": "돌아가기",
+    "next": "다음",
+    "previous": "이전"
+  },
+  "status": {
+    "pending": "대기",
+    "in_progress": "진행중",
+    "done": "완료",
+    "cancelled": "취소됨",
+    "blocked": "차단됨"
+  },
+  "chart": {
+    "count_suffix": "개",
+    "completed": "완료"
+  },
+  "priority": {
+    "low": "낮음",
+    "medium": "보통",
+    "high": "높음",
+    "critical": "긴급"
+  },
+  "project": {
+    "title": "프로젝트",
+    "name": "프로젝트명",
+    "manager": "프로젝트 관리자",
+    "start_date": "시작일",
+    "end_date": "종료일",
+    "new_project": "새 프로젝트",
+    "edit_project": "프로젝트 편집"
+  },
+  "task": {
+    "title": "작업",
+    "new_task": "새 작업",
+    "edit_task": "작업 편집",
+    "assigned_to": "담당자",
+    "due_date": "마감일",
+    "estimated_hours": "예상 시간",
+    "actual_hours": "실제 시간"
+  },
+  "prd": {
+    "title": "요구사항 문서",
+    "new_prd": "새 PRD",
+    "edit_prd": "PRD 편집",
+    "business_objective": "비즈니스 목표",
+    "target_users": "대상 사용자",
+    "success_criteria": "성공 기준"
+  },
+  "prds": {
+    "page_title": "PRD 관리",
+    "title": "PRD 관리",
+    "description": "프로젝트 요구사항 문서를 관리합니다",
+    "new_prd": "새 PRD 작성",
+    "error_load_failed": "PRD 목록을 불러올 수 없습니다",
+    "error_loading": "PRD 로딩 중 오류: ",
+    "confirm_delete": "이 PRD를 삭제하시겠습니까?",
+    "error_delete": "PRD 삭제 중 오류가 발생했습니다: ",
+    "error_deleting": "삭제 중 오류: ",
+    "status_active": "활성",
+    "status_inactive": "비활성",
+    "status_draft": "초안",
+    "status_review": "검토중",
+    "status_approved": "승인됨",
+    "status_completed": "완료",
+    "priority_high": "높음",
+    "priority_medium": "보통",
+    "priority_low": "낮음",
+    "sort_label": "정렬:",
+    "sort_created_desc": "최근 등록순",
+    "sort_created_asc": "오래된 등록순",
+    "sort_updated_desc": "최근 수정순",
+    "sort_updated_asc": "오래된 수정순",
+    "sort_title_asc": "제목 오름차순",
+    "sort_title_desc": "제목 내림차순",
+    "retry": "다시 시도",
+    "no_prds": "PRD가 없습니다",
+    "create_first": "첫 번째 PRD를 작성해보세요",
+    "no_description": "설명이 없습니다",
+    "tasks": "작업",
+    "completed": "완료",
+    "tasks_suffix": "개",
+    "created": "생성",
+    "updated": "수정",
+    "view_details": "상세보기",
+    "edit": "편집",
+    "delete": "삭제",
+    "overall_stats": "전체 통계",
+    "total_prds": "전체 PRD",
+    "active_prds": "활성 PRD",
+    "total_tasks": "전체 작업",
+    "completed_tasks": "완료 작업"
+  },
+  "designs": {
+    "title": "설계 관리",
+    "description": "시스템 설계를 관리합니다",
+    "sort": {
+      "label": "정렬:",
+      "updated": "최근 수정",
+      "created": "최근 등록",
+      "title": "제목 순"
+    },
+    "button": {
+      "addNew": "새 설계 추가",
+      "retry": "다시 시도",
+      "view": "상세보기",
+      "edit": "편집",
+      "delete": "삭제",
+      "requestReview": "검토 요청",
+      "approve": "승인",
+      "toDraft": "초안으로",
+      "markImplemented": "구현완료",
+      "reReview": "재검토",
+      "reApprove": "재승인"
+    },
+    "status": {
+      "draft": "초안",
+      "review": "검토중",
+      "approved": "승인됨",
+      "implemented": "구현완료"
+    },
+    "type": {
+      "system": "시스템",
+      "architecture": "아키텍처",
+      "ui_ux": "UI/UX",
+      "database": "데이터베이스",
+      "api": "API"
+    },
+    "priority": {
+      "high": "높음",
+      "medium": "보통",
+      "low": "낮음"
+    },
+    "error": {
+      "loadFailed": "설계 목록을 불러올 수 없습니다",
+      "loadError": "설계 로딩 중 오류: ",
+      "statusChangeFailed": "설계 상태 변경 중 오류가 발생했습니다",
+      "statusChangeError": "상태 변경 중 오류: ",
+      "deleteFailed": "설계 삭제 중 오류가 발생했습니다",
+      "deleteError": "삭제 중 오류: "
+    },
+    "confirm": {
+      "delete": "이 설계를 삭제하시겠습니까?"
+    },
+    "empty": {
+      "title": "설계가 없습니다",
+      "description": "첫 번째 설계를 추가해보세요"
+    },
+    "statistics": {
+      "title": "전체 통계",
+      "total": "전체 설계"
+    },
+    "relatedRequirement": "연관 요구사항"
+  },
+  "language": {
+    "select_language": "언어 선택",
+    "korean": "한국어",
+    "english": "English",
+    "chinese": "中文",
+    "japanese": "日본語",
+    "portuguese": "Português",
+    "german": "Deutsch",
+    "hindi": "हिंदी",
+    "spanish": "Español",
+    "russian": "Русский",
+    "indonesian": "Bahasa Indonesia"
+  },
+  "dashboard": {
+    "title": "대시보드",
+    "last_updated": "마지막 업데이트:",
+    "total_prds": "전체 PRD",
+    "active_suffix": "개 활성",
+    "total_tasks": "전체 작업",
+    "completion_suffix": "% 완료",
+    "in_progress_tasks": "진행중 작업",
+    "pending_suffix": "개 대기",
+    "total_plans": "전체 계획",
+    "task_activity_trend": "작업 활동 추이 (30일)",
+    "priority_distribution": "우선순위별 작업 분포",
+    "quick_actions": "빠른 실행",
+    "new_prd": "📋 새 PRD 작성",
+    "new_task": "✅ 새 작업 추가",
+    "new_plan": "📅 새 계획 생성",
+    "recent_activity": "최근 활동",
+    "tasks_count": "작업",
+    "completed_count": "완료",
+    "chart_total_tasks": "전체 작업",
+    "chart_completed_tasks": "완료된 작업",
+    "no_data": "데이터가 없습니다"
+  },
+  "tasks": {
+    "page_title": "작업 관리",
+    "title": "작업 관리",
+    "description": "프로젝트 작업을 관리합니다",
+    "sort_label": "정렬",
+    "sort_updated": "최근 수정",
+    "sort_created": "최근 등록",
+    "sort_title": "제목 순",
+    "new_task": "새 작업 추가",
+    "retry": "다시 시도",
+    "no_tasks": "작업이 없습니다",
+    "create_first": "첫 번째 작업을 추가해보세요",
+    "status_pending": "대기중",
+    "status_in_progress": "진행중",
+    "status_completed": "완료",
+    "priority_high": "높음",
+    "priority_medium": "보통",
+    "priority_low": "낮음",
+    "due_date": "마감",
+    "action_start": "시작",
+    "action_complete": "완료",
+    "action_pending": "대기",
+    "action_restart": "재시작",
+    "action_details": "상세",
+    "action_edit": "편집",
+    "action_delete": "삭제",
+    "view_details": "상세보기",
+    "edit_task": "편집",
+    "overall_stats": "전체 통계",
+    "total_tasks": "전체 작업",
+    "in_progress_tasks": "진행중",
+    "completed_tasks": "완료",
+    "completion_rate": "완료율",
+    "error_load_failed": "작업 목록을 불러올 수 없습니다",
+    "error_updating": "작업 상태 업데이트 중 오류가 발생했습니다",
+    "error_deleting": "작업 삭제 중 오류가 발생했습니다",
+    "confirm_delete": "이 작업을 삭제하시겠습니까?",
+    "confirm_status_change": "작업 상태를 변경하시겠습니까?"
+  },
+  "tests": {
+    "page_title": "테스트 관리",
+    "title": "테스트 관리",
+    "description": "테스트 케이스를 관리합니다",
+    "sort_label": "정렬",
+    "sort_updated": "최근 수정",
+    "sort_created": "최근 등록",
+    "sort_title": "제목 순",
+    "new_test": "새 테스트 케이스",
+    "retry": "다시 시도",
+    "no_tests": "테스트 케이스가 없습니다",
+    "create_first": "첫 번째 테스트 케이스를 추가해보세요",
+    "overall_stats": "전체 통계",
+    "total_tests": "전체 테스트",
+    "passed_tests": "통과",
+    "failed_tests": "실패",
+    "pending_tests": "대기중",
+    "success_rate": "성공률",
+    "filter": {
+      "all_types": "모든 유형",
+      "all_statuses": "모든 상태",
+      "all_priorities": "모든 우선순위",
+      "search_placeholder": "테스트 제목으로 검색..."
+    },
+    "type": {
+      "unit": "단위 테스트",
+      "integration": "통합 테스트",
+      "system": "시스템 테스트",
+      "acceptance": "인수 테스트",
+      "regression": "회귀 테스트"
+    },
+    "status": {
+      "draft": "초안",
+      "ready": "준비완료",
+      "active": "활성",
+      "inactive": "비활성"
+    },
+    "priority": {
+      "high": "높음",
+      "medium": "보통",
+      "low": "낮음"
+    },
+    "button": {
+      "view_details": "상세보기",
+      "edit": "편집",
+      "delete": "삭제",
+      "execute": "실행",
+      "back_to_list": "테스트 목록으로",
+      "back_to_details": "상세보기로",
+      "to_list": "목록으로",
+      "cancel": "취소",
+      "create_test": "테스트 케이스 생성",
+      "creating": "생성 중...",
+      "save_test": "테스트 케이스 저장",
+      "saving": "저장 중...",
+      "add_tag": "추가"
+    },
+    "details": {
+      "basic_info": "기본 정보",
+      "execution_stats": "실행 통계",
+      "preconditions": "전제조건",
+      "test_steps": "테스트 단계",
+      "expected_result": "예상결과",
+      "tags": "태그",
+      "execution_history": "실행 이력",
+      "total_executions": "총 실행 횟수",
+      "last_execution": "마지막 실행",
+      "pass_rate": "통과율",
+      "no_executions": "실행 이력이 없습니다",
+      "no_preconditions": "전제조건이 없습니다",
+      "no_test_steps": "테스트 단계가 없습니다",
+      "no_expected_result": "예상결과가 없습니다",
+      "no_tags": "태그가 없습니다"
+    },
+    "new": {
+      "page_title": "새 테스트 케이스 추가",
+      "title": "새 테스트 케이스 추가",
+      "description": "새로운 테스트 케이스를 추가합니다",
+      "form_title": "테스트 케이스 정보"
+    },
+    "edit": {
+      "page_title": "테스트 케이스 편집",
+      "title": "테스트 케이스 편집",
+      "description": "테스트 케이스 정보를 수정합니다",
+      "basic_info": "기본 정보",
+      "tags_section": "태그"
+    },
+    "form": {
+      "title": "제목",
+      "title_placeholder": "예: 사용자 로그인 기능 테스트",
+      "type": "테스트 유형",
+      "priority": "우선순위",
+      "status": "상태",
+      "description": "설명",
+      "description_placeholder": "테스트 케이스의 목적과 범위를 상세히 설명해주세요",
+      "preconditions": "전제조건",
+      "preconditions_placeholder": "테스트 실행 전에 필요한 조건들을 입력하세요",
+      "test_steps": "테스트 단계",
+      "test_steps_placeholder": "구체적인 테스트 실행 단계를 순서대로 입력하세요",
+      "expected_result": "예상결과",
+      "expected_result_placeholder": "테스트 성공 시 예상되는 결과를 입력하세요",
+      "tags": "태그",
+      "tags_placeholder": "예: authentication, login, unit-test",
+      "comma_separated": "쉼표로 구분",
+      "related_task": "관련 작업",
+      "related_design": "관련 설계",
+      "related_prd": "관련 요구사항",
+      "optional": "선택",
+      "select_related_task": "-- 관련 작업 선택 --",
+      "select_related_design": "-- 관련 설계 선택 --",
+      "select_related_prd": "-- 관련 요구사항 선택 --",
+      "new_tag_placeholder": "새 태그 입력"
+    },
+    "message": {
+      "loading": "테스트 케이스 목록을 불러오는 중...",
+      "error_loading": "테스트 케이스 목록을 불러올 수 없습니다",
+      "data_load_failed": "데이터 로드 실패:",
+      "unknown_error": "알 수 없는 오류",
+      "create_success": "테스트 케이스가 성공적으로 생성되었습니다!",
+      "create_failed": "테스트 케이스 생성 실패",
+      "create_error": "테스트 케이스 생성 오류:",
+      "create_error_occurred": "테스트 케이스 생성 중 오류가 발생했습니다.",
+      "title_description_required": "제목과 설명을 입력해주세요.",
+      "loading_test": "테스트 케이스를 불러오는 중...",
+      "test_not_found": "테스트 케이스를 찾을 수 없습니다",
+      "data_load_error": "데이터를 불러오는 중 오류가 발생했습니다",
+      "title_required": "제목을 입력해주세요",
+      "update_failed": "테스트 케이스 수정에 실패했습니다",
+      "update_error": "수정 중 오류가 발생했습니다",
+      "loading_data": "데이터를 불러오는 중...",
+      "confirm_delete": "이 테스트 케이스를 삭제하시겠습니까?",
+      "delete_failed": "테스트 케이스 삭제에 실패했습니다"
+    }
+  },
+  "documents": {
+    "title": "문서 관리",
+    "description": "프로젝트 문서를 관리하고 검색하세요.",
+    "sort": {
+      "label": "정렬",
+      "updated": "최근 수정",
+      "created": "최근 등록",
+      "title": "제목 순"
+    },
+    "button": {
+      "new": "새 문서",
+      "refresh": "새로고침",
+      "edit": "편집",
+      "view": "상세보기",
+      "cancel": "취소",
+      "create": "문서 생성",
+      "update": "문서 수정",
+      "retry": "다시 시도",
+      "creating": "생성 중...",
+      "updating": "수정 중..."
+    },
+    "filter": {
+      "title": "필터",
+      "search": "검색",
+      "doc_type": "문서 유형",
+      "category": "카테고리",
+      "status": "상태",
+      "search_placeholder": "제목 또는 요약으로 검색...",
+      "all_types": "모든 유형",
+      "all_categories": "모든 카테고리",
+      "all_statuses": "모든 상태"
+    },
+    "form": {
+      "create_title": "새 문서 생성",
+      "edit_title": "문서 편집",
+      "title": "제목",
+      "doc_type": "문서 유형",
+      "category": "카테고리",
+      "tags": "태그",
+      "summary": "요약",
+      "content": "내용",
+      "status": "상태",
+      "title_placeholder": "문서 제목을 입력하세요",
+      "category_placeholder": "카테고리 입력 또는 선택",
+      "tags_placeholder": "태그를 쉼표로 구분하여 입력 (예: 테스트, 분석, 개발)",
+      "summary_placeholder": "문서의 간단한 요약을 입력하세요",
+      "content_placeholder": "Markdown 형식으로 문서 내용을 작성하세요",
+      "select_type": "선택하세요",
+      "frequent_tags": "자주 사용되는 태그"
+    },
+    "list": {
+      "title": "문서 목록",
+      "count_suffix": "개",
+      "created": "생성",
+      "updated": "수정",
+      "linked_suffix": "개 연결"
+    },
+    "loading": "문서를 불러오는 중...",
+    "error": {
+      "title": "오류 발생"
+    },
+    "empty": {
+      "title": "문서가 없습니다",
+      "no_documents": "아직 생성된 문서가 없습니다.",
+      "no_filtered": "필터 조건에 맞는 문서가 없습니다."
+    },
+    "alert": {
+      "title_content_required": "제목과 내용을 입력해주세요.",
+      "created_success": "문서가 성공적으로 생성되었습니다!",
+      "create_error": "문서 생성 중 오류가 발생했습니다: ",
+      "updated_success": "문서가 성공적으로 수정되었습니다!",
+      "update_error": "문서 수정 중 오류가 발생했습니다: "
+    },
+    "type": {
+      "test_guide": "테스트 가이드",
+      "test_results": "테스트 결과",
+      "analysis": "분석",
+      "report": "보고서",
+      "checklist": "체크리스트",
+      "specification": "사양서",
+      "meeting_notes": "회의록",
+      "decision_log": "의사결정 로그"
+    },
+    "status": {
+      "draft": "초안",
+      "review": "검토 중",
+      "approved": "승인됨",
+      "archived": "보관됨"
+    }
+  },
+  "projects": {
+    "page_title": "프로젝트 관리",
+    "title": "프로젝트 관리",
+    "description": "전체 프로젝트를 관리합니다",
+    "new_project": "새 프로젝트 생성",
+    "error_load_failed": "프로젝트 목록을 불러올 수 없습니다",
+    "error_loading": "프로젝트 로딩 중 오류: ",
+    "confirm_delete": "이 프로젝트를 삭제하시겠습니까? 연관된 데이터가 있는 경우 삭제가 불가능합니다.",
+    "error_delete": "프로젝트 삭제 중 오류가 발생했습니다: ",
+    "error_deleting": "삭제 중 오류: ",
+    "status_planning": "계획중",
+    "status_active": "진행중",
+    "status_on_hold": "보류",
+    "status_completed": "완료",
+    "priority_high": "높음",
+    "priority_medium": "보통",
+    "priority_low": "낮음",
+    "sort_label": "정렬",
+    "sort_updated": "최근 수정",
+    "sort_created": "최근 생성",
+    "sort_name": "이름 순",
+    "sort_status": "상태 순",
+    "sort_priority": "우선순위 순",
+    "retry": "다시 시도",
+    "no_projects": "프로젝트가 없습니다",
+    "create_first": "첫 번째 프로젝트를 생성해보세요",
+    "no_description": "설명 없음",
+    "progress": "진행률",
+    "tasks": "작업",
+    "documents": "문서",
+    "start_date": "시작",
+    "end_date": "종료",
+    "updated": "수정",
+    "view_details": "상세보기",
+    "edit": "편집",
+    "delete": "삭제",
+    "overall_stats": "전체 통계",
+    "total_projects": "전체 프로젝트",
+    "average_progress": "평균 진행률"
+  },
+  "deployments": {
+    "title": "배포 센터",
+    "description": "시스템 배포를 관리하고 추적합니다",
+    "loading": "배포를 불러오는 중...",
+    "button": {
+      "create_new": "새 배포 생성",
+      "refresh": "새로고침",
+      "execute": "배포 실행",
+      "rollback": "롤백",
+      "view_details": "상세보기",
+      "delete": "삭제",
+      "delete_tooltip": "배포 삭제",
+      "create_first": "첫 번째 배포 생성하기",
+      "back_to_list": "목록으로",
+      "back_to_list_error": "목록으로 돌아가기",
+      "new": "새 배포",
+      "cancel": "취소",
+      "retry": "다시 시도"
+    },
+    "status": {
+      "planned": "계획됨",
+      "in_progress": "진행중",
+      "completed": "완료",
+      "failed": "실패",
+      "rolled_back": "롤백됨"
+    },
+    "type": {
+      "blue_green": "블루-그린",
+      "rolling": "롤링",
+      "canary": "카나리",
+      "hotfix": "핫픽스"
+    },
+    "filter": {
+      "sort": "정렬",
+      "sort_by_scheduled": "예정 시간순",
+      "sort_by_created": "생성 시간순",
+      "sort_by_status": "상태순",
+      "status_filter": "상태 필터",
+      "environment_filter": "환경 필터",
+      "all": "전체",
+      "all_environments": "전체 환경"
+    },
+    "sort": {
+      "label": "정렬",
+      "scheduled": "일정순",
+      "created": "생성순",
+      "status": "상태순",
+      "environment": "환경순"
+    },
+    "environment": {
+      "development": "개발",
+      "staging": "스테이징",
+      "production": "프로덕션",
+      "testing": "테스트"
+    },
+    "list": {
+      "title": "배포 목록",
+      "count_suffix": "개",
+      "version": "버전",
+      "environment": "환경",
+      "scheduled_time": "예정 시간",
+      "deployment_type": "배포 유형",
+      "empty_title": "배포가 없습니다",
+      "empty_description": "아직 생성된 배포가 없습니다."
+    },
+    "error": {
+      "title": "오류 발생"
+    },
+    "details": {
+      "title": "배포 상세보기",
+      "title_prefix": "배포",
+      "version": "버전",
+      "environment": "환경",
+      "scheduled_time": "예정 시간",
+      "execution_time": "실행 시간",
+      "duration": "소요 시간",
+      "minutes": "분",
+      "tags": "태그",
+      "basic_info": "기본 정보",
+      "deployment_type": "배포 타입",
+      "schedule": "일정",
+      "created_at": "생성일",
+      "status_info": "상태 정보",
+      "current_status": "현재 상태",
+      "rollback_version": "롤백 버전",
+      "last_updated": "마지막 업데이트",
+      "configuration": "배포 설정",
+      "notes": "노트"
+    },
+    "create": {
+      "title": "새 배포 생성",
+      "description": "새로운 배포를 계획하고 설정합니다"
+    },
+    "form": {
+      "basic_info": "기본 정보",
+      "title": "배포 제목",
+      "title_placeholder": "예: 프로덕션 v2.1.0 배포",
+      "description": "설명",
+      "description_placeholder": "배포 내용과 목적을 설명해주세요",
+      "target_environment": "대상 환경",
+      "select_environment": "환경을 선택하세요",
+      "project_optional": "프로젝트 (선택사항)",
+      "select_project": "프로젝트를 선택하세요",
+      "deployment_settings": "배포 설정",
+      "version": "버전",
+      "version_placeholder": "v1.0.0",
+      "auto_generate": "자동생성",
+      "deployment_method": "배포 방식",
+      "scheduled_time_optional": "예정 시간 (선택사항)",
+      "one_hour_later": "1시간 후",
+      "rollback_version_optional": "롤백 버전 (선택사항)",
+      "rollback_version_placeholder": "문제 발생 시 롤백할 버전",
+      "additional_settings": "추가 설정",
+      "tags_comma_separated": "태그 (쉼표로 구분)",
+      "tags_placeholder": "production, urgent, feature-release",
+      "additional_notes": "추가 메모",
+      "notes_placeholder": "배포와 관련된 추가 정보나 주의사항",
+      "deployment_config": "배포 구성",
+      "timeout_seconds": "타임아웃 (초)",
+      "max_parallel": "최대 병렬 수",
+      "enable_health_check": "헬스체크 활성화",
+      "cancel": "취소",
+      "creating": "생성 중...",
+      "create_deployment": "배포 생성",
+      "required_fields": "필수 필드를 모두 입력해주세요",
+      "create_failed": "배포 생성에 실패했습니다",
+      "create_error": "배포 생성 중 오류: ",
+      "environment_load_error": "환경 로딩 실패:",
+      "project_load_error": "프로젝트 로딩 실패:"
+    },
+    "message": {
+      "load_failed": "배포 목록을 불러올 수 없습니다",
+      "loading_error": "배포 로딩 중 오류: ",
+      "environment_loading_error": "환경 로딩 중 오류:",
+      "deployment_not_found": "배포 정보를 찾을 수 없습니다",
+      "confirm_execute": "이 배포를 실행하시겠습니까?",
+      "execute_success": "배포가 실행되었습니다",
+      "execute_error": "배포 실행 중 오류가 발생했습니다",
+      "rollback_reason_prompt": "롤백 사유를 입력해주세요:",
+      "rollback_success": "배포가 롤백되었습니다",
+      "rollback_error": "배포 롤백 중 오류가 발생했습니다",
+      "confirm_delete": "정말로 \"{title}\" 배포를 삭제하시겠습니까?\n\n이 작업은 되돌릴 수 없습니다.",
+      "delete_success": "배포가 삭제되었습니다",
+      "delete_error": "배포 삭제 중 오류가 발생했습니다: ",
+      "unknown_error": "알 수 없는 오류",
+      "no_deployments": "배포가 없습니다.",
+      "error_deleting": "배포 삭제 중 오류가 발생했습니다",
+      "error_updating": "배포 상태 업데이트 중 오류가 발생했습니다"
+    }
+  },
+  "operations": {
+    "title": {
+      "page": "운영 대시보드",
+      "dashboard": "운영 대시보드"
+    },
+    "button": {
+      "create_incident": "인시던트 생성",
+      "refresh": "새로고침",
+      "view_details": "상세보기",
+      "cancel": "취소"
+    },
+    "status": {
+      "open": "진행중",
+      "investigating": "조사중",
+      "identified": "원인파악",
+      "monitoring": "모니터링",
+      "resolved": "해결됨"
+    },
+    "severity": {
+      "critical": "심각",
+      "high": "높음",
+      "medium": "보통",
+      "low": "낮음"
+    },
+    "type": {
+      "outage": "장애",
+      "performance": "성능",
+      "security": "보안",
+      "data": "데이터",
+      "deployment": "배포"
+    },
+    "health": {
+      "healthy": "정상",
+      "warning": "주의",
+      "critical": "심각",
+      "unknown": "알수없음"
+    },
+    "incident": {
+      "active_incidents": "활성 인시던트",
+      "no_active_incidents": "현재 활성 인시던트가 없습니다"
+    },
+    "monitoring": {
+      "system_health": "시스템 상태",
+      "performance_metrics": "성능 메트릭",
+      "uptime": "업타임",
+      "response_time": "응답시간",
+      "no_system_health_data": "시스템 상태 데이터가 없습니다",
+      "no_performance_data": "성능 메트릭 데이터가 없습니다"
+    },
+    "dashboard": {
+      "active_incidents": "활성 인시던트",
+      "system_status": "시스템 상태",
+      "healthy_environments": "정상 환경",
+      "average_uptime": "평균 업타임",
+      "critical_alert_rules": "중요 알림 규칙",
+      "enabled": "활성화됨",
+      "recent_activity": "최근 활동",
+      "no_recent_activity": "최근 활동이 없습니다",
+      "quick_access": "빠른 액세스",
+      "incident_management": "인시던트 관리",
+      "view_all_incidents": "모든 인시던트 보기",
+      "deployment_center": "배포 센터",
+      "check_deployment_status": "배포 상태 확인",
+      "environment_management": "환경 관리",
+      "view_environment_status": "환경 상태 보기",
+      "alert_rules": "알림 규칙",
+      "manage_alert_settings": "알림 설정 관리"
+    },
+    "filter": {
+      "time_1h": "1시간",
+      "time_6h": "6시간",
+      "time_24h": "24시간",
+      "time_7d": "7일",
+      "time_30d": "30일"
+    },
+    "form": {
+      "create_new_incident": "새 인시던트 생성",
+      "title": "제목",
+      "description": "설명",
+      "severity": "심각도",
+      "incident_type": "인시던트 유형",
+      "title_placeholder": "인시던트 제목을 입력해주세요",
+      "description_placeholder": "인시던트 상세 설명을 입력해주세요"
+    },
+    "message": {
+      "loading": "로딩 중...",
+      "loading_error": "운영 데이터 로딩 중 오류",
+      "incident_loading_error": "인시던트 로딩 중 오류",
+      "system_health_loading_error": "시스템 상태 로딩 중 오류",
+      "performance_metrics_loading_error": "성능 메트릭 로딩 중 오류",
+      "alert_rules_loading_error": "알림 규칙 로딩 중 오류",
+      "title_description_required": "제목과 설명을 입력해주세요.",
+      "incident_created": "인시던트가 생성되었습니다",
+      "incident_creation_error": "인시던트 생성 중 오류가 발생했습니다"
+    }
+  },
+  "environments": {
+    "title": {
+      "page": "환경 관리",
+      "management": "환경 관리"
+    },
+    "button": {
+      "create_new": "새 환경 생성",
+      "refresh": "새로고침",
+      "view_details": "상세보기",
+      "delete": "삭제",
+      "maintenance_mode": "점검 모드",
+      "activate": "활성화",
+      "create_first": "첫 번째 환경 생성하기"
+    },
+    "filter": {
+      "environment_type": "환경 유형 필터",
+      "all_types": "전체 유형",
+      "status": "상태 필터",
+      "all_statuses": "전체 상태"
+    },
+    "status": {
+      "active": "활성",
+      "inactive": "비활성",
+      "maintenance": "점검중"
+    },
+    "type": {
+      "development": "개발",
+      "staging": "스테이징",
+      "production": "프로덕션",
+      "testing": "테스트"
+    },
+    "health": {
+      "healthy": "정상",
+      "warning": "주의",
+      "critical": "심각",
+      "unknown": "알수없음"
+    },
+    "overview": {
+      "total_environments": "총 환경 수",
+      "active_environments": "활성 환경",
+      "production_environments": "프로덕션 환경",
+      "maintenance_environments": "점검중"
+    },
+    "details": {
+      "uptime": "업타임",
+      "response_time": "응답시간",
+      "tags": "태그",
+      "recent_deployments": "최근 배포",
+      "created": "생성",
+      "updated": "수정"
+    },
+    "message": {
+      "loading": "로딩 중...",
+      "loading_error": "데이터 로딩 중 오류",
+      "environment_loading_error": "환경 로딩 중 오류",
+      "deployment_loading_error": "배포 로딩 중 오류",
+      "system_health_loading_error": "시스템 상태 로딩 중 오류",
+      "status_change_error": "환경 상태 변경 중 오류가 발생했습니다",
+      "delete_confirm": "정말로 \"{name}\" 환경을 삭제하시겠습니까?\\n\\n이 작업은 되돌릴 수 없습니다.",
+      "delete_success": "환경이 삭제되었습니다",
+      "delete_error": "환경 삭제 중 오류가 발생했습니다",
+      "unknown_error": "알 수 없는 오류",
+      "no_environments": "환경이 없습니다."
+    }
+  },
+  "kanban": {
+    "title": {
+      "page": "칸반 보드",
+      "board": "칸반 보드"
+    },
+    "button": {
+      "add_new_task": "새 작업 추가"
+    },
+    "message": {
+      "loading": "로딩 중...",
+      "data_load_failed": "데이터를 불러올 수 없습니다",
+      "loading_error": "데이터 로딩 중 오류",
+      "status_update_failed": "작업 상태 업데이트 실패",
+      "status_update_error": "작업 상태 업데이트 중 오류가 발생했습니다"
+    }
+  },
+  "gantt": {
+    "page_title": "간트 차트 - WorkflowMCP Dashboard",
+    "title": "간트 차트",
+    "view": {
+      "task_based": "작업 기반",
+      "project_based": "프로젝트 기반"
+    },
+    "button": {
+      "refresh": "🔄 새로고침"
+    },
+    "timeline": {
+      "task_based": "작업별 타임라인",
+      "project_based": "프로젝트별 타임라인"
+    },
+    "count": {
+      "total": "총",
+      "suffix": "개 항목"
+    },
+    "legend": {
+      "title": "범례",
+      "pending": "대기중",
+      "in_progress": "진행중",
+      "completed": "완료",
+      "overdue": "지연"
+    },
+    "message": {
+      "load_failed": "데이터 로드에 실패했습니다",
+      "loading_error": "데이터 로딩 중 오류"
+    }
+  },
+  "network": {
+    "page_title": "관계도",
+    "title": "프로젝트 관계도",
+    "description": "PRD, 설계, 작업, 테스트 간의 관계를 시각화합니다",
+    "button": {
+      "hide_filters": "필터 숨기기",
+      "show_filters": "필터 보기",
+      "refresh": "🔄 새로고침",
+      "retry": "다시 시도"
+    },
+    "stats": {
+      "total_nodes": "전체 노드",
+      "total_edges": "전체 관계",
+      "connected_prds": "연결된 PRD",
+      "connected_tasks": "연결된 작업"
+    },
+    "filters": {
+      "title": "필터 및 컨트롤",
+      "search": "검색",
+      "search_placeholder": "노드명 검색...",
+      "display_types": "표시할 타입",
+      "project": "프로젝트",
+      "all_projects": "모든 프로젝트"
+    },
+    "layout": {
+      "title": "레이아웃",
+      "physics": "물리 시뮬레이션",
+      "hierarchical": "계층형"
+    },
+    "controls": {
+      "title": "뷰 컨트롤",
+      "fit_network": "🎯 전체 보기"
+    },
+    "types": {
+      "prd": "PRD",
+      "design": "설계",
+      "task": "작업",
+      "test": "테스트"
+    },
+    "modal": {
+      "title": "상세 정보",
+      "status": "상태",
+      "id": "ID",
+      "close": "닫기",
+      "view_details": "상세보기"
+    },
+    "error": {
+      "load_failed": "Failed to load relationship data",
+      "network_error": "Network error: "
+    }
+  },
+  "database": {
+    "page_title": "데이터베이스 관리 - WorkflowMCP Dashboard",
+    "title": "데이터베이스 관리",
+    "button": {
+      "refresh": "🔄 새로고침"
+    },
+    "tables": {
+      "projects": "프로젝트",
+      "prds": "PRDs",
+      "designs": "설계",
+      "tasks": "작업",
+      "tests": "테스트"
+    },
+    "column": {
+      "id": "ID",
+      "title": "제목",
+      "name": "이름",
+      "description": "설명",
+      "requirements": "요구사항",
+      "priority": "우선순위",
+      "status": "상태",
+      "created_at": "생성일",
+      "updated_at": "수정일",
+      "assignee": "담당자",
+      "estimated_hours": "예상시간",
+      "due_date": "마감일",
+      "start_date": "시작일",
+      "end_date": "종료일",
+      "timeline": "타임라인",
+      "design_type": "설계 유형",
+      "details": "세부사항",
+      "requirement_id": "요구사항 ID",
+      "test_type": "테스트 유형",
+      "complexity": "복잡도",
+      "automation_status": "자동화 상태",
+      "preconditions": "전제조건",
+      "test_steps": "테스트 단계",
+      "expected_result": "예상결과",
+      "task_id": "작업 ID",
+      "design_id": "설계 ID",
+      "prd_id": "PRD ID"
+    },
+    "status": {
+      "draft": "초안",
+      "active": "활성",
+      "inactive": "비활성",
+      "completed": "완료",
+      "cancelled": "취소됨",
+      "pending": "대기",
+      "in_progress": "진행중",
+      "review": "검토중",
+      "approved": "승인됨",
+      "implemented": "구현완료",
+      "ready": "준비완료",
+      "deprecated": "사용중지"
+    },
+    "priority": {
+      "low": "낮음",
+      "medium": "보통",
+      "high": "높음",
+      "critical": "긴급"
+    },
+    "design_type": {
+      "system": "시스템",
+      "architecture": "아키텍처",
+      "ui_ux": "UI/UX",
+      "database": "데이터베이스",
+      "api": "API"
+    },
+    "test_type": {
+      "unit": "단위 테스트",
+      "integration": "통합 테스트",
+      "system": "시스템 테스트",
+      "acceptance": "인수 테스트",
+      "regression": "회귀 테스트"
+    },
+    "complexity": {
+      "low": "낮음",
+      "medium": "보통",
+      "high": "높음"
+    },
+    "automation_status": {
+      "manual": "수동",
+      "automated": "자동화",
+      "semi_automated": "반자동"
+    },
+    "error": {
+      "loading": "데이터 로딩 중 오류: ",
+      "saving": "저장 중 오류: ",
+      "deleting": "삭제 중 오류: ",
+      "create": "생성",
+      "update": "업데이트",
+      "failed_to": "작업 실패: ",
+      "failed_to_delete": "삭제 실패: "
+    },
+    "confirm": {
+      "delete": "정말로 삭제하시겠습니까?"
+    }
+  },
+  "kanban": {
+    "title": {
+      "page": "칸반 보드",
+      "board": "칸반 보드"
+    },
+    "column": {
+      "pending": "대기중",
+      "in_progress": "진행중",
+      "completed": "완료"
+    },
+    "button": {
+      "add_new_task": "새 작업 추가"
+    },
+    "message": {
+      "loading": "로딩 중...",
+      "data_load_failed": "데이터를 불러올 수 없습니다",
+      "loading_error": "데이터 로딩 중 오류",
+      "status_update_failed": "작업 상태 업데이트 실패",
+      "status_update_error": "작업 상태 업데이트 중 오류가 발생했습니다"
+    }
+  },
+  "gantt": {
+    "page_title": "간트 차트 - WorkflowMCP Dashboard",
+    "title": "간트 차트",
+    "view": {
+      "task_based": "작업 기반",
+      "project_based": "프로젝트 기반"
+    },
+    "button": {
+      "refresh": "🔄 새로고침"
+    },
+    "timeline": {
+      "task_based": "작업별 타임라인",
+      "project_based": "프로젝트별 타임라인"
+    },
+    "count": {
+      "total": "총",
+      "suffix": "개 항목"
+    },
+    "legend": {
+      "title": "범례",
+      "pending": "대기중",
+      "in_progress": "진행중",
+      "completed": "완료",
+      "overdue": "지연"
+    },
+    "no_data": "표시할 데이터가 없습니다",
+    "status": "상태",
+    "today": "오늘",
+    "status_completed": "완료",
+    "status_in_progress": "진행중",
+    "status_pending": "대기중",
+    "status_active": "활성",
+    "status_inactive": "비활성",
+    "message": {
+      "load_failed": "데이터 로드에 실패했습니다",
+      "loading_error": "데이터 로딩 중 오류"
+    }
+  }
+}

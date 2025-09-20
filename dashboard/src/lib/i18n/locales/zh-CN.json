@@ -1,0 +1,1542 @@
+{
+  "nav": {
+    "dashboard": "仪表板",
+    "projects": "项目",
+    "requirements": "需求",
+    "designs": "设计",
+    "tasks": "任务",
+    "tests": "测试",
+    "documents": "文档",
+    "deployments": "部署",
+    "operations": "运维",
+    "environments": "环境",
+    "kanban": "看板",
+    "gantt": "甘特图",
+    "network": "关系图",
+    "database": "数据库管理"
+  },
+  "common": {
+    "save": "保存",
+    "cancel": "取消",
+    "delete": "删除",
+    "edit": "编辑",
+    "create": "创建",
+    "update": "更新",
+    "search": "搜索",
+    "filter": "筛选",
+    "status": "状态",
+    "priority": "优先级",
+    "title": "标题",
+    "description": "描述",
+    "created_at": "创建时间",
+    "updated_at": "更新时间",
+    "actions": "操作",
+    "loading": "加载中...",
+    "no_data": "暂无数据",
+    "confirm": "确认",
+    "back": "返回",
+    "next": "下一步",
+    "previous": "上一步"
+  },
+  "status": {
+    "pending": "待处理",
+    "in_progress": "进行中",
+    "done": "已完成",
+    "cancelled": "已取消",
+    "blocked": "已阻塞"
+  },
+  "chart": {
+    "count_suffix": "个",
+    "completed": "已完成"
+  },
+  "priority": {
+    "low": "低",
+    "medium": "中",
+    "high": "高",
+    "critical": "紧急"
+  },
+  "project": {
+    "title": "项目",
+    "name": "项目名称",
+    "manager": "项目经理",
+    "start_date": "开始日期",
+    "end_date": "结束日期",
+    "new_project": "新建项目",
+    "edit_project": "编辑项目"
+  },
+  "task": {
+    "title": "任务",
+    "new_task": "新建任务",
+    "edit_task": "编辑任务",
+    "assigned_to": "分配给",
+    "due_date": "截止日期",
+    "estimated_hours": "预估时间",
+    "actual_hours": "实际时间"
+  },
+  "prd": {
+    "title": "产品需求文档",
+    "new_prd": "新建PRD",
+    "edit_prd": "编辑PRD",
+    "business_objective": "业务目标",
+    "target_users": "目标用户",
+    "success_criteria": "成功标准"
+  },
+  "prds": {
+    "page_title": "PRD管理",
+    "title": "PRD管理",
+    "description": "管理产品需求文档",
+    "new_prd": "创建新PRD",
+    "error_load_failed": "无法加载PRD列表",
+    "error_loading": "加载PRD时出错: ",
+    "confirm_delete": "确定要删除此PRD吗？",
+    "error_delete": "删除PRD时发生错误: ",
+    "error_deleting": "删除时出错: ",
+    "status_active": "活跃",
+    "status_inactive": "非活跃",
+    "status_draft": "草稿",
+    "status_review": "审核中",
+    "status_approved": "已批准",
+    "status_completed": "已完成",
+    "priority_high": "高",
+    "priority_medium": "中",
+    "priority_low": "低",
+    "sort_label": "排序:",
+    "sort_created_desc": "最新创建",
+    "sort_created_asc": "最早创建",
+    "sort_updated_desc": "最新更新",
+    "sort_updated_asc": "最早更新",
+    "sort_title_asc": "标题升序",
+    "sort_title_desc": "标题降序",
+    "retry": "重试",
+    "no_prds": "暂无PRD",
+    "create_first": "创建您的第一个PRD",
+    "no_description": "暂无描述",
+    "tasks": "任务",
+    "completed": "已完成",
+    "tasks_suffix": "个",
+    "created": "创建",
+    "updated": "更新",
+    "view_details": "查看详情",
+    "edit": "编辑",
+    "delete": "删除",
+    "overall_stats": "总体统计",
+    "total_prds": "PRD总数",
+    "active_prds": "活跃PRD",
+    "total_tasks": "任务总数",
+    "completed_tasks": "已完成任务"
+  },
+  "designs": {
+    "title": "设计管理",
+    "description": "管理系统设计",
+    "sort": {
+      "label": "排序:",
+      "updated": "最近更新",
+      "created": "最近创建",
+      "title": "按标题"
+    },
+    "button": {
+      "addNew": "添加新设计",
+      "retry": "重试",
+      "view": "查看详情",
+      "edit": "编辑",
+      "delete": "删除",
+      "requestReview": "请求审核",
+      "approve": "批准",
+      "toDraft": "退回草稿",
+      "markImplemented": "标记为已实现",
+      "reReview": "重新审核",
+      "reApprove": "重新批准"
+    },
+    "status": {
+      "draft": "草稿",
+      "review": "审核中",
+      "approved": "已批准",
+      "implemented": "已实现"
+    },
+    "type": {
+      "system": "系统",
+      "architecture": "架构",
+      "ui_ux": "UI/UX",
+      "database": "数据库",
+      "api": "API"
+    },
+    "priority": {
+      "high": "高",
+      "medium": "中",
+      "low": "低"
+    },
+    "error": {
+      "loadFailed": "无法加载设计列表",
+      "loadError": "加载设计时出错: ",
+      "statusChangeFailed": "更改设计状态时发生错误",
+      "statusChangeError": "状态更改时出错: ",
+      "deleteFailed": "删除设计时发生错误",
+      "deleteError": "删除时出错: "
+    },
+    "confirm": {
+      "delete": "确定要删除此设计吗？"
+    },
+    "empty": {
+      "title": "暂无设计",
+      "description": "添加您的第一个设计"
+    },
+    "statistics": {
+      "title": "总体统计",
+      "total": "设计总数"
+    },
+    "relatedRequirement": "相关需求"
+  },
+  "language": {
+    "select_language": "选择语言",
+    "korean": "한국어",
+    "english": "English",
+    "chinese": "中文",
+    "japanese": "日本語",
+    "portuguese": "Português",
+    "german": "Deutsch",
+    "hindi": "हिंदी",
+    "spanish": "Español",
+    "russian": "Русский",
+    "indonesian": "Bahasa Indonesia"
+  },
+  "dashboard": {
+    "title": "仪表板",
+    "last_updated": "最后更新:",
+    "total_prds": "总PRD数",
+    "active_suffix": "个活跃",
+    "total_tasks": "总任务数",
+    "completion_suffix": "% 完成",
+    "in_progress_tasks": "进行中任务",
+    "pending_suffix": "个待处理",
+    "total_plans": "总计划数",
+    "task_activity_trend": "任务活动趋势 (30天)",
+    "priority_distribution": "优先级分布",
+    "quick_actions": "快速操作",
+    "new_prd": "📋 创建新PRD",
+    "new_task": "✅ 添加新任务",
+    "new_plan": "📅 创建新计划",
+    "recent_activity": "最近活动",
+    "tasks_count": "任务",
+    "completed_count": "已完成",
+    "chart_total_tasks": "任务总数",
+    "chart_completed_tasks": "已完成任务",
+    "no_data": "暂无数据"
+  },
+  "tasks": {
+    "page_title": "任务管理",
+    "title": "任务管理",
+    "description": "管理项目任务",
+    "sort_label": "排序",
+    "sort_updated": "最近更新",
+    "sort_created": "最近创建",
+    "sort_title": "按标题",
+    "new_task": "添加新任务",
+    "retry": "重试",
+    "no_tasks": "暂无任务",
+    "create_first": "创建您的第一个任务",
+    "status_pending": "待处理",
+    "status_in_progress": "进行中",
+    "status_completed": "已完成",
+    "priority_high": "高",
+    "priority_medium": "中",
+    "priority_low": "低",
+    "due_date": "截止",
+    "action_start": "开始",
+    "action_complete": "完成",
+    "action_pending": "标记待处理",
+    "action_restart": "重新开始",
+    "action_details": "详情",
+    "action_edit": "编辑",
+    "action_delete": "删除",
+    "view_details": "查看详情",
+    "edit_task": "编辑",
+    "overall_stats": "总体统计",
+    "total_tasks": "任务总数",
+    "in_progress_tasks": "进行中",
+    "completed_tasks": "已完成",
+    "completion_rate": "完成率",
+    "error_load_failed": "无法加载任务列表",
+    "error_updating": "更新任务状态时发生错误",
+    "error_deleting": "删除任务时发生错误",
+    "confirm_delete": "确定要删除此任务吗？",
+    "confirm_status_change": "确定要更改任务状态吗？"
+  },
+  "documents": {
+    "title": "文档管理",
+    "description": "管理和搜索项目文档。",
+    "sort": {
+      "label": "排序",
+      "updated": "最近更新",
+      "created": "最近创建",
+      "title": "按标题"
+    },
+    "button": {
+      "new": "新建文档",
+      "refresh": "刷新",
+      "edit": "编辑",
+      "view": "查看详情",
+      "cancel": "取消",
+      "create": "创建文档",
+      "update": "更新文档",
+      "retry": "重试",
+      "creating": "创建中...",
+      "updating": "更新中..."
+    },
+    "filter": {
+      "title": "筛选",
+      "search": "搜索",
+      "doc_type": "文档类型",
+      "category": "分类",
+      "status": "状态",
+      "search_placeholder": "按标题或摘要搜索...",
+      "all_types": "所有类型",
+      "all_categories": "所有分类",
+      "all_statuses": "所有状态"
+    },
+    "form": {
+      "create_title": "创建新文档",
+      "edit_title": "编辑文档",
+      "title": "标题",
+      "doc_type": "文档类型",
+      "category": "分类",
+      "tags": "标签",
+      "summary": "摘要",
+      "content": "内容",
+      "status": "状态",
+      "title_placeholder": "输入文档标题",
+      "category_placeholder": "输入或选择分类",
+      "tags_placeholder": "输入标签，用逗号分隔（如：测试, 分析, 开发）",
+      "summary_placeholder": "输入文档的简要摘要",
+      "content_placeholder": "使用Markdown格式编写文档内容",
+      "select_type": "选择类型",
+      "frequent_tags": "常用标签"
+    },
+    "list": {
+      "title": "文档列表",
+      "count_suffix": "个",
+      "created": "创建",
+      "updated": "更新",
+      "linked_suffix": "个关联"
+    },
+    "loading": "正在加载文档...",
+    "error": {
+      "title": "发生错误"
+    },
+    "empty": {
+      "title": "暂无文档",
+      "no_documents": "还没有创建任何文档。",
+      "no_filtered": "没有符合筛选条件的文档。"
+    },
+    "alert": {
+      "title_content_required": "请输入标题和内容。",
+      "created_success": "文档创建成功！",
+      "create_error": "创建文档时发生错误：",
+      "updated_success": "文档更新成功！",
+      "update_error": "更新文档时发生错误："
+    },
+    "type": {
+      "test_guide": "测试指南",
+      "test_results": "测试结果",
+      "analysis": "分析报告",
+      "report": "报告",
+      "checklist": "检查清单",
+      "specification": "规范文档",
+      "meeting_notes": "会议记录",
+      "decision_log": "决策日志"
+    },
+    "status": {
+      "draft": "草稿",
+      "review": "审核中",
+      "approved": "已批准",
+      "archived": "已归档"
+    }
+  },
+  "projects": {
+    "page_title": "项目管理",
+    "title": "项目管理",
+    "description": "管理所有项目",
+    "new_project": "创建新项目",
+    "error_load_failed": "无法加载项目列表",
+    "error_loading": "加载项目时出错: ",
+    "confirm_delete": "确定要删除此项目吗？如有关联数据可能无法删除。",
+    "error_delete": "删除项目时发生错误: ",
+    "error_deleting": "删除时出错: ",
+    "status_planning": "计划中",
+    "status_active": "进行中",
+    "status_on_hold": "暂停",
+    "status_completed": "已完成",
+    "priority_high": "高",
+    "priority_medium": "中",
+    "priority_low": "低",
+    "sort_label": "排序",
+    "sort_updated": "最近更新",
+    "sort_created": "最近创建",
+    "sort_name": "按名称",
+    "sort_status": "按状态",
+    "sort_priority": "按优先级",
+    "retry": "重试",
+    "no_projects": "暂无项目",
+    "create_first": "创建您的第一个项目",
+    "no_description": "无描述",
+    "progress": "进度",
+    "tasks": "任务",
+    "documents": "文档",
+    "start_date": "开始",
+    "end_date": "结束",
+    "updated": "更新",
+    "view_details": "查看详情",
+    "edit": "编辑",
+    "delete": "删除",
+    "overall_stats": "总体统计",
+    "total_projects": "项目总数",
+    "average_progress": "平均进度"
+  },
+  "deployments": {
+    "title": "部署管理",
+    "description": "管理和追踪系统部署",
+    "sort": {
+      "label": "排序",
+      "scheduled": "按时间",
+      "created": "创建时间",
+      "status": "按状态",
+      "environment": "按环境"
+    },
+    "button": {
+      "new": "新建部署",
+      "refresh": "刷新",
+      "execute": "执行部署",
+      "rollback": "回滚",
+      "back_to_list": "返回列表",
+      "back_to_list_error": "返回列表",
+      "cancel": "取消",
+      "retry": "重试"
+    },
+    "status": {
+      "planned": "已计划",
+      "in_progress": "执行中",
+      "completed": "已完成",
+      "failed": "失败",
+      "rolled_back": "已回滚"
+    },
+    "type": {
+      "rolling": "滚动部署",
+      "blue_green": "蓝绿部署",
+      "canary": "金丝雀部署",
+      "hotfix": "热修复部署"
+    },
+    "environment": {
+      "development": "开发环境",
+      "staging": "测试环境",
+      "production": "生产环境",
+      "testing": "测试环境"
+    },
+    "list": {
+      "title": "部署列表",
+      "empty_title": "暂无部署",
+      "empty_description": "还没有创建任何部署。",
+      "count_suffix": "个",
+      "scheduled_time": "计划时间",
+      "version": "版本",
+      "environment": "环境",
+      "deployment_type": "部署类型"
+    },
+    "details": {
+      "title": "部署详情",
+      "title_prefix": "部署",
+      "basic_info": "基本信息",
+      "version": "版本",
+      "environment": "环境",
+      "deployment_type": "部署类型",
+      "schedule": "时间安排",
+      "created_at": "创建时间",
+      "scheduled_time": "计划时间",
+      "execution_time": "执行时间",
+      "status_info": "状态信息",
+      "current_status": "当前状态",
+      "rollback_version": "回滚版本",
+      "last_updated": "最后更新",
+      "configuration": "部署配置",
+      "tags": "标签",
+      "notes": "备注"
+    },
+    "create": {
+      "title": "创建新部署",
+      "description": "计划和配置新的部署"
+    },
+    "form": {
+      "basic_info": "基本信息",
+      "title": "部署标题",
+      "title_placeholder": "例如：生产环境 v2.1.0 部署",
+      "description": "描述",
+      "description_placeholder": "请描述部署内容和目的",
+      "target_environment": "目标环境",
+      "select_environment": "请选择环境",
+      "project_optional": "项目（可选）",
+      "select_project": "请选择项目",
+      "deployment_settings": "部署设置",
+      "version": "版本",
+      "version_placeholder": "v1.0.0",
+      "auto_generate": "自动生成",
+      "deployment_method": "部署方式",
+      "scheduled_time_optional": "计划时间（可选）",
+      "one_hour_later": "1小时后",
+      "rollback_version_optional": "回滚版本（可选）",
+      "rollback_version_placeholder": "问题发生时回滚的版本",
+      "additional_settings": "其他设置",
+      "tags_comma_separated": "标签（逗号分隔）",
+      "tags_placeholder": "production, urgent, feature-release",
+      "additional_notes": "附加备注",
+      "notes_placeholder": "部署相关的附加信息或注意事项",
+      "deployment_config": "部署配置",
+      "timeout_seconds": "超时时间（秒）",
+      "max_parallel": "最大并行数",
+      "enable_health_check": "启用健康检查",
+      "required_fields": "请填写所有必填字段",
+      "create_deployment": "创建部署",
+      "creating": "创建中...",
+      "create_failed": "部署创建失败",
+      "create_error": "创建部署时出错：",
+      "environment_load_error": "环境加载失败：",
+      "project_load_error": "项目加载失败："
+    },
+    "message": {
+      "loading_error": "部署加载出错：",
+      "deployment_not_found": "找不到部署信息",
+      "environment_loading_error": "环境加载出错：",
+      "confirm_execute": "确定要执行此部署吗？",
+      "execute_success": "部署已执行",
+      "execute_error": "部署执行出错",
+      "rollback_reason_prompt": "请输入回滚原因：",
+      "rollback_success": "部署已回滚",
+      "rollback_error": "部署回滚出错",
+      "load_failed": "无法加载部署列表",
+      "error_updating": "更新部署状态时发生错误",
+      "error_deleting": "删除部署时发生错误",
+      "confirm_delete": "确定要删除此部署吗？"
+    },
+    "loading": "正在加载部署...",
+    "error": {
+      "title": "发生错误"
+    }
+  },
+  "operations": {
+    "title": {
+      "page": "运营仪表板",
+      "dashboard": "运营仪表板"
+    },
+    "button": {
+      "create_incident": "创建事件",
+      "refresh": "刷新",
+      "view_details": "查看详情",
+      "cancel": "取消"
+    },
+    "status": {
+      "open": "处理中",
+      "investigating": "调查中",
+      "identified": "已确定",
+      "monitoring": "监控中",
+      "resolved": "已解决"
+    },
+    "severity": {
+      "critical": "严重",
+      "high": "高",
+      "medium": "中等",
+      "low": "低"
+    },
+    "type": {
+      "outage": "故障",
+      "performance": "性能",
+      "security": "安全",
+      "data": "数据",
+      "deployment": "部署"
+    },
+    "health": {
+      "healthy": "正常",
+      "warning": "警告",
+      "critical": "严重",
+      "unknown": "未知"
+    },
+    "incident": {
+      "active_incidents": "活跃事件",
+      "no_active_incidents": "当前没有活跃事件"
+    },
+    "monitoring": {
+      "system_health": "系统健康",
+      "performance_metrics": "性能指标",
+      "uptime": "正常运行时间",
+      "response_time": "响应时间",
+      "no_system_health_data": "没有系统健康数据",
+      "no_performance_data": "没有性能指标数据"
+    },
+    "dashboard": {
+      "active_incidents": "活跃事件",
+      "system_status": "系统状态",
+      "healthy_environments": "健康环境",
+      "average_uptime": "平均正常运行时间",
+      "critical_alert_rules": "严重警报规则",
+      "enabled": "已启用",
+      "recent_activity": "最近活动",
+      "no_recent_activity": "没有最近活动",
+      "quick_access": "快速访问",
+      "incident_management": "事件管理",
+      "view_all_incidents": "查看所有事件",
+      "deployment_center": "部署中心",
+      "check_deployment_status": "检查部署状态",
+      "environment_management": "环境管理",
+      "view_environment_status": "查看环境状态",
+      "alert_rules": "警报规则",
+      "manage_alert_settings": "管理警报设置"
+    },
+    "filter": {
+      "time_1h": "1小时",
+      "time_6h": "6小时",
+      "time_24h": "24小时",
+      "time_7d": "7天",
+      "time_30d": "30天"
+    },
+    "form": {
+      "create_new_incident": "创建新事件",
+      "title": "标题",
+      "description": "描述",
+      "severity": "严重程度",
+      "incident_type": "事件类型",
+      "title_placeholder": "输入事件标题",
+      "description_placeholder": "输入详细事件描述"
+    },
+    "message": {
+      "loading": "加载中...",
+      "loading_error": "加载运营数据时出错",
+      "incident_loading_error": "加载事件时出错",
+      "system_health_loading_error": "加载系统健康时出错",
+      "performance_metrics_loading_error": "加载性能指标时出错",
+      "alert_rules_loading_error": "加载警报规则时出错",
+      "title_description_required": "请输入标题和描述。",
+      "incident_created": "事件已创建",
+      "incident_creation_error": "创建事件时发生错误"
+    }
+  },
+  "kanban": {
+    "title": {
+      "page": "看板",
+      "board": "看板"
+    },
+    "column": {
+      "pending": "待处理",
+      "in_progress": "进行中",
+      "completed": "已完成"
+    },
+    "button": {
+      "add_new_task": "添加新任务"
+    },
+    "message": {
+      "loading": "加载中...",
+      "data_load_failed": "无法加载数据",
+      "loading_error": "加载数据时出错",
+      "status_update_failed": "更新任务状态失败",
+      "status_update_error": "更新任务状态时发生错误"
+    }
+  },
+  "gantt": {
+    "page_title": "甘特图 - WorkflowMCP 仪表板",
+    "title": "甘特图",
+    "view": {
+      "task_based": "任务视图",
+      "project_based": "项目视图"
+    },
+    "button": {
+      "refresh": "🔄 刷新"
+    },
+    "timeline": {
+      "task_based": "任务时间线",
+      "project_based": "项目时间线"
+    },
+    "count": {
+      "total": "总共 ",
+      "suffix": " 个项目"
+    },
+    "legend": {
+      "title": "图例",
+      "pending": "待处理",
+      "in_progress": "进行中",
+      "completed": "已完成",
+      "overdue": "已逾期"
+    },
+    "status": "状态",
+    "status_completed": "已完成",
+    "status_in_progress": "进行中",
+    "status_pending": "待处理",
+    "status_active": "活跃",
+    "status_inactive": "非活跃",
+    "today": "今天",
+    "no_data": "暂无数据显示",
+    "message": {
+      "load_failed": "无法加载数据",
+      "loading_error": "加载数据时出错"
+    }
+  },
+  "network": {
+    "page_title": "网络关系图",
+    "title": "项目关系图",
+    "description": "可视化PRD、设计、任务和测试之间的关系",
+    "button": {
+      "hide_filters": "隐藏筛选",
+      "show_filters": "显示筛选",
+      "refresh": "🔄 刷新",
+      "retry": "重试"
+    },
+    "stats": {
+      "total_nodes": "总节点数",
+      "total_edges": "总关系数",
+      "connected_prds": "已连接PRD",
+      "connected_tasks": "已连接任务"
+    },
+    "filters": {
+      "title": "筛选和控制",
+      "search": "搜索",
+      "search_placeholder": "搜索节点...",
+      "display_types": "显示类型",
+      "project": "项目",
+      "all_projects": "所有项目"
+    },
+    "layout": {
+      "title": "布局",
+      "physics": "物理仿真",
+      "hierarchical": "层次结构"
+    },
+    "controls": {
+      "title": "视图控制",
+      "fit_network": "🎯 适合视图"
+    },
+    "types": {
+      "prd": "PRD",
+      "design": "设计",
+      "task": "任务",
+      "test": "测试"
+    },
+    "modal": {
+      "title": "详细信息",
+      "status": "状态",
+      "id": "ID",
+      "close": "关闭",
+      "view_details": "查看详情"
+    },
+    "error": {
+      "load_failed": "无法加载关系数据",
+      "network_error": "网络错误："
+    }
+  },
+  "database": {
+    "page_title": "数据库管理 - WorkflowMCP 仪表板",
+    "title": "数据库管理",
+    "button": {
+      "refresh": "🔄 刷新"
+    },
+    "tables": {
+      "projects": "项目",
+      "prds": "PRDs",
+      "designs": "设计",
+      "tasks": "任务",
+      "tests": "测试"
+    },
+    "column": {
+      "id": "ID",
+      "title": "标题",
+      "name": "名称",
+      "description": "描述",
+      "requirements": "需求",
+      "priority": "优先级",
+      "status": "状态",
+      "created_at": "创建时间",
+      "updated_at": "更新时间",
+      "assignee": "负责人",
+      "estimated_hours": "预估小时",
+      "due_date": "截止日期",
+      "start_date": "开始日期",
+      "end_date": "结束日期",
+      "timeline": "时间线",
+      "design_type": "设计类型",
+      "details": "详细信息",
+      "requirement_id": "需求ID",
+      "test_type": "测试类型",
+      "complexity": "复杂度",
+      "automation_status": "自动化状态",
+      "preconditions": "前置条件",
+      "test_steps": "测试步骤",
+      "expected_result": "预期结果",
+      "task_id": "任务ID",
+      "design_id": "设计ID",
+      "prd_id": "PRD ID"
+    },
+    "priority": {
+      "low": "低",
+      "medium": "中",
+      "high": "高",
+      "critical": "紧急"
+    },
+    "status": {
+      "draft": "草稿",
+      "active": "活跃",
+      "completed": "已完成",
+      "cancelled": "已取消",
+      "pending": "待处理",
+      "in_progress": "进行中",
+      "inactive": "非活跃",
+      "review": "审核中",
+      "approved": "已批准",
+      "implemented": "已实施",
+      "ready": "准备就绪",
+      "deprecated": "已弃用"
+    },
+    "design_type": {
+      "system": "系统",
+      "architecture": "架构",
+      "ui_ux": "UI/UX",
+      "database": "数据库",
+      "api": "API"
+    },
+    "test_type": {
+      "unit": "单元测试",
+      "integration": "集成测试",
+      "system": "系统测试",
+      "acceptance": "验收测试",
+      "regression": "回归测试"
+    },
+    "complexity": {
+      "low": "低",
+      "medium": "中",
+      "high": "高"
+    },
+    "automation_status": {
+      "manual": "手动",
+      "automated": "自动化",
+      "semi_automated": "半自动化"
+    },
+    "confirm": {
+      "delete": "确定要删除吗？"
+    },
+    "error": {
+      "loading": "加载数据错误：",
+      "create": "创建",
+      "update": "更新",
+      "failed_to": "无法",
+      "failed_to_delete": "无法删除",
+      "saving": "保存错误",
+      "deleting": "删除错误"
+    }
+  },
+  "tests": {
+    "page_title": "测试管理 - WorkflowMCP 仪表板",
+    "title": "测试管理",
+    "description": "管理和跟踪系统测试",
+    "sort_label": "排序",
+    "sort_updated": "按更新时间",
+    "sort_created": "按创建时间",
+    "sort_title": "按标题",
+    "new_test": "新建测试",
+    "retry": "重试",
+    "no_tests": "暂无测试",
+    "button": {
+      "create_new": "创建新测试",
+      "run_test": "运行测试",
+      "edit_test": "编辑测试",
+      "delete_test": "删除测试",
+      "view_details": "查看详情",
+      "run_all": "运行全部",
+      "export": "导出",
+      "import": "导入",
+      "duplicate": "复制",
+      "archive": "归档"
+    },
+    "filter": {
+      "all": "全部",
+      "type": "按类型筛选",
+      "status": "按状态筛选",
+      "priority": "按优先级筛选",
+      "automation": "按自动化状态",
+      "assignee": "按负责人"
+    },
+    "form": {
+      "title": "测试标题",
+      "description": "测试描述",
+      "type": "测试类型",
+      "priority": "优先级",
+      "status": "状态",
+      "complexity": "复杂度",
+      "automation_status": "自动化状态",
+      "preconditions": "前置条件",
+      "test_steps": "测试步骤",
+      "expected_result": "预期结果",
+      "assignee": "负责人",
+      "estimated_duration": "预估时长（分钟）",
+      "tags": "标签",
+      "cancel": "取消",
+      "save": "保存",
+      "create": "创建",
+      "update": "更新"
+    },
+    "execution": {
+      "title": "测试执行",
+      "status": "执行状态",
+      "started_at": "开始时间",
+      "completed_at": "完成时间",
+      "duration": "执行时长",
+      "executed_by": "执行人",
+      "environment": "环境",
+      "actual_result": "实际结果",
+      "notes": "备注",
+      "attachments": "附件",
+      "defects_found": "发现的缺陷"
+    },
+    "status": {
+      "draft": "草稿",
+      "ready": "就绪",
+      "active": "活跃",
+      "deprecated": "已废弃",
+      "pass": "通过",
+      "fail": "失败",
+      "blocked": "阻塞",
+      "skipped": "跳过",
+      "pending": "待执行"
+    },
+    "type": {
+      "unit": "单元测试",
+      "integration": "集成测试",
+      "system": "系统测试",
+      "acceptance": "验收测试",
+      "regression": "回归测试"
+    },
+    "automation_status": {
+      "manual": "手动",
+      "automated": "自动化",
+      "semi_automated": "半自动化"
+    },
+    "environment": {
+      "development": "开发环境",
+      "staging": "测试环境",
+      "production": "生产环境"
+    },
+    "summary": {
+      "total": "总测试数",
+      "passed": "通过",
+      "failed": "失败",
+      "blocked": "阻塞",
+      "skipped": "跳过",
+      "pass_rate": "通过率",
+      "coverage": "覆盖率"
+    },
+    "create_first": "创建第一个测试",
+    "overall_stats": "总体统计",
+    "total_tests": "总测试数",
+    "passed_tests": "通过测试",
+    "failed_tests": "失败测试",
+    "pending_tests": "待执行测试",
+    "success_rate": "成功率",
+    "filter": {
+      "all": "全部",
+      "type": "按类型筛选",
+      "status": "按状态筛选",
+      "priority": "按优先级筛选",
+      "automation": "按自动化状态",
+      "assignee": "按负责人",
+      "all_types": "所有类型",
+      "all_statuses": "所有状态",
+      "all_priorities": "所有优先级",
+      "all_automation": "所有自动化状态",
+      "all_assignees": "所有负责人"
+    },
+    "details": {
+      "test_id": "测试ID",
+      "created_by": "创建者",
+      "updated_by": "更新者",
+      "execution_history": "执行历史",
+      "last_execution": "最近执行",
+      "success_rate": "成功率",
+      "average_duration": "平均执行时间",
+      "total_executions": "总执行次数",
+      "failed_executions": "失败次数",
+      "connections": "关联",
+      "related_tasks": "相关任务",
+      "related_requirements": "相关需求",
+      "test_data": "测试数据"
+    },
+    "coverage": {
+      "title": "测试覆盖率",
+      "by_requirements": "按需求覆盖",
+      "by_tasks": "按任务覆盖",
+      "by_components": "按组件覆盖",
+      "uncovered": "未覆盖",
+      "partially_covered": "部分覆盖",
+      "fully_covered": "完全覆盖"
+    },
+    "report": {
+      "title": "测试报告",
+      "execution_summary": "执行摘要",
+      "pass_fail_ratio": "通过失败比例",
+      "duration_analysis": "执行时间分析",
+      "trend_analysis": "趋势分析",
+      "defect_analysis": "缺陷分析",
+      "recommendation": "建议"
+    },
+    "automation": {
+      "title": "自动化设置",
+      "schedule": "执行计划",
+      "triggers": "触发条件",
+      "notifications": "通知设置",
+      "retry_policy": "重试策略",
+      "timeout": "超时设置"
+    },
+    "message": {
+      "delete_confirm": "确定要删除这个测试吗？",
+      "delete_success": "测试删除成功",
+      "delete_error": "删除测试失败",
+      "save_success": "测试保存成功",
+      "save_error": "保存测试失败",
+      "run_success": "测试执行成功",
+      "run_error": "测试执行失败",
+      "loading": "加载测试数据...",
+      "no_results": "没有找到匹配的测试",
+      "validation_error": "表单验证失败",
+      "unknown_error": "发生未知错误",
+      "bulk_delete_confirm": "确定要删除选中的测试吗？",
+      "bulk_run_confirm": "确定要运行选中的测试吗？",
+      "archive_confirm": "确定要归档这个测试吗？",
+      "connection_success": "关联成功",
+      "connection_error": "关联失败",
+      "export_success": "导出成功",
+      "export_error": "导出失败",
+      "import_success": "导入成功",
+      "import_error": "导入失败"
+    }
+  },
+  "deployments": {
+    "page_title": "部署管理 - WorkflowMCP 仪表板",
+    "title": "部署管理",
+    "description": "管理和跟踪系统部署",
+    "loading": "加载部署中...",
+    "button": {
+      "create_new": "创建新部署",
+      "view_details": "查看详情",
+      "delete": "删除",
+      "delete_tooltip": "删除部署",
+      "create_first": "创建第一个部署",
+      "new": "新建",
+      "refresh": "刷新",
+      "execute": "执行",
+      "rollback": "回滚",
+      "back_to_list": "返回列表",
+      "back_to_list_error": "返回列表失败",
+      "cancel": "取消",
+      "retry": "重试"
+    },
+    "filter": {
+      "sort": "排序",
+      "sort_by_scheduled": "按计划时间",
+      "sort_by_created": "按创建时间",
+      "sort_by_status": "按状态",
+      "status_filter": "状态筛选",
+      "environment_filter": "环境筛选",
+      "all": "全部",
+      "all_environments": "所有环境"
+    },
+    "details": {
+      "duration": "持续时间",
+      "minutes": "分钟"
+    },
+    "form": {
+      "cancel": "取消"
+    },
+    "sort": {
+      "label": "排序",
+      "scheduled": "按计划",
+      "created": "按创建",
+      "status": "按状态",
+      "environment": "按环境"
+    },
+    "list": {
+      "empty": "暂无部署",
+      "loading": "加载中..."
+    },
+    "status": {
+      "planned": "计划中",
+      "in_progress": "进行中",
+      "completed": "已完成",
+      "failed": "失败",
+      "rolled_back": "已回滚"
+    },
+    "type": {
+      "blue_green": "蓝绿部署",
+      "rolling": "滚动部署",
+      "canary": "金丝雀部署",
+      "hotfix": "热修复"
+    },
+    "form": {
+      "title": "部署标题",
+      "description": "部署描述",
+      "version": "版本",
+      "environment": "环境",
+      "deployment_type": "部署类型",
+      "scheduled_at": "计划时间",
+      "rollback_version": "回滚版本",
+      "notes": "备注",
+      "deployment_config": "部署配置",
+      "tags": "标签",
+      "save": "保存",
+      "create": "创建",
+      "update": "更新",
+      "execute_now": "立即执行",
+      "schedule": "计划执行"
+    },
+    "details": {
+      "deployment_id": "部署ID",
+      "version": "版本",
+      "environment": "环境",
+      "type": "部署类型",
+      "status": "状态",
+      "scheduled_at": "计划时间",
+      "started_at": "开始时间",
+      "completed_at": "完成时间",
+      "rollback_version": "回滚版本",
+      "deployment_config": "部署配置",
+      "notes": "备注",
+      "tags": "标签",
+      "created_by": "创建者",
+      "executed_by": "执行者"
+    },
+    "overview": {
+      "total_deployments": "总部署数",
+      "successful_deployments": "成功部署",
+      "failed_deployments": "失败部署",
+      "pending_deployments": "待执行部署",
+      "success_rate": "成功率",
+      "recent_deployments": "最近部署"
+    },
+    "environment": {
+      "development": "开发环境",
+      "staging": "测试环境",
+      "production": "生产环境",
+      "testing": "测试环境"
+    },
+    "list": {
+      "title": "部署列表",
+      "empty_title": "暂无部署",
+      "empty_description": "还没有创建任何部署",
+      "count_suffix": "个",
+      "scheduled_time": "计划时间",
+      "version": "版本",
+      "environment": "环境",
+      "status": "状态",
+      "actions": "操作",
+      "created_at": "创建时间",
+      "updated_at": "更新时间"
+    },
+    "execution": {
+      "title": "部署执行",
+      "progress": "执行进度",
+      "logs": "执行日志",
+      "steps": "执行步骤",
+      "current_step": "当前步骤",
+      "completed_steps": "已完成步骤",
+      "remaining_steps": "剩余步骤",
+      "error_logs": "错误日志",
+      "warnings": "警告信息"
+    },
+    "message": {
+      "delete_success": "部署删除成功",
+      "delete_error": "删除部署失败",
+      "unknown_error": "发生未知错误",
+      "no_deployments": "暂无部署记录",
+      "delete_confirm": "确定要删除这个部署吗？",
+      "execute_confirm": "确定要执行这个部署吗？",
+      "rollback_confirm": "确定要回滚到指定版本吗？",
+      "save_success": "部署保存成功",
+      "save_error": "保存部署失败",
+      "execute_success": "部署执行成功",
+      "execute_error": "部署执行失败",
+      "rollback_success": "回滚成功",
+      "rollback_error": "回滚失败",
+      "loading": "加载部署数据...",
+      "execution_loading": "部署执行中...",
+      "no_results": "没有找到匹配的部署",
+      "validation_error": "表单验证失败",
+      "config_error": "配置错误",
+      "permission_error": "权限不足",
+      "network_error": "网络错误",
+      "timeout_error": "操作超时"
+    }
+  },
+  "environments": {
+    "title": {
+      "page": "环境管理 - WorkflowMCP 仪表板",
+      "management": "环境管理"
+    },
+    "description": "管理和监控系统环境",
+    "loading": "加载环境中...",
+    "button": {
+      "create_new": "创建新环境",
+      "refresh": "刷新",
+      "maintenance_mode": "维护模式",
+      "activate": "激活",
+      "view_details": "查看详情",
+      "delete": "删除",
+      "create_first": "创建第一个环境"
+    },
+    "filter": {
+      "environment_type": "环境类型",
+      "status": "状态筛选",
+      "all": "全部",
+      "all_types": "所有类型",
+      "all_statuses": "所有状态"
+    },
+    "overview": {
+      "total_environments": "总环境数",
+      "active_environments": "活跃环境",
+      "production_environments": "生产环境",
+      "maintenance_environments": "维护环境"
+    },
+    "details": {
+      "tags": "标签",
+      "recent_deployments": "最近部署",
+      "created": "创建时间",
+      "updated": "更新时间",
+      "uptime": "运行时间",
+      "response_time": "响应时间"
+    },
+    "type": {
+      "development": "开发环境",
+      "staging": "测试环境",
+      "production": "生产环境",
+      "testing": "测试环境"
+    },
+    "status": {
+      "active": "活跃",
+      "inactive": "非活跃",
+      "maintenance": "维护中"
+    },
+    "health": {
+      "title": "健康状态",
+      "healthy": "健康",
+      "warning": "警告",
+      "critical": "严重",
+      "unknown": "未知"
+    },
+    "metrics": {
+      "cpu": "CPU使用率",
+      "memory": "内存使用率",
+      "disk": "磁盘使用率",
+      "uptime": "运行时间"
+    },
+    "form": {
+      "name": "环境名称",
+      "description": "环境描述",
+      "type": "环境类型",
+      "url": "环境URL",
+      "status": "状态",
+      "tags": "标签",
+      "cancel": "取消",
+      "save": "保存",
+      "create": "创建",
+      "update": "更新"
+    },
+    "message": {
+      "delete_confirm": "确定要删除这个环境吗？",
+      "delete_success": "环境删除成功",
+      "delete_error": "删除环境失败",
+      "save_success": "环境保存成功",
+      "save_error": "保存环境失败",
+      "loading": "加载环境数据...",
+      "no_results": "没有找到匹配的环境",
+      "validation_error": "表单验证失败",
+      "unknown_error": "发生未知错误",
+      "no_environments": "暂无环境",
+      "loading_error": "加载失败",
+      "environment_loading_error": "环境数据加载失败",
+      "deployment_loading_error": "部署数据加载失败",
+      "system_health_loading_error": "系统健康状态加载失败",
+      "status_change_error": "状态变更失败"
+    }
+  },
+  "deployments": {
+    "title": "部署中心",
+    "description": "管理和跟踪系统部署",
+    "loading": "正在加载部署...",
+    "button": {
+      "create_new": "创建新部署",
+      "refresh": "刷新",
+      "execute": "执行部署",
+      "rollback": "回滚",
+      "view_details": "查看详情",
+      "delete": "删除",
+      "delete_tooltip": "删除部署",
+      "create_first": "创建第一个部署",
+      "back_to_list": "返回列表",
+      "back_to_list_error": "返回列表",
+      "new": "新部署",
+      "cancel": "取消",
+      "retry": "重试"
+    },
+    "status": {
+      "planned": "已计划",
+      "in_progress": "进行中",
+      "completed": "已完成",
+      "failed": "失败",
+      "rolled_back": "已回滚"
+    },
+    "type": {
+      "blue_green": "蓝绿部署",
+      "rolling": "滚动部署",
+      "canary": "金丝雀部署",
+      "hotfix": "热修复"
+    },
+    "filter": {
+      "sort": "排序",
+      "sort_by_scheduled": "按计划时间",
+      "sort_by_created": "按创建时间",
+      "sort_by_status": "按状态",
+      "status_filter": "状态筛选",
+      "environment_filter": "环境筛选",
+      "all": "全部",
+      "all_environments": "全部环境"
+    },
+    "sort": {
+      "label": "排序",
+      "scheduled": "计划时间",
+      "created": "创建时间",
+      "status": "状态",
+      "environment": "环境"
+    },
+    "environment": {
+      "development": "开发环境",
+      "staging": "测试环境",
+      "production": "生产环境",
+      "testing": "测试环境"
+    },
+    "list": {
+      "title": "部署列表",
+      "count_suffix": "个",
+      "version": "版本",
+      "environment": "环境",
+      "scheduled_time": "计划时间",
+      "deployment_type": "部署类型",
+      "empty_title": "暂无部署",
+      "empty_description": "还没有创建任何部署。"
+    },
+    "error": {
+      "title": "发生错误"
+    },
+    "details": {
+      "title": "部署详情",
+      "title_prefix": "部署",
+      "version": "版本",
+      "environment": "环境",
+      "scheduled_time": "计划时间",
+      "execution_time": "执行时间",
+      "duration": "持续时间",
+      "minutes": "分钟",
+      "tags": "标签",
+      "basic_info": "基本信息",
+      "deployment_type": "部署类型",
+      "schedule": "计划",
+      "created_at": "创建时间",
+      "status_info": "状态信息",
+      "current_status": "当前状态",
+      "rollback_version": "回滚版本",
+      "last_updated": "最后更新",
+      "configuration": "部署配置",
+      "notes": "备注"
+    },
+    "create": {
+      "title": "创建新部署",
+      "description": "计划和配置新的部署"
+    },
+    "form": {
+      "basic_info": "基本信息",
+      "title": "部署标题",
+      "title_placeholder": "例如：生产环境 v2.1.0 部署",
+      "description": "描述",
+      "description_placeholder": "请描述部署内容和目的",
+      "target_environment": "目标环境",
+      "select_environment": "请选择环境",
+      "project_optional": "项目（可选）",
+      "select_project": "请选择项目",
+      "deployment_settings": "部署设置",
+      "version": "版本",
+      "version_placeholder": "v1.0.0",
+      "auto_generate": "自动生成",
+      "deployment_method": "部署方式",
+      "scheduled_time_optional": "计划时间（可选）",
+      "one_hour_later": "1小时后",
+      "rollback_version_optional": "回滚版本（可选）",
+      "rollback_version_placeholder": "出现问题时回滚到的版本",
+      "additional_settings": "附加设置",
+      "tags_comma_separated": "标签（逗号分隔）",
+      "tags_placeholder": "production, urgent, feature-release",
+      "additional_notes": "附加备注",
+      "notes_placeholder": "与部署相关的附加信息或注意事项",
+      "deployment_config": "部署配置",
+      "timeout_seconds": "超时时间（秒）",
+      "max_parallel": "最大并行数",
+      "enable_health_check": "启用健康检查",
+      "cancel": "取消",
+      "creating": "创建中...",
+      "create_deployment": "创建部署",
+      "required_fields": "请填写所有必填字段",
+      "create_failed": "部署创建失败",
+      "create_error": "部署创建过程中出错：",
+      "environment_load_error": "环境加载失败：",
+      "project_load_error": "项目加载失败："
+    },
+    "message": {
+      "load_failed": "无法加载部署列表",
+      "loading_error": "部署加载过程中出错：",
+      "environment_loading_error": "环境加载过程中出错：",
+      "deployment_not_found": "找不到部署信息",
+      "confirm_execute": "您确定要执行此部署吗？",
+      "execute_success": "部署已执行",
+      "execute_error": "部署执行过程中出错",
+      "rollback_reason_prompt": "请输入回滚原因：",
+      "rollback_success": "部署已回滚",
+      "rollback_error": "部署回滚过程中出错",
+      "confirm_delete": "您确定要删除"{title}"部署吗？\n\n此操作无法撤销。",
+      "delete_success": "部署已删除",
+      "delete_error": "部署删除过程中出错：",
+      "unknown_error": "未知错误",
+      "no_deployments": "暂无部署。",
+      "error_deleting": "删除部署时出错",
+      "error_updating": "更新部署状态时出错"
+    }
+  },
+  "tests": {
+    "page_title": "测试管理",
+    "title": "测试管理",
+    "description": "管理测试用例",
+    "sort_label": "排序",
+    "sort_updated": "最近修改",
+    "sort_created": "最近创建",
+    "sort_title": "标题顺序",
+    "new_test": "新建测试用例",
+    "retry": "重试",
+    "no_tests": "暂无测试用例",
+    "create_first": "添加第一个测试用例",
+    "overall_stats": "总体统计",
+    "total_tests": "总测试数",
+    "passed_tests": "通过",
+    "failed_tests": "失败",
+    "pending_tests": "待处理",
+    "success_rate": "成功率",
+    "filter": {
+      "all_types": "所有类型",
+      "all_statuses": "所有状态",
+      "all_priorities": "所有优先级",
+      "search_placeholder": "按测试标题搜索..."
+    },
+    "type": {
+      "unit": "单元测试",
+      "integration": "集成测试",
+      "system": "系统测试",
+      "acceptance": "验收测试",
+      "regression": "回归测试"
+    },
+    "status": {
+      "draft": "草稿",
+      "ready": "准备就绪",
+      "active": "活跃",
+      "inactive": "非活跃"
+    },
+    "priority": {
+      "high": "高",
+      "medium": "中",
+      "low": "低"
+    },
+    "button": {
+      "view_details": "查看详情",
+      "edit": "编辑",
+      "delete": "删除",
+      "execute": "执行",
+      "back_to_list": "返回测试列表",
+      "back_to_details": "返回详情",
+      "to_list": "返回列表",
+      "cancel": "取消",
+      "create_test": "创建测试用例",
+      "creating": "创建中...",
+      "save_test": "保存测试用例",
+      "saving": "保存中...",
+      "add_tag": "添加"
+    },
+    "details": {
+      "basic_info": "基本信息",
+      "execution_stats": "执行统计",
+      "preconditions": "前置条件",
+      "test_steps": "测试步骤",
+      "expected_result": "预期结果",
+      "tags": "标签",
+      "execution_history": "执行历史",
+      "total_executions": "总执行次数",
+      "last_execution": "最后执行",
+      "pass_rate": "通过率",
+      "no_executions": "暂无执行历史",
+      "no_preconditions": "暂无前置条件",
+      "no_test_steps": "暂无测试步骤",
+      "no_expected_result": "暂无预期结果",
+      "no_tags": "暂无标签"
+    },
+    "new": {
+      "page_title": "添加新测试用例",
+      "title": "添加新测试用例",
+      "description": "添加新的测试用例",
+      "form_title": "测试用例信息"
+    },
+    "edit": {
+      "page_title": "编辑测试用例",
+      "title": "编辑测试用例",
+      "description": "修改测试用例信息",
+      "basic_info": "基本信息",
+      "tags_section": "标签"
+    },
+    "form": {
+      "title": "标题",
+      "title_placeholder": "例如：用户登录功能测试",
+      "type": "测试类型",
+      "priority": "优先级",
+      "status": "状态",
+      "description": "描述",
+      "description_placeholder": "请详细描述测试用例的目的和范围",
+      "preconditions": "前置条件",
+      "preconditions_placeholder": "请输入测试执行前需要的条件",
+      "test_steps": "测试步骤",
+      "test_steps_placeholder": "请按顺序输入具体的测试执行步骤",
+      "expected_result": "预期结果",
+      "expected_result_placeholder": "请输入测试成功时的预期结果",
+      "tags": "标签",
+      "tags_placeholder": "例如：authentication, login, unit-test",
+      "comma_separated": "逗号分隔",
+      "related_task": "相关任务",
+      "related_design": "相关设计",
+      "related_prd": "相关需求",
+      "optional": "可选",
+      "select_related_task": "-- 选择相关任务 --",
+      "select_related_design": "-- 选择相关设计 --",
+      "select_related_prd": "-- 选择相关需求 --",
+      "new_tag_placeholder": "输入新标签"
+    },
+    "message": {
+      "loading": "正在加载测试用例列表...",
+      "error_loading": "无法加载测试用例列表",
+      "data_load_failed": "数据加载失败：",
+      "unknown_error": "未知错误",
+      "create_success": "测试用例创建成功！",
+      "create_failed": "测试用例创建失败",
+      "create_error": "测试用例创建错误：",
+      "create_error_occurred": "创建测试用例时发生错误。",
+      "title_description_required": "请输入标题和描述。",
+      "loading_test": "正在加载测试用例...",
+      "test_not_found": "找不到测试用例",
+      "data_load_error": "加载数据时发生错误",
+      "title_required": "请输入标题",
+      "update_failed": "测试用例修改失败",
+      "update_error": "修改时发生错误",
+      "loading_data": "正在加载数据...",
+      "confirm_delete": "您确定要删除此测试用例吗？",
+      "delete_failed": "测试用例删除失败"
+    }
+  }
+}
