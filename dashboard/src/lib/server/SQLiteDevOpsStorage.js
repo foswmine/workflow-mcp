@@ -313,9 +313,22 @@ export class SQLiteDevOpsStorage {
     await db.run(updateQuery, updateValues);
     
     console.log('✅ Deployment updated successfully:', deploymentId);
-    
+
     // 업데이트된 배포 정보 반환
     return await this.getDeployment(deploymentId);
+  }
+
+  /**
+   * Deployment 삭제
+   * @param {string} deploymentId - Deployment ID
+   */
+  async deleteDeployment(deploymentId) {
+    console.log('🗑️ SQLiteDevOpsStorage.deleteDeployment called:', deploymentId);
+    const db = await this.getDatabase();
+
+    await db.run('DELETE FROM deployments WHERE id = ?', [deploymentId]);
+
+    console.log('✅ Deployment deleted successfully:', deploymentId);
   }
 
   // =============================================

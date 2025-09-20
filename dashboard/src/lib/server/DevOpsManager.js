@@ -294,6 +294,30 @@ export class DevOpsManager {
     };
   }
 
+  /**
+   * Deployment 삭제
+   * @param {string} deploymentId - Deployment ID
+   * @returns {Object} 삭제 결과
+   */
+  async deleteDeployment(deploymentId) {
+    await this.ensureInitialized();
+
+    const existing = await this.storage.getDeployment(deploymentId);
+    if (!existing) {
+      return {
+        success: false,
+        error: `배포 ID ${deploymentId}를 찾을 수 없습니다`
+      };
+    }
+
+    await this.storage.deleteDeployment(deploymentId);
+
+    return {
+      success: true,
+      message: `배포 '${existing.title}' 삭제 완료`
+    };
+  }
+
   // =============================================
   // Incident Management
   // =============================================

@@ -1,6 +1,7 @@
 <script>
   import { locale, _ } from 'svelte-i18n';
   import { saveLocale } from '../i18n/index.js';
+  import { invalidateAll } from '$app/navigation';
   import {
     languageConfig,
     statusStyles,
@@ -16,7 +17,7 @@
   $: currentLocale = $locale || 'ko'; // 기본값을 한국어로 설정
 
   // 언어 변경 함수
-  function changeLanguage(newLocale) {
+  async function changeLanguage(newLocale) {
     // 불완전한 번역 언어 선택 시 경고 (개발 환경에서만)
     const config = languageConfig[newLocale];
     if (config && !config.ready && typeof window !== 'undefined') {
@@ -34,6 +35,9 @@
     saveLocale(newLocale);
     isOpen = false;
     showAdvanced = false;
+
+    // 현재 페이지를 다시 로드하여 언어 변경사항을 즉시 반영
+    await invalidateAll();
   }
 
   // 드롭다운 외부 클릭 시 닫기
