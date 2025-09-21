@@ -1127,3 +1127,202 @@ BEGIN
     UPDATE environments SET updated_at = datetime('now') WHERE id = NEW.environment_id;
 END;
 
+-- =============================================
+-- Phase 3.5: Advanced Development Tools
+-- =============================================
+
+-- Executable Specs Table (SDD - Spec-Driven Development)
+CREATE TABLE IF NOT EXISTS executable_specs (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    spec_type TEXT NOT NULL CHECK(spec_type IN ('constitution', 'feature_spec', 'implementation_plan', 'task_breakdown', 'implementation_report')),
+    title TEXT NOT NULL,
+    constitution TEXT,
+    specification TEXT,
+    implementation_plan TEXT,
+    task_breakdown TEXT,
+    implementation_report TEXT,
+    project_id TEXT REFERENCES projects(id),
+    parent_spec_id INTEGER REFERENCES executable_specs(id),
+    constitution_id INTEGER REFERENCES executable_specs(id),
+    specification_id INTEGER REFERENCES executable_specs(id),
+    plan_id INTEGER REFERENCES executable_specs(id),
+    created_by TEXT,
+    status TEXT CHECK(status IN ('active', 'archived', 'draft')) DEFAULT 'active',
+    completeness_score REAL DEFAULT 0.0,
+    quality_score REAL DEFAULT 0.0,
+    validated_by TEXT,
+    approval_status TEXT CHECK(approval_status IN ('pending', 'approved', 'rejected')) DEFAULT 'pending',
+    created_at TEXT NOT NULL DEFAULT (datetime('now')),
+    updated_at TEXT DEFAULT (datetime('now'))
+);
+
+-- Knowledge Base Table
+CREATE TABLE IF NOT EXISTS knowledge_base (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    knowledge_type TEXT NOT NULL CHECK(knowledge_type IN ('pattern', 'best_practice', 'guideline', 'reference', 'troubleshooting', 'architecture')),
+    title TEXT NOT NULL,
+    description TEXT,
+    content TEXT NOT NULL,
+    domain TEXT, -- e.g., 'frontend', 'backend', 'database', 'devops'
+    subdomain TEXT, -- e.g., 'react', 'node.js', 'postgresql', 'docker'
+    technology_stack TEXT, -- JSON array as text
+    complexity_level TEXT CHECK(complexity_level IN ('beginner', 'intermediate', 'advanced', 'expert')) DEFAULT 'intermediate',
+    auto_apply BOOLEAN DEFAULT 0,
+    trigger_conditions TEXT, -- JSON array as text
+    usage_contexts TEXT, -- JSON array as text
+    confidence_level REAL DEFAULT 0.5,
+    validation_status TEXT CHECK(validation_status IN ('unvalidated', 'validated', 'deprecated')) DEFAULT 'unvalidated',
+    source_type TEXT CHECK(source_type IN ('internal', 'external', 'generated', 'imported')) DEFAULT 'internal',
+    source_url TEXT,
+    related_knowledge_ids TEXT, -- JSON array as text
+    prerequisite_knowledge_ids TEXT, -- JSON array as text
+    created_by TEXT,
+    usage_count INTEGER DEFAULT 0,
+    last_used_at TEXT,
+    created_at TEXT NOT NULL DEFAULT (datetime('now')),
+    updated_at TEXT DEFAULT (datetime('now'))
+);
+
+-- Code Templates Table
+CREATE TABLE IF NOT EXISTS code_templates (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    template_type TEXT NOT NULL CHECK(template_type IN ('component', 'function', 'class', 'snippet', 'boilerplate', 'pattern')),
+    title TEXT NOT NULL,
+    description TEXT,
+    code_content TEXT NOT NULL,
+    language TEXT NOT NULL, -- e.g., 'javascript', 'python', 'sql', 'html', 'css'
+    framework TEXT, -- e.g., 'react', 'vue', 'express', 'django'
+    version_compatibility TEXT, -- JSON object as text
+    parameters TEXT, -- JSON array as text
+    parameter_schema TEXT, -- JSON object as text (validation schema)
+    usage_instructions TEXT,
+    category TEXT, -- e.g., 'ui_components', 'api_endpoints', 'database_queries'
+    subcategory TEXT, -- e.g., 'forms', 'navigation', 'authentication'
+    complexity_level TEXT CHECK(complexity_level IN ('beginner', 'intermediate', 'advanced', 'expert')) DEFAULT 'intermediate',
+    dependencies TEXT, -- JSON array as text
+    environment_requirements TEXT, -- JSON object as text
+    quality_score REAL DEFAULT 0.0,
+    test_coverage REAL DEFAULT 0.0,
+    security_validated BOOLEAN DEFAULT 0,
+    performance_validated BOOLEAN DEFAULT 0,
+    related_template_ids TEXT, -- JSON array as text
+    parent_template_id INTEGER REFERENCES code_templates(id),
+    tags TEXT, -- JSON array as text
+    keywords TEXT, -- JSON array as text
+    created_by TEXT,
+    usage_count INTEGER DEFAULT 0,
+    last_used_at TEXT,
+    created_at TEXT NOT NULL DEFAULT (datetime('now')),
+    updated_at TEXT DEFAULT (datetime('now'))
+);
+
+-- Full-Text Search Indexes for Advanced Tools
+CREATE VIRTUAL TABLE IF NOT EXISTS executable_specs_fts USING fts5(
+    title,
+    constitution,
+    specification,
+    implementation_plan,
+    task_breakdown,
+    implementation_report,
+    content='executable_specs',
+    content_rowid='id'
+);
+
+CREATE VIRTUAL TABLE IF NOT EXISTS knowledge_base_fts USING fts5(
+    title,
+    description,
+    content,
+    domain,
+    subdomain,
+    content='knowledge_base',
+    content_rowid='id'
+);
+
+CREATE VIRTUAL TABLE IF NOT EXISTS code_templates_fts USING fts5(
+    title,
+    description,
+    code_content,
+    usage_instructions,
+    category,
+    subcategory,
+    language,
+    framework,
+    content='code_templates',
+    content_rowid='id'
+);
+
+-- FTS Triggers for Advanced Tools
+CREATE TRIGGER IF NOT EXISTS executable_specs_fts_insert AFTER INSERT ON executable_specs BEGIN
+    INSERT INTO executable_specs_fts(rowid, title, constitution, specification, implementation_plan, task_breakdown, implementation_report)
+    VALUES (new.id, new.title, new.constitution, new.specification, new.implementation_plan, new.task_breakdown, new.implementation_report);
+END;
+
+CREATE TRIGGER IF NOT EXISTS executable_specs_fts_delete AFTER DELETE ON executable_specs BEGIN
+    DELETE FROM executable_specs_fts WHERE rowid = old.id;
+END;
+
+CREATE TRIGGER IF NOT EXISTS executable_specs_fts_update AFTER UPDATE ON executable_specs BEGIN
+    DELETE FROM executable_specs_fts WHERE rowid = old.id;
+    INSERT INTO executable_specs_fts(rowid, title, constitution, specification, implementation_plan, task_breakdown, implementation_report)
+    VALUES (new.id, new.title, new.constitution, new.specification, new.implementation_plan, new.task_breakdown, new.implementation_report);
+END;
+
+CREATE TRIGGER IF NOT EXISTS knowledge_base_fts_insert AFTER INSERT ON knowledge_base BEGIN
+    INSERT INTO knowledge_base_fts(rowid, title, description, content, domain, subdomain)
+    VALUES (new.id, new.title, new.description, new.content, new.domain, new.subdomain);
+END;
+
+CREATE TRIGGER IF NOT EXISTS knowledge_base_fts_delete AFTER DELETE ON knowledge_base BEGIN
+    DELETE FROM knowledge_base_fts WHERE rowid = old.id;
+END;
+
+CREATE TRIGGER IF NOT EXISTS knowledge_base_fts_update AFTER UPDATE ON knowledge_base BEGIN
+    DELETE FROM knowledge_base_fts WHERE rowid = old.id;
+    INSERT INTO knowledge_base_fts(rowid, title, description, content, domain, subdomain)
+    VALUES (new.id, new.title, new.description, new.content, new.domain, new.subdomain);
+END;
+
+CREATE TRIGGER IF NOT EXISTS code_templates_fts_insert AFTER INSERT ON code_templates BEGIN
+    INSERT INTO code_templates_fts(rowid, title, description, code_content, usage_instructions, category, subcategory, language, framework)
+    VALUES (new.id, new.title, new.description, new.code_content, new.usage_instructions, new.category, new.subcategory, new.language, new.framework);
+END;
+
+CREATE TRIGGER IF NOT EXISTS code_templates_fts_delete AFTER DELETE ON code_templates BEGIN
+    DELETE FROM code_templates_fts WHERE rowid = old.id;
+END;
+
+CREATE TRIGGER IF NOT EXISTS code_templates_fts_update AFTER UPDATE ON code_templates BEGIN
+    DELETE FROM code_templates_fts WHERE rowid = old.id;
+    INSERT INTO code_templates_fts(rowid, title, description, code_content, usage_instructions, category, subcategory, language, framework)
+    VALUES (new.id, new.title, new.description, new.code_content, new.usage_instructions, new.category, new.subcategory, new.language, new.framework);
+END;
+
+-- Update Triggers for timestamp management
+CREATE TRIGGER IF NOT EXISTS executable_specs_update_timestamp AFTER UPDATE ON executable_specs BEGIN
+    UPDATE executable_specs SET updated_at = datetime('now') WHERE id = NEW.id;
+END;
+
+CREATE TRIGGER IF NOT EXISTS knowledge_base_update_timestamp AFTER UPDATE ON knowledge_base BEGIN
+    UPDATE knowledge_base SET updated_at = datetime('now') WHERE id = NEW.id;
+END;
+
+CREATE TRIGGER IF NOT EXISTS code_templates_update_timestamp AFTER UPDATE ON code_templates BEGIN
+    UPDATE code_templates SET updated_at = datetime('now') WHERE id = NEW.id;
+END;
+
+-- Indexes for Advanced Tools
+CREATE INDEX IF NOT EXISTS idx_executable_specs_type ON executable_specs(spec_type);
+CREATE INDEX IF NOT EXISTS idx_executable_specs_status ON executable_specs(status);
+CREATE INDEX IF NOT EXISTS idx_executable_specs_project_id ON executable_specs(project_id);
+CREATE INDEX IF NOT EXISTS idx_executable_specs_created_at ON executable_specs(created_at);
+
+CREATE INDEX IF NOT EXISTS idx_knowledge_base_type ON knowledge_base(knowledge_type);
+CREATE INDEX IF NOT EXISTS idx_knowledge_base_domain ON knowledge_base(domain);
+CREATE INDEX IF NOT EXISTS idx_knowledge_base_subdomain ON knowledge_base(subdomain);
+CREATE INDEX IF NOT EXISTS idx_knowledge_base_validation_status ON knowledge_base(validation_status);
+
+CREATE INDEX IF NOT EXISTS idx_code_templates_type ON code_templates(template_type);
+CREATE INDEX IF NOT EXISTS idx_code_templates_language ON code_templates(language);
+CREATE INDEX IF NOT EXISTS idx_code_templates_framework ON code_templates(framework);
+CREATE INDEX IF NOT EXISTS idx_code_templates_category ON code_templates(category);
+

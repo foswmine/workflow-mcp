@@ -17,6 +17,10 @@ import TestManager from './models/TestManager.js';
 import { DevOpsManager } from '../dashboard/src/lib/server/DevOpsManager.js';
 import { MetricsCollector } from './utils/MetricsCollector.js';
 import { ErrorLogger } from './utils/ErrorLogger.js';
+import { ExecutableSpecsManager } from './models/ExecutableSpecsManager.js';
+import { KnowledgeBaseManager } from './models/KnowledgeBaseManager.js';
+import { CodeTemplatesManager } from './models/CodeTemplatesManager.js';
+import { SDDTools } from './sdd-tools.js';
 import sqlite3 from 'sqlite3';
 import { open } from 'sqlite';
 
@@ -44,6 +48,18 @@ class WorkflowMCPServer {
     this.devOpsManager = new DevOpsManager();
     this.metricsCollector = new MetricsCollector();
     this.errorLogger = new ErrorLogger();
+
+    // Initialize SDD managers
+    this.executableSpecsManager = new ExecutableSpecsManager();
+    this.knowledgeBaseManager = new KnowledgeBaseManager();
+    this.codeTemplatesManager = new CodeTemplatesManager();
+
+    // Initialize SDD tools
+    this.sddTools = new SDDTools(
+      this.executableSpecsManager,
+      this.knowledgeBaseManager,
+      this.codeTemplatesManager
+    );
 
     this.setupToolHandlers();
     this.setupErrorHandling();
@@ -1585,7 +1601,10 @@ class WorkflowMCPServer {
                 }
               }
             }
-          }
+          },
+
+          // SDD (Spec-Driven Development) Tools
+          ...this.sddTools.getToolDefinitions()
         ]
       };
     });
@@ -1827,8 +1846,39 @@ class WorkflowMCPServer {
           case 'get_document_links':
             result = await this.documentManager.getDocumentLinks(args.document_id);
             break;
-          
-          
+
+          // SDD (Spec-Driven Development) Tools
+          case 'create_executable_spec':
+          case 'list_executable_specs':
+          case 'get_executable_spec':
+          case 'update_executable_spec':
+          case 'delete_executable_spec':
+          case 'search_executable_specs':
+          case 'get_spec_hierarchy':
+          case 'link_specs':
+          case 'unlink_specs':
+          case 'validate_spec':
+          case 'create_knowledge_entry':
+          case 'list_knowledge_entries':
+          case 'search_knowledge_base':
+          case 'get_knowledge_entry':
+          case 'update_knowledge_entry':
+          case 'delete_knowledge_entry':
+          case 'get_applicable_knowledge':
+          case 'track_knowledge_usage':
+          case 'validate_knowledge':
+          case 'create_code_template':
+          case 'list_code_templates':
+          case 'search_code_templates':
+          case 'get_code_template':
+          case 'update_code_template':
+          case 'delete_code_template':
+          case 'generate_code':
+          case 'rate_template':
+          case 'get_template_statistics':
+            result = await this.sddTools.handleToolCall(name, args);
+            break;
+
           default:
             throw new Error(`Unknown tool: ${name}`);
         }
